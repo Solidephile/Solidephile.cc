@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Solidephile — osu! Stats</title>
+    <title>我的 osu! 数据统计</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -15,8 +15,8 @@
         <header class="hero">
             <div>
                 <p class="eyebrow">MY PROFILE</p>
-                <h1>osu! Stats</h1>
-                <p class="subtitle">A small part of my personal website.</p>
+                <h1>我的 osu! 数据统计</h1>
+                <p class="subtitle">Personal osu! statistics dashboard.</p>
             </div>
 
             <div class="osu-logo">osu!</div>
@@ -37,22 +37,34 @@
 
             <div class="stats-grid">
                 <div class="stat">
-                    <span class="stat-label">GLOBAL RANK</span>
+                    <span class="stat-label">
+						全球排名
+						<small>GLOBAL RANK</small>
+					</span>
                     <strong id="global-rank">—</strong>
                 </div>
 
                 <div class="stat">
-                    <span class="stat-label">COUNTRY RANK</span>
+                    <span class="stat-label">
+						国家排名
+						<small>COUNTRY RANK</small>
+					</span>
                     <strong id="country-rank">—</strong>
                 </div>
 
                 <div class="stat">
-                    <span class="stat-label">PERFORMANCE</span>
+                    <span class="stat-label">
+						PP值
+						<small>PERFORMANCE</small>
+					</span>
                     <strong id="pp">— <small>pp</small></strong>
                 </div>
 
                 <div class="stat">
-                    <span class="stat-label">PLAY TIME</span>
+                    <span class="stat-label">
+						游玩时间
+						<small>PLAY TIME</small>
+					</span>
                     <strong id="play-time">—</strong>
                 </div>
             </div>
@@ -62,7 +74,7 @@
             <div class="section-heading">
                 <div>
                     <p class="eyebrow">HISTORY</p>
-                    <h2>Progress over time</h2>
+                    <h2>数据历史变化展示</h2>
                 </div>
 
                 <span id="history-count" class="history-count">— data points</span>
@@ -72,8 +84,8 @@
                 <article class="chart-card chart-card-wide">
                     <div class="chart-header">
                         <div>
-                            <h3>Performance</h3>
-                            <p>Performance points over time</p>
+                            <h3>PP值</h3>
+                            <p>Performance points</p>
                         </div>
                         <span class="chart-unit">pp</span>
                     </div>
@@ -85,8 +97,8 @@
                 <article class="chart-card">
                     <div class="chart-header">
                         <div>
-                            <h3>Global Rank</h3>
-                            <p>Lower is better</p>
+                            <h3>全球排名</h3>
+                            <p>Global Rank</p>
                         </div>
                         <span class="chart-unit">#</span>
                     </div>
@@ -98,8 +110,8 @@
                 <article class="chart-card">
                     <div class="chart-header">
                         <div>
-                            <h3>Country Rank</h3>
-                            <p>Rank within your country</p>
+                            <h3>国家排名</h3>
+                            <p>Country Rank</p>
                         </div>
                         <span class="chart-unit">#</span>
                     </div>
@@ -111,8 +123,8 @@
                 <article class="chart-card">
                     <div class="chart-header">
                         <div>
-                            <h3>Play Count</h3>
-                            <p>Total plays</p>
+                            <h3>游玩次数</h3>
+                            <p>Play Count</p>
                         </div>
                         <span class="chart-unit">plays</span>
                     </div>
@@ -124,8 +136,8 @@
                 <article class="chart-card">
                     <div class="chart-header">
                         <div>
-                            <h3>Play Time</h3>
-                            <p>Total time played</p>
+                            <h3>游玩时间</h3>
+                            <p>Play Time</p>
                         </div>
                         <span class="chart-unit">hours</span>
                     </div>
@@ -137,8 +149,8 @@
                 <article class="chart-card">
                     <div class="chart-header">
                         <div>
-                            <h3>Total Score</h3>
-                            <p>Cumulative score</p>
+                            <h3>总分</h3>
+                            <p>Total Score</p>
                         </div>
                         <span class="chart-unit">score</span>
                     </div>
@@ -150,8 +162,8 @@
                 <article class="chart-card">
                     <div class="chart-header">
                         <div>
-                            <h3>Total Hits</h3>
-                            <p>Cumulative hit count</p>
+                            <h3>总命中次数</h3>
+                            <p>Total Hits</p>
                         </div>
                         <span class="chart-unit">hits</span>
                     </div>
@@ -163,8 +175,8 @@
                 <article class="chart-card">
                     <div class="chart-header">
                         <div>
-                            <h3>Accuracy</h3>
-                            <p>Overall accuracy</p>
+                            <h3>准确率</h3>
+                            <p>Accuracy</p>
                         </div>
                         <span class="chart-unit">%</span>
                     </div>
