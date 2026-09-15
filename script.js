@@ -118,10 +118,6 @@ function formatRelativeTime(timestamp) {
 
     const minutes = Math.floor(diff / 60000);
 
-    if (minutes < 1) {
-        return "just now";
-    }
-
     if (minutes < 60) {
         return `${minutes}m`;
     }
