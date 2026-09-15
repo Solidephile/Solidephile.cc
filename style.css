@@ -87,7 +87,6 @@ textarea {
     margin: 0;
     font-size: clamp(42px, 7vw, 68px);
     line-height: 0.98;
-    letter-spacing: -0.055em;
 }
 
 .subtitle {
@@ -263,7 +262,6 @@ textarea {
 .section-heading h2 {
     margin: 0;
     font-size: 27px;
-    letter-spacing: -0.035em;
 }
 
 .history-count {
@@ -305,7 +303,7 @@ textarea {
 .chart-header h3 {
     margin: 0;
     font-size: 20px;
-    letter-spacing: -0.015em;
+	letter-spacing: 0.02em;
 }
 
 .chart-header p {

@@ -546,7 +546,7 @@ function renderCharts(history) {
         ).innerHTML = `
             <div class="chart-card chart-card-wide">
                 <div class="chart-error">
-                    No history data available.
+                    暂无历史数据
                 </div>
             </div>
         `;
@@ -572,11 +572,7 @@ function renderCharts(history) {
     document.getElementById(
         "history-count"
     ).textContent =
-        `${history.length} data point${
-            history.length === 1
-                ? ""
-                : "s"
-        }`;
+        `${history.length} 条记录`;
 
 
     /* =========================
@@ -591,7 +587,7 @@ function renderCharts(history) {
 
         key: "pp",
 
-        label: "PP",
+        label: "PP值",
 
         valueFormat: "decimal",
 
@@ -612,7 +608,7 @@ function renderCharts(history) {
 
         key: "global_rank",
 
-        label: "Global rank",
+        label: "全球排名",
 
         valueFormat: "integer",
 
@@ -642,7 +638,7 @@ function renderCharts(history) {
 
         key: "country_rank",
 
-        label: "Country rank",
+        label: "国家排名",
 
         valueFormat: "integer",
 
@@ -669,7 +665,7 @@ function renderCharts(history) {
 
         key: "play_count",
 
-        label: "Play count",
+        label: "游玩次数",
 
         valueFormat: "integer"
 
@@ -708,7 +704,7 @@ function renderCharts(history) {
 
         key: "play_time_hours",
 
-        label: "Play time",
+        label: "游玩时间",
 
         valueFormat: "decimal",
 
@@ -729,7 +725,7 @@ function renderCharts(history) {
 
         key: "total_score",
 
-        label: "Total score",
+        label: "总分",
 
         valueFormat: "compact"
 
@@ -748,7 +744,7 @@ function renderCharts(history) {
 
         key: "total_hits",
 
-        label: "Total hits",
+        label: "总命中次数",
 
         valueFormat: "compact"
 
@@ -781,7 +777,7 @@ function renderCharts(history) {
 
         key: "accuracy",
 
-        label: "Accuracy",
+        label: "准确率",
 
         valueFormat: "decimal",
 
@@ -884,7 +880,7 @@ async function loadPage() {
         document.getElementById(
             "history-count"
         ).textContent =
-            "Unable to load";
+            "加载失败";
 
 
         document
@@ -893,7 +889,7 @@ async function loadPage() {
 
                 chart.innerHTML = `
                     <div class="chart-error">
-                        Unable to load history data.
+                        历史数据加载失败
                     </div>
                 `;
 
