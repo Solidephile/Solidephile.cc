@@ -807,7 +807,6 @@ function renderCharts(history) {
 async function loadPage() {
 
     try {
-
         const [
             statsResponse,
             historyResponse
@@ -888,11 +887,8 @@ async function loadPage() {
                         历史数据加载失败
                     </div>
                 `;
-
             });
-
     }
-
 }
 
 
