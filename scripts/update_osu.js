@@ -153,9 +153,9 @@ async function main() {
 
         username:
             user.username,
-		
-		avatar_url: 
-			user.avatar_url,
+
+        avatar_url:
+            user.avatar_url,
 
         country:
             user.country?.name || "Unknown",
@@ -195,8 +195,13 @@ async function main() {
     };
 
 
+    // React/Vite 的 public 目录
+    const dataDir =
+        "public/data";
+
+
     fs.mkdirSync(
-        "data",
+        dataDir,
         {
             recursive: true
         }
@@ -209,7 +214,7 @@ async function main() {
 
     fs.writeFileSync(
 
-        "data/osu.json",
+        `${dataDir}/osu.json`,
 
         JSON.stringify(
             result,
@@ -225,7 +230,7 @@ async function main() {
     // --------------------------------
 
     const historyFile =
-        "data/osu_history.json";
+        `${dataDir}/osu_history.json`;
 
 
     // Debug 模式：
@@ -337,6 +342,7 @@ async function main() {
             alreadyUpdatedToday = true;
 
         }
+
 
         break;
     }

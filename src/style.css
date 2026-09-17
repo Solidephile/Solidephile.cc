@@ -86,7 +86,7 @@ textarea {
 .hero h1 {
     margin: 0;
     font-size: clamp(42px, 7vw, 68px);
-    line-height: 0.98;
+    line-height: 1.00;
 }
 
 .subtitle {
@@ -166,7 +166,7 @@ textarea {
 .profile-header {
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 17px;
     margin-bottom: 28px;
 	position: relative;
 }
@@ -429,7 +429,7 @@ footer {
 @media (max-width: 600px) {
     .container {
         width: calc(100% - 20px);
-        padding-top: 34px;
+        padding-top: 30px;
     }
 
     .hero {
@@ -465,7 +465,7 @@ footer {
     }
 
     .profile-header h2 {
-        font-size: 22px;
+        font-size: 28px;
     }
 
     .stats-grid {
@@ -532,15 +532,13 @@ footer {
 }
 
 
-.github-button svg {
+.github-button img {
     width: 22px;
     height: 22px;
-    fill: currentColor;
 }
 
 
 .github-button:hover {
-    color: white;
     background: rgba(255,255,255,0.12);
     transform: translateY(-2px);
 }
@@ -554,7 +552,6 @@ footer {
     color: white;
     transition: transform .25s ease;
 }
-
 
 .osu-button:hover {
     transform: translateY(-3px);

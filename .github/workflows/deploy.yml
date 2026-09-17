@@ -38,11 +38,11 @@ jobs:
           path: osu_data_branch
 
 
-      # 3. Copy history to main
+      # 3. Prepare osu history
       - name: Prepare osu history
         run: |
-          mkdir -p data
-          cp osu_data_branch/data/osu_history.json data/osu_history.json
+          mkdir -p public/data
+          cp osu_data_branch/data/osu_history.json public/data/osu_history.json
 
 
       # 4. Setup Node.js
@@ -50,9 +50,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
 
-      # 5. Update osu stats
+      # 5. Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+
+      # 6. Update osu stats
       - name: Update osu stats
         env:
           OSU_CLIENT_ID: ${{ secrets.OSU_CLIENT_ID }}
@@ -63,12 +69,12 @@ jobs:
           node scripts/update_osu.js
 
 
-      # 6. Save osu history
+      # 7. Save osu history
       - name: Save osu history
         working-directory: osu_data_branch
         run: |
 
-          cp ../data/osu_history.json data/osu_history.json
+          cp ../public/data/osu_history.json data/osu_history.json
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -83,29 +89,24 @@ jobs:
           fi
 
 
-      # 7. Prepare Pages directory
-      - name: Prepare website
+      # 8. Build React app
+      - name: Build React app
+        run: npm run build
+
+
+      # 9. Show files to deploy
+      - name: Show build output
         run: |
-          rm -rf dist
-          mkdir -p dist/data
-
-          cp index.html dist/
-          cp style.css dist/
-          cp script.js dist/
-
-          cp data/osu.json dist/data/osu.json
-          cp data/osu_history.json dist/data/osu_history.json
-
           echo "=== Files to deploy ==="
           find dist -type f
 
 
-      # 8. Setup Pages
+      # 10. Setup Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
 
-      # 9. Upload website
+      # 11. Upload website
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
