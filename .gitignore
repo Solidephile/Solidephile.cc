@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Generated osu data
+/public/data/osu.json
+/public/data/osu_history.json
