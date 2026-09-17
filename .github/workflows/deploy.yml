@@ -60,7 +60,7 @@ jobs:
         env:
           OSU_CLIENT_ID: ${{ secrets.OSU_CLIENT_ID }}
           OSU_CLIENT_SECRET: ${{ secrets.OSU_CLIENT_SECRET }}
-          OSU_USERNAME: ${{ secrets.OSU_USERNAME }}
+          OSU_USERNAME: Solidephile
           UPDATE_HISTORY: "true"
         run: node scripts/update_osu.cjs
 
