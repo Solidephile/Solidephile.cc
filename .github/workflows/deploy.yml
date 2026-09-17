@@ -66,7 +66,7 @@ jobs:
           OSU_USERNAME: Solidephile
           UPDATE_HISTORY: "true"
         run: |
-          node scripts/update_osu.js
+          node scripts/update_osu.cjs
 
 
       # 7. Save osu history
