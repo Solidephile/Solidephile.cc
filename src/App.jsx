@@ -1,6 +1,7 @@
 import ChartCard from "./components/ChartCard";
 import ProfileCard from "./components/ProfileCard";
 import Hero from "./components/Hero";
+
 import useOsuData from "./hooks/useOsuData";
 
 import { formatRelativeTime } from "./utils/formatters";
@@ -29,20 +30,6 @@ function App() {
     if (!stats || !history) {
         return (
             <>
-                <a
-                    className="github-button"
-                    href="https://github.com/Solidephile/Solidephile.github.io"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="GitHub Repository"
-                >
-                    <img
-						src={githubIcon}
-						alt=""
-						aria-hidden="true"
-					/>
-                </a>
-
                 <main className="container">
                     <div className="loading">
                         {error
@@ -56,24 +43,7 @@ function App() {
 
 
     return (
-        <>
-            {/* GitHub */}
-
-            <a
-                className="github-button"
-                href="https://github.com/Solidephile/Solidephile.github.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub Repository"
-            >
-                <img
-					src={githubIcon}
-					alt=""
-					aria-hidden="true"
-				/>
-            </a>
-
-
+		<>
             <main className="container">
 
                 {/* =========================
@@ -249,19 +219,34 @@ function App() {
 
                 <footer>
 
-                    <div className="osu-updated">
-                        {formatRelativeTime(
-                            stats.updated_at
-                        )}{" 前更新"}
-                    </div>
+					<div className="footer-info">
+					
+						<div className="osu-updated">
+							{formatRelativeTime(
+								stats.updated_at
+							)}{" 前更新"}
+						</div>
 
-                    <span className="footer-dot">
-                        ·
-                    </span>
+						<span className="footer-dot">
+							·
+						</span>
 
-                    <span>
-                        历史数据每日更新
-                    </span>
+						<span>
+							历史数据每日更新
+						</span>
+					
+					</div>
+					
+					{/* GitHub */}
+					<a
+						className="github-button"
+						href="https://github.com/Solidephile/Solidephile.github.io"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="GitHub Repository"
+					>
+						<img src={githubIcon} alt="GitHub" />
+					</a>
 
                 </footer>
 

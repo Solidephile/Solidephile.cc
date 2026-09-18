@@ -370,17 +370,24 @@ textarea {
 footer {
     display: flex;
     align-items: center;
+	justify-content: space-between;
     gap: 8px;
 
     margin-top: 22px;
     padding: 0 4px;
 
     color: #706873;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .footer-dot {
     color: #4e4852;
+}
+
+.footer-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 
@@ -479,7 +486,7 @@ footer {
     }
 
     .stat strong {
-        font-size: 20px;
+        font-size: 24px;
     }
 
     .history-section {
@@ -491,7 +498,7 @@ footer {
     }
 
     .history-count {
-        font-size: 10px;
+        font-size: 12px;
     }
 
     .chart-card {
@@ -507,40 +514,47 @@ footer {
     footer {
         flex-wrap: wrap;
     }
+	
+	.osu-button-text {
+		display: none;
+	}
+
+	.osu-button {
+		gap: 0;
+	}
+
+	.osu-circle {
+		width: 50px;
+		height: 50px;
+	}
 }
 
 .github-button {
-    position: fixed;
-
-    top: 22px;
-    right: 26px;
-
-    width: 42px;
-    height: 42px;
-
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-	
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    color: rgba(255,255,255,0.55);
-    transition: all .25s ease;
-    z-index: 100;
-}
 
+    width: 32px;
+    height: 32px;
+
+    color: rgba(255, 255, 255, 0.45);
+    transition: color .25s ease, transform .25s ease;
+}
 
 .github-button img {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+    transition: opacity .25s ease;
 }
 
-
 .github-button:hover {
-    background: rgba(255,255,255,0.12);
-    transform: translateY(-2px);
+    color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-1px);
+}
+
+.github-button:hover img {
+    opacity: 1;
 }
 
 .osu-button {
@@ -550,6 +564,7 @@ footer {
     gap: 12px;
     text-decoration: none;
     color: white;
+	flex-shrink: 0;
     transition: transform .25s ease;
 }
 
@@ -560,6 +575,8 @@ footer {
 .osu-circle {
     width: 56px;
     height: 56px;
+	
+	flex-shrink: 0;
 
     border-radius: 50%;
 
