@@ -3,6 +3,8 @@ import {
     formatPlayTime,
 } from "../utils/formatters";
 
+import externalLinkIcon from "../assets/external-link.svg";
+
 export default function ProfileCard({ stats }) {
     return (
         <section className="profile-card">
@@ -42,25 +44,23 @@ export default function ProfileCard({ stats }) {
                 {/* osu! Profile */}
 
                 <a
-                    className="osu-button"
-                    href="https://osu.ppy.sh/users/37807295"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <div className="osu-circle">
-                        <span>osu!</span>
-                    </div>
+					className="osu-button"
+					href="https://osu.ppy.sh/users/37807295"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="访问 osu! 主页"
+				>
+					<span className="osu-button-label">
+						访问 osu! 主页
+					</span>
 
-                    <div className="osu-button-text">
-                        <strong>
-                            个人主页
-                        </strong>
-
-                        <small>
-                            osu! Profile
-                        </small>
-                    </div>
-                </a>
+					<img
+						className="external-link-icon"
+						src={externalLinkIcon}
+						alt=""
+						aria-hidden="true"
+					/>
+				</a>
 
             </div>
 
