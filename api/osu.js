@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
         if (currentResult.length === 0) {
             return res.status(404).json({
-                error: "osu_current has no data"
+                error: "osu_current 没有数据"
             });
         }
 
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
         console.error("Database error:", error);
 
         return res.status(500).json({
-            error: "Failed to read database"
+            error: "读取数据库失败"
         });
     }
 }

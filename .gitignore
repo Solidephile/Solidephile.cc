@@ -26,5 +26,7 @@ dist-ssr
 # Generated osu data
 /public/data/osu.json
 /public/data/osu_history.json
+
+# Vercel files
 .vercel
 .env*
