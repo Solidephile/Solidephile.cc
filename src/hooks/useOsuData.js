@@ -14,8 +14,7 @@ export default function useOsuData() {
                     statsResponse,
                     historyResponse,
                 ] = await Promise.all([
-                    fetch(`/data/osu.json?t=${timestamp}`),
-                    fetch(`/data/osu_history.json?t=${timestamp}`),
+                    fetch(`/api/osu?t=${Date.now()}`)
                 ]);
 
                 if (!statsResponse.ok) {

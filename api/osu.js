@@ -1,0 +1,62 @@
+import { neon } from "@neondatabase/serverless";
+
+const sql = neon(process.env.DATABASE_URL);
+
+export default async function handler(req, res) {
+    try {
+        const currentResult = await sql`
+            SELECT
+                username,
+                avatar_url,
+                country,
+                country_code,
+                global_rank,
+                country_rank,
+                pp,
+                play_count,
+                play_time,
+                total_score,
+                total_hits,
+                accuracy,
+                maximum_combo,
+                updated_at
+            FROM osu_current
+            WHERE id = 1
+            LIMIT 1
+        `;
+
+        const historyResult = await sql`
+            SELECT
+                updated_at AS timestamp,
+                global_rank,
+                country_rank,
+                pp,
+                play_count,
+                play_time,
+                total_score,
+                total_hits,
+                accuracy,
+                maximum_combo
+            FROM osu_history
+            ORDER BY updated_at ASC
+        `;
+
+        if (currentResult.length === 0) {
+            return res.status(404).json({
+                error: "osu_current has no data"
+            });
+        }
+
+        return res.status(200).json({
+            stats: currentResult[0],
+            history: historyResult
+        });
+
+    } catch (error) {
+        console.error("Database error:", error);
+
+        return res.status(500).json({
+            error: "Failed to read database"
+        });
+    }
+}
