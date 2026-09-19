@@ -1,7 +1,7 @@
 {
     "crons": [
         {
-            "path": "/api/update-osu",
+            "path": "/api/update_osu",
             "schedule": "0 2 * * *"
         }
     ]
