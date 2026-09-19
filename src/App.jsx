@@ -240,7 +240,7 @@ function App() {
 					{/* GitHub */}
 					<a
 						className="github-button"
-						href="https://github.com/Solidephile/Solidephile.github.io"
+						href="https://github.com/Solidephile/Solidephile.cc"
 						target="_blank"
 						rel="noopener noreferrer"
 						aria-label="GitHub Repository"

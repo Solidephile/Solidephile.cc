@@ -85,6 +85,27 @@ function getUTC8Date(date) {
 export default async function handler(req, res) {
 
     try {
+		
+		// --------------------------------
+        // 0. 验证 Cron Secret
+        // --------------------------------
+
+        const authHeader =
+            req.headers.authorization;
+
+        const expectedAuth =
+            `Bearer ${process.env.CRON_SECRET}`;
+
+        if (
+            !process.env.CRON_SECRET ||
+            authHeader !== expectedAuth
+        ) {
+            return res.status(401).json({
+                success: false,
+                error: "Unauthorized"
+            });
+        }
+		
 
         // --------------------------------
         // 1. 检查环境变量
