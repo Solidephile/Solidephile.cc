@@ -28,7 +28,7 @@ export const booknavConfig: BooknavGroup[] = [
 		id: "dev",
 		name: "开发",
 		icon: "material-symbols:code-rounded",
-		desc: "写代码时离不开的站点",
+		desc: "写代码时离不开的网站",
 		weight: 100,
 		items: [
 			{
@@ -56,7 +56,7 @@ export const booknavConfig: BooknavGroup[] = [
 			{
 				title: "Tailwind CSS",
 				url: "https://tailwindcss.com",
-				desc: "一个功能强大且灵活的 CSS 框架",
+				desc: "一个功能强大灵活的 CSS 框架",
 				weight: 6,
 			},
 		],

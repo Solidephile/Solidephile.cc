@@ -21,7 +21,7 @@ export const MAIN_PANEL_OVERLAPS_BANNER_HEIGHT = 3.5;
 
 // Non-home banner height (unit: vh) — banner mode, desktop only.
 // Lift = BANNER_HEIGHT_HOME(65) - BANNER_HEIGHT_NON_HOME: 45=20vh, 50=15vh, 35=30vh.
-export const BANNER_HEIGHT_NON_HOME = 45;
+export const BANNER_HEIGHT_NON_HOME = 65;
 // Pixel floor for the non-home banner (unit: px) — cushions short (laptop) screens,
 // so the vh value resolving to too few absolute pixels doesn't cramp the title/description.
 // Combined as `max(...vh, ...px)` in Layout.astro.

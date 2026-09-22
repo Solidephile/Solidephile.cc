@@ -26,7 +26,7 @@ export const displaySettingsConfig: DisplaySettingsConfig =
 		// ── 外观 (Appearance) ──────────────────────────────────
 
 		// 主题色选择器开关
-		themeColorSwitchable: true,
+		themeColorSwitchable: false,
 
 		// 文章列表布局切换开关
 		layoutSwitchable: true,
@@ -46,10 +46,10 @@ export const displaySettingsConfig: DisplaySettingsConfig =
 		fullscreenLayoutSwitchable: true,
 
 		// 水波纹动画开关
-		wavesSwitchable: true,
+		wavesSwitchable: false,
 
 		// 渐变过渡效果开关
-		gradientSwitchable: true,
+		gradientSwitchable: false,
 
 		// 横幅标题显示开关
 		bannerTitleSwitchable: true,
@@ -68,5 +68,5 @@ export const displaySettingsConfig: DisplaySettingsConfig =
 		// ── 特效 (Effects) ────────────────────────────────────
 
 		// 樱花特效开关
-		sakuraSwitchable: true,
+		sakuraSwitchable: false,
 	});

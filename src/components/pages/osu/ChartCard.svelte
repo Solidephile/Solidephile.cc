@@ -258,7 +258,7 @@ onDestroy(() => {
 });
 </script>
 
-<article class={wide ? "md:col-span-2" : ""}>
+<article class={wide ? "@xl:col-span-2" : ""}>
 	<div class="card-base p-4">
 		<div class="mb-2 flex items-center justify-between">
 			<div>

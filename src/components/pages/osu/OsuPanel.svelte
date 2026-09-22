@@ -159,7 +159,7 @@ function formatRelativeTime(timestamp: string) {
 			</div>
 		</div>
 
-		<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+		<div class="grid grid-cols-2 gap-3 @2xl:grid-cols-4">
 			<div class="rounded-xl bg-(--card-bg) p-3 border border-(--line-divider)">
 				<div class="text-base font-bold text-neutral-500 dark:text-neutral-400">全球排名</div>
 				<div class="text-[10px] tracking-wide text-neutral-400 dark:text-neutral-500">GLOBAL RANK</div>
@@ -192,7 +192,7 @@ function formatRelativeTime(timestamp: string) {
 		<span class="text-sm text-neutral-500 dark:text-neutral-400">{history.length} 条记录</span>
 	</div>
 
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+	<div class="grid grid-cols-1 gap-4 @xl:grid-cols-2">
 		<ChartCard title="PP值" description="Performance points" unit="pp" {history} dataKey="pp" valueFormat="decimal" suffix=" pp" wide />
 		<ChartCard title="全球排名" description="Global Rank" unit="#" {history} dataKey="global_rank" valueFormat="integer" reverse fillBelow />
 		<ChartCard title="国家排名" description="Country Rank" unit="#" {history} dataKey="country_rank" valueFormat="integer" reverse fillBelow />

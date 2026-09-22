@@ -113,6 +113,12 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 				icon: "fa7-brands:github",
 			},
 			{
+				name: "bilibili",
+				url: "https://space.bilibili.com/1303984296",
+				external: true,
+				icon: "simple-icons:bilibili",
+			},
+			{
 				name: "osu!",
 				url: "https://osu.ppy.sh/users/37807295",
 				external: true,
@@ -229,10 +235,10 @@ export const LinkPresets: Record<string, NavBarLink> = {
 	name: "osu!",
 	url: "/osu/",
 	icon: "simple-icons:osu",
-  pageKey: "osu",
+	pageKey: "osu",
 	},
 	About: {
-		name: "关于我",
+		name: "关于",
 		url: "/about/",
 		icon: "material-symbols:person",
 	},
