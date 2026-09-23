@@ -2,7 +2,7 @@ import type { CommentConfig } from "../types/commentConfig";
 
 export const commentConfig: CommentConfig = {
 	// 评论系统类型: none, twikoo, waline, giscus, disqus, artalk，默认为none，即不启用评论系统
-	type: "giscus",
+	type: "waline",
 
 	//twikoo评论系统配置
 	twikoo: {
@@ -23,7 +23,7 @@ export const commentConfig: CommentConfig = {
 	//waline评论系统配置
 	waline: {
 		// waline 后端服务地址
-		serverURL: "https://waline.vercel.app",
+		serverURL: "https://comment.solidephile.cc",
 		// 设置 Waline 评论系统语言
 		lang: "zh-CN",
 		// 设置 Waline 评论系统表情地址
@@ -56,11 +56,11 @@ export const commentConfig: CommentConfig = {
 		// 设置 Giscus 评论系统仓库
 		repo: "Solidephile/Solidephile.cc",
 		// 设置 Giscus 评论系统仓库ID
-		repoId: "R_kgDORnWHXw",
+		repoId: "",
 		// 设置 Giscus 评论系统分类
 		category: "General",
 		// 获取 Giscus 评论系统分类ID
-		categoryId: "DIC_kwDORnWHX84DGNTL",
+		categoryId: "",
 		// 获取 Giscus 评论系统映射方式
 		mapping: "pathname",
 		// 获取 Giscus 评论系统严格模式
