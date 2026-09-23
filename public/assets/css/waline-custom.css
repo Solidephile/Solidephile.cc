@@ -1,0 +1,60 @@
+/*
+ * Waline 主题覆盖样式
+ * 在 waline.css 之后加载，用于让评论区配色跟随 Firefly 站点主题。
+ * 可用的变量清单：https://waline.js.org/reference/client/style.html
+ */
+
+:root,
+:root.dark {
+  /* 主题色：跟随站点主题色，换主题色时评论区一起变 */
+  --waline-theme-color: var(--primary);
+  --waline-active-color: var(--primary);
+
+  /* 背景：跟随卡片背景，亮/暗自动切换 */
+  --waline-bg-color: var(--card-bg);
+  --waline-bg-color-light: color-mix(in oklch, var(--card-bg) 92%, var(--primary) 8%);
+  --waline-bg-color-hover: color-mix(in oklch, var(--card-bg) 88%, var(--primary) 12%);
+  --waline-border-color: var(--line-divider);
+
+  /* 正文文字：由卡片背景推导，保证亮暗两种模式下都有对比度 */
+  --waline-color: color-mix(in oklch, var(--card-bg) 12%, #000 88%);
+
+  /* 禁用态 */
+  --waline-disable-bg-color: color-mix(in oklch, var(--card-bg) 90%, var(--line-divider) 10%);
+  --waline-disable-color: color-mix(in oklch, var(--waline-color) 45%, var(--card-bg) 55%);
+
+  /* 引用块 / 信息条 */
+  --waline-bq-color: color-mix(in oklch, var(--card-bg) 90%, var(--primary) 10%);
+  --waline-info-bg-color: color-mix(in oklch, var(--card-bg) 92%, var(--primary) 8%);
+  --waline-info-color: color-mix(in oklch, var(--card-bg) 35%, #666 65%);
+
+  /* 边框与阴影：去掉 Waline 默认阴影，跟站内卡片保持一致 */
+  --waline-border: 1px solid var(--line-divider);
+  --waline-box-shadow: none;
+}
+
+/* Waline 根容器兜底文字色：
+   .wl-count（评论数标题）和 .wl-preview h4（预览标题）在 Waline 源码里没有声明 color，
+   会一直继承到外层内容区的颜色，暗色模式下就变成黑色。
+   给根容器补上正文色，所有未显式设色的元素都会拿到正确颜色。 */
+[data-waline] {
+  color: var(--waline-color);
+}
+
+/* 暗色模式：文字色反向推导 */
+:root.dark {
+  --waline-color: color-mix(in oklch, var(--card-bg) 12%, #fff 88%);
+  --waline-info-color: color-mix(in oklch, var(--card-bg) 45%, #c0c4cc 55%);
+}
+
+/* 全屏透明壁纸模式：背景改用半透明卡片色，避免评论区比周围更"实" */
+body.wallpaper-transparent {
+  --waline-bg-color: var(--card-bg-transparent);
+  --waline-bg-color-light: color-mix(in oklch, var(--card-bg-transparent) 88%, var(--primary) 12%);
+  --waline-bg-color-hover: color-mix(in oklch, var(--card-bg-transparent) 82%, var(--primary) 18%);
+}
+
+:root.dark body.wallpaper-transparent {
+  --waline-color: color-mix(in oklch, var(--card-bg) 8%, #fff 92%);
+  --waline-info-color: color-mix(in oklch, var(--card-bg) 40%, #c0c4cc 60%);
+}

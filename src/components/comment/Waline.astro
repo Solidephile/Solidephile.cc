@@ -11,6 +11,8 @@ const config = {
 	path: Astro.props.path,
 	dark: "html.dark",
 	wordLimit: ["2", "300"],
+	// 隐藏页脚的 RSS 订阅按钮（Waline 官方配置项）
+	noRss: true,
 	...(commentConfig.waline?.visitorCount ? { pageview: true } : {}),
 };
 ---
@@ -18,6 +20,7 @@ const config = {
 <div class="relative w-full">
   <div id="waline"></div>
   <link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />
+  <link rel="stylesheet" href="/assets/css/waline-custom.css" />
   <script type="module" is:inline define:vars={{ config }}>
     import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
     const requestedPath = new URLSearchParams(window.location.search).get("path");
