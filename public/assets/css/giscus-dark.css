@@ -1,28 +1,60 @@
 /*
  * giscus 暗色自定义主题
  *
- * 同 giscus-light.css：继承内置 dark 主题，再覆盖为站点主题色（hue 345）。
- * 暗色下 Firefly 的 --primary 更亮（oklch(0.75 0.14 345)），
- * 所以主按钮上的文字用深色，和 Firefly 的 .page-icon 处理方式一致。
+ * 同 giscus-light.css：继承内置 dark 主题，再覆盖为站点配色。
+ *
+ * 覆盖分两组：
+ *   1. 表面色 / 边框 —— 对齐 Firefly 暗色卡片调色板，避免出现 GitHub 的纯黑
+ *      （内置 dark 主题的 --color-canvas-inset 是 #010409，比卡片背景暗很多）
+ *   2. 强调色 —— 对齐站点主题色 hue = 345
+ *
+ * 站点主题色改了之后，需要把本文件里的 345 同步替换。
  */
 
 @import url("https://giscus.app/themes/dark.css");
 
 main {
-	/* 主按钮（发表评论 / 登录） */
+	/* ---- 表面色：对齐 Firefly 暗色卡片调色板 ---- */
+	--color-canvas-default: oklch(0.23 0.015 345); /* 主背景 = --card-bg */
+	--color-canvas-inset: oklch(0.19 0.015 345); /* 输入框等内嵌区域 = --float-panel-bg */
+	--color-canvas-subtle: oklch(0.27 0.018 345); /* 次级表面 */
+	--color-canvas-overlay: oklch(0.29 0.02 345); /* 浮层 / 下拉菜单 */
+
+	/* ---- 边框：对齐 Firefly 的分隔线 ---- */
+	--color-border-default: rgba(255, 255, 255, 0.1); /* = --line-color */
+	--color-border-muted: rgba(255, 255, 255, 0.08); /* = --line-divider */
+	--color-neutral-muted: rgba(255, 255, 255, 0.08);
+
+	/* ---- 普通按钮（取消 / 排序等） ---- */
+	--color-btn-bg: oklch(0.3 0.03 345);
+	--color-btn-hover-bg: oklch(0.36 0.035 345);
+	--color-btn-active-bg: oklch(0.4 0.04 345);
+	--color-btn-selected-bg: oklch(0.28 0.03 345);
+	--color-btn-border: rgba(255, 255, 255, 0.1);
+	--color-btn-text: oklch(0.9 0.01 345);
+
+	/* ---- 撰写/预览 分段控件（内置值是 #0d1117，近黑） ---- */
+	--color-segmented-control-bg: rgba(255, 255, 255, 0.06);
+	--color-segmented-control-button-bg: oklch(0.23 0.015 345);
+	--color-segmented-control-button-selected-border: rgba(255, 255, 255, 0.3);
+
+	/* ---- 列表项 hover ---- */
+	--color-action-list-item-default-hover-bg: rgba(255, 255, 255, 0.06);
+
+	/* ---- 主按钮（发表评论 / 登录）：站点主题色 ---- */
 	--color-btn-primary-bg: oklch(0.75 0.14 345);
 	--color-btn-primary-hover-bg: oklch(0.8 0.13 345);
 	--color-btn-primary-selected-bg: oklch(0.72 0.14 345);
 	--color-btn-primary-disabled-bg: oklch(0.45 0.08 345 / 60%);
 	--color-btn-primary-text: oklch(0.2 0.02 345);
 
-	/* 链接与强调色 */
+	/* ---- 链接与强调色 ---- */
 	--color-accent-fg: oklch(0.8 0.12 345);
 	--color-accent-emphasis: oklch(0.72 0.14 345);
 	--color-accent-muted: oklch(0.75 0.14 345 / 40%);
 	--color-accent-subtle: oklch(0.75 0.14 345 / 10%);
 
-	/* 表情反应 hover */
+	/* ---- 表情反应 hover ---- */
 	--color-scale-blue-8: oklch(0.42 0.1 345);
 	--color-social-reaction-bg-reacted-hover: var(--color-scale-blue-8);
 }
