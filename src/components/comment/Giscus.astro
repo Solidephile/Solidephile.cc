@@ -71,6 +71,7 @@ const darkTheme = `${siteOrigin}/assets/css/giscus-dark.css`;
 
   window.giscusThemeObserver.observe(document.documentElement, { attributes: true });
 
+
   // ── 把 giscus 宽度吸附到整数像素 ──────────────────────────────
   // 内容列宽度常带小数（Firefly 用 xl:w-[92vw]，绝大多数视口下都是小数），
   // 会一路传给 giscus 的 iframe，使其内部 1px 右边框落在半个像素上，
@@ -121,3 +122,18 @@ const darkTheme = `${siteOrigin}/assets/css/giscus-dark.css`;
     window.giscusResizeObserver.observe(giscusHost.parentElement);
   }
 </script>
+
+<style is:global>
+  /*
+   * 强制 iframe 宽度严格跟随宿主（宿主宽度已由上面的脚本吸附为整数）。
+   *
+   * 起因：giscus 会按自己量到的宽度设置 iframe 宽度，常带小数（如 665.6），
+   * 于是 iframe 内部文档也是 665.6，贴着右边缘的 1px 边框被亚像素渲染抹掉。
+   * 在 iframe 内部用 width:100% 解决不了——百分比是相对「包含块」（也就是这个
+   * 665.6 的视口）解析的，小数依然在；只有把它变成绝对整数才能消除。
+   * !important 用于覆盖 giscus 写在 iframe 上的内联宽度。
+   */
+  giscus-widget iframe {
+    width: 100% !important;
+  }
+</style>
