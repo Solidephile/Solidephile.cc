@@ -79,9 +79,25 @@ function withAlpha(color: string, alpha: number): string {
 const FILL_ALPHA_TOP = 0.4;
 const FILL_ALPHA_BOTTOM = 0.05;
 
+// 图表用色的彩度倍数：主题色 --primary 是 oklch(0.70 0.14 ...)，偏柔和；
+// 这里只放大彩度（chroma），亮度与色相仍取自主题色，所以换主题色调时会跟着变。
+// 1.5 微妙、1.8 明显、2.5 基本到该色相的 sRGB 上限（再大也不会更艳）
+const CHART_CHROMA_BOOST = 1.6;
+
+// 把 oklch(l c h) 的彩度乘以 factor，保留亮度与色相
+function boostChroma(color: string, factor: number): string {
+	const m = color.match(/^oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)/i);
+	if (!m) return color; // 非 oklch（或未能解析）时原样返回
+	const [, lightness, chroma, hue] = m;
+	return `oklch(${lightness} ${(Number(chroma) * factor).toFixed(3)} ${hue})`;
+}
+
 // 图表用到的颜色，全部来自主题变量，随亮暗主题与主题色变化
 function themeColors() {
-	const primary = readVar("--primary", "#ff66ab");
+	const primary = boostChroma(
+		readVar("--primary", "#ff66ab"),
+		CHART_CHROMA_BOOST,
+	);
 	return {
 		primary,
 		fillTop: withAlpha(primary, FILL_ALPHA_TOP),

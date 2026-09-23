@@ -1,6 +1,13 @@
 <script lang="ts">
+import avatarModule from "@assets/images/avatar.avif";
 import { onMount } from "svelte";
 import ChartCard from "./ChartCard.svelte";
+
+// Astro 会把 src 目录下的图片 import 转成 ImageMetadata 对象（{ src, width, height, format }），
+// 这里取其 .src 作为图片地址；若某条构建路径直接返回 URL 字符串，也一并兼容。
+const avatarImage = avatarModule as unknown as string | { src: string };
+const avatarSrc =
+	typeof avatarImage === "string" ? avatarImage : avatarImage.src;
 
 interface OsuStats {
 	username: string;
@@ -143,13 +150,11 @@ function formatRelativeTime(timestamp: string) {
 	<!-- ============ 资料卡 ============ -->
 	<div class="card-base mb-6 flex flex-col gap-4 p-6">
 		<div class="flex items-center gap-4">
-			{#if stats.avatar_url}
-				<img
-					src={stats.avatar_url}
-					alt="osu! avatar"
-					class="h-16 w-16 rounded-md object-cover"
-				/>
-			{/if}
+			<img
+				src={avatarSrc}
+				alt="osu! avatar"
+				class="h-16 w-16 rounded-md object-cover"
+			/>
 			<div>
 				<p class="text-xs text-neutral-500 dark:text-neutral-400">PLAYER</p>
 				<h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.username}</h2>

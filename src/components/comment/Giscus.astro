@@ -1,13 +1,17 @@
 ---
-import { commentConfig } from "@/config";
+import { commentConfig, siteConfig } from "@/config";
 
 if (!commentConfig?.giscus) {
 	throw new Error("Giscus comments are not configured");
 }
 
 const giscus = commentConfig.giscus;
-const lightTheme = "light";
-const darkTheme = "dark";
+
+// 自定义主题：继承 giscus 内置主题并覆盖为站点主题色（见 public/assets/css/giscus-*.css）
+// 必须用绝对地址——样式是在 giscus 自己的 iframe 里加载的，相对路径会被解析到 giscus.app
+const siteOrigin = siteConfig.site_url.replace(/\/$/, "");
+const lightTheme = `${siteOrigin}/assets/css/giscus-light.css`;
+const darkTheme = `${siteOrigin}/assets/css/giscus-dark.css`;
 ---
 
 <!-- 
