@@ -2,30 +2,32 @@
  * giscus 亮色自定义主题
  *
  * 做法：先继承 giscus 内置的 light 主题，再把「强调色/主按钮色」覆盖为站点主题色。
- * 站点主题色 hue = 345（siteConfig.ts 的 themeColor.hue），这里直接写成
- * oklch(L C 345)，和 Firefly 的 --primary 保持同一套色彩体系。
  *
  * 注意：giscus 渲染在自己的 iframe 里，读不到站点页面的 CSS 变量，
- * 所以颜色必须是这里的字面值；改动主题色后需要同步修改本文件。
+ * 因此色相在这里用 --giscus-hue 本地定义一份。
+ * 换主题色时，只需修改下面这一行（与 siteConfig.ts 的 themeColor.hue 保持一致）。
  */
 
 @import url("https://giscus.app/themes/light.css");
 
 main {
+	/* ↓↓↓ 唯一需要改的地方：站点主题色相 ↓↓↓ */
+	--giscus-hue: 345;
+
 	/* 主按钮（发表评论 / 登录） */
-	--color-btn-primary-bg: oklch(0.7 0.14 345);
-	--color-btn-primary-hover-bg: oklch(0.65 0.15 345);
-	--color-btn-primary-selected-bg: oklch(0.6 0.15 345);
-	--color-btn-primary-disabled-bg: oklch(0.88 0.05 345);
+	--color-btn-primary-bg: oklch(0.7 0.14 var(--giscus-hue));
+	--color-btn-primary-hover-bg: oklch(0.65 0.15 var(--giscus-hue));
+	--color-btn-primary-selected-bg: oklch(0.6 0.15 var(--giscus-hue));
+	--color-btn-primary-disabled-bg: oklch(0.88 0.05 var(--giscus-hue));
 	--color-btn-primary-text: #fff;
 
 	/* 链接与强调色 */
-	--color-accent-fg: oklch(0.55 0.15 345);
-	--color-accent-emphasis: oklch(0.6 0.15 345);
-	--color-accent-muted: oklch(0.7 0.14 345 / 40%);
-	--color-accent-subtle: oklch(0.96 0.03 345);
+	--color-accent-fg: oklch(0.55 0.15 var(--giscus-hue));
+	--color-accent-emphasis: oklch(0.6 0.15 var(--giscus-hue));
+	--color-accent-muted: oklch(0.7 0.14 var(--giscus-hue) / 40%);
+	--color-accent-subtle: oklch(0.96 0.03 var(--giscus-hue));
 
 	/* 表情反应 hover */
-	--color-scale-blue-1: oklch(0.92 0.04 345);
+	--color-scale-blue-1: oklch(0.92 0.04 var(--giscus-hue));
 	--color-social-reaction-bg-reacted-hover: var(--color-scale-blue-1);
 }

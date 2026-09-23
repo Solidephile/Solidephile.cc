@@ -70,4 +70,43 @@ const darkTheme = `${siteOrigin}/assets/css/giscus-dark.css`;
   });
 
   window.giscusThemeObserver.observe(document.documentElement, { attributes: true });
+
+  // ── 把 giscus 宽度吸附到整数像素 ──────────────────────────────
+  // 内容列宽度常带小数（Firefly 用 xl:w-[92vw]，绝大多数视口下都是小数），
+  // 会一路传给 giscus 的 iframe，使其内部 1px 右边框落在半个像素上，
+  // 表现为「某些宽度下右边框消失 / 拖动窗口时闪烁」。
+  // 这里把宿主宽度取整，让 iframe 内部回到整数坐标系。
+  function snapGiscusWidth() {
+    const el = document.querySelector("giscus-widget");
+    if (!el) return;
+    // 必须让宿主成为块级包含块，否则内部 iframe 的 width:100% 不参照宿主宽度
+    el.style.display = "block";
+    el.style.width = ""; // 先恢复 100%，量出当前实际宽度
+    const w = el.getBoundingClientRect().width;
+    if (w > 0) {
+      el.style.width = `${Math.floor(w)}px`; // 向下取整，避免溢出容器
+    }
+  }
+
+  let giscusSnapRaf = 0;
+  function scheduleGiscusSnap() {
+    if (giscusSnapRaf) return;
+    giscusSnapRaf = window.requestAnimationFrame(() => {
+      giscusSnapRaf = 0;
+      snapGiscusWidth();
+    });
+  }
+
+  snapGiscusWidth();
+
+  // 用 ResizeObserver 盯住父容器：除了窗口缩放，
+  // 侧边栏显隐、设置面板改字号等「不改窗口大小但改内容宽度」的情况也能覆盖
+  if (window.giscusResizeObserver) {
+    window.giscusResizeObserver.disconnect();
+  }
+  const giscusHost = document.querySelector("giscus-widget");
+  if (giscusHost && giscusHost.parentElement) {
+    window.giscusResizeObserver = new ResizeObserver(scheduleGiscusSnap);
+    window.giscusResizeObserver.observe(giscusHost.parentElement);
+  }
 </script>
