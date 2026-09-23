@@ -81,6 +81,17 @@ const darkTheme = `${siteOrigin}/assets/css/giscus-dark.css`;
     if (!el) return;
     // 必须让宿主成为块级包含块，否则内部 iframe 的 width:100% 不参照宿主宽度
     el.style.display = "block";
+
+    // giscus 是按「父容器」的宽度来计算 iframe / 内部文档宽度的，
+    // 只吸附宿主不够——iframe 内部的 html/body 仍会跟着父容器带小数（如 665.6）。
+    // 所以父容器也要落到整数像素。
+    const parent = el.parentElement;
+    if (parent) {
+      parent.style.width = "";
+      const pw = parent.getBoundingClientRect().width;
+      if (pw > 0) parent.style.width = `${Math.floor(pw)}px`;
+    }
+
     el.style.width = ""; // 先恢复 100%，量出当前实际宽度
     const w = el.getBoundingClientRect().width;
     if (w > 0) {
