@@ -14,6 +14,19 @@
 
 @import url("https://giscus.app/themes/dark.css");
 
+/*
+ * 让 iframe 内部文档宽度严格等于视口宽度。
+ * giscus 会按父容器实测宽度（常带小数，如 665.6）设置内部宽度，
+ * 当它比 iframe 视口（可能已是整数 665）略宽时，最右侧不足 1px 的部分会被裁掉，
+ * 贴着右边缘的 1px 边框因此看起来"消失"。
+ */
+html,
+body {
+	width: 100% !important;
+	max-width: 100% !important;
+	overflow-x: hidden;
+}
+
 main {
 	/* ↓↓↓ 唯一需要改的地方：站点主题色相 ↓↓↓ */
 	--giscus-hue: 345;
