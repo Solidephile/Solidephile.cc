@@ -14,19 +14,6 @@
 
 @import url("https://giscus.app/themes/dark.css");
 
-/*
- * 让 iframe 内部文档宽度严格等于视口宽度。
- * giscus 会按父容器实测宽度（常带小数，如 665.6）设置内部宽度，
- * 当它比 iframe 视口（可能已是整数 665）略宽时，最右侧不足 1px 的部分会被裁掉，
- * 贴着右边缘的 1px 边框因此看起来"消失"。
- */
-html,
-body {
-	width: 100% !important;
-	max-width: 100% !important;
-	overflow-x: hidden;
-}
-
 main {
 	/* ↓↓↓ 唯一需要改的地方：站点主题色相 ↓↓↓ */
 	--giscus-hue: 345;
@@ -80,8 +67,20 @@ main {
  * 亚像素修正：iframe 内部文档宽度会带小数（如 665.6），贴着右边缘的 1px 边框
  * 会被抗锯齿稀释掉，表现为「某些宽度下右边框消失 / 拖动时闪烁」。
  * 加粗到 2px 后，即使位置带小数也总有一段实色，显示就稳定了。
+ *
+ * 注意：不能直接改通用的 .border 工具类——登录按钮、「输入/预览」tab、
+ * 「所有者」标签都在用它，会被一起改粗。所以下面按元素精确定位。
  */
-.gsc-comment-box,
-main .color-box-border-info {
-	border-width: 2px;
+
+/* 评论输入框：giscus 自己的规则是
+   .gsc-comment-box:not(.gsc-comment-box-is-reply)，优先级高于单个 .gsc-comment-box，
+   这里用同款选择器 + !important 压过它 */
+.gsc-comment-box:not(.gsc-comment-box-is-reply) {
+	border-width: 2px !important;
+}
+
+/* 评论正文容器：.gsc-comment 内带 w-full 的那层 .border
+   用 w-full 把「所有者」标签之类的小元素排除掉 */
+.gsc-comment div.border.w-full {
+	border-width: 2px !important;
 }
