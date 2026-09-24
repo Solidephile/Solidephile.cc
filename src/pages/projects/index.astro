@@ -48,7 +48,7 @@ const statusFilters = PROJECT_STATUS_KEYS.map((key) => {
 		<header class="card-base page-header">
 			<div class="page-heading">
 				<div class="page-icon" aria-hidden="true">
-					<Icon name="material-symbols:rocket-launch" />
+					<Icon is:inline name="material-symbols:rocket-launch" />
 				</div>
 				<div>
 					<h2>{title}</h2>
@@ -56,14 +56,14 @@ const statusFilters = PROJECT_STATUS_KEYS.map((key) => {
 				</div>
 			</div>
 			<div class="page-count" aria-label={title}>
-				<Icon name="material-symbols:rocket-launch" />
+				<Icon is:inline name="material-symbols:rocket-launch" />
 				<strong>{projectMeta.length}</strong>
 				<span>{title}</span>
 			</div>
 		<!-- 搜索 + 状态筛选（标题面板内，整行；搜索与筛选分两行） -->
 		<project-filter style="grid-column: 1 / -1">
 			<div class="relative mb-3">
-				<Icon
+				<Icon is:inline
 					name="material-symbols:search"
 					class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 text-lg pointer-events-none"
 				/>
@@ -87,7 +87,7 @@ const statusFilters = PROJECT_STATUS_KEYS.map((key) => {
 						data-status={s.key}
 						class="category-pill px-3 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 inline-flex items-center gap-1.5"
 					>
-						{s.icon && <Icon name={s.icon} class="text-base" />}
+						{s.icon && <Icon is:inline name={s.icon} class="text-base" />}
 						{s.label}
 					</button>
 				))}
@@ -114,14 +114,14 @@ const statusFilters = PROJECT_STATUS_KEYS.map((key) => {
 			</div>
 		) : (
 			<div class="card-base flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
-				<Icon name="material-symbols:rocket-launch" class="text-6xl mb-4 opacity-50" />
+				<Icon is:inline name="material-symbols:rocket-launch" class="text-6xl mb-4 opacity-50" />
 				<p class="text-lg">{i18n(I18nKey.projectEmpty)}</p>
 			</div>
 		)}
 
 		<!-- 筛选无结果空态 -->
 		<div class="projects-empty hidden flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
-			<Icon name="material-symbols:search-off-rounded" class="text-4xl mb-3" />
+			<Icon is:inline name="material-symbols:search-off-rounded" class="text-4xl mb-3" />
 			<div class="text-sm">{i18n(I18nKey.searchNoResults)}</div>
 		</div>
 	</section>

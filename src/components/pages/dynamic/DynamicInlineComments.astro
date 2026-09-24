@@ -12,9 +12,9 @@ const { src } = Astro.props;
 
 <dynamic-inline-comments class="page-inline-comments" data-src={src}>
 	<button type="button" class="page-comment-toggle btn-plain" data-comment-toggle>
-		<Icon name="material-symbols:chat-bubble-outline-rounded" />
+		<Icon is:inline name="material-symbols:chat-bubble-outline-rounded" />
 		<span>{i18n(I18nKey.comments)}</span>
-		<Icon
+		<Icon is:inline
 			name="material-symbols:expand-more-rounded"
 			class="page-comment-chevron"
 		/>

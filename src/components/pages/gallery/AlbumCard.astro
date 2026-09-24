@@ -68,14 +68,14 @@ const coverClass = gridCoverFullWidth
       </>
     ) : (
       <div class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-        <Icon name="material-symbols:photo-library" class="text-gray-400 text-6xl" />
+        <Icon is:inline name="material-symbols:photo-library" class="text-gray-400 text-6xl" />
       </div>
     )}
 
     <!-- 悬浮：变暗 + 箭头 -->
     <div class="absolute inset-0 pointer-events-none z-10 transition group-hover:bg-black/30" />
     <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-      <Icon
+      <Icon is:inline
         name="material-symbols:chevron-right-rounded"
         class="transition opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 text-white text-5xl"
       />
@@ -108,7 +108,7 @@ const coverClass = gridCoverFullWidth
       {date && (
         <div class="flex items-center">
           <div class="meta-icon">
-            <Icon name="material-symbols:calendar-today-outline-rounded" class="text-xl" />
+            <Icon is:inline name="material-symbols:calendar-today-outline-rounded" class="text-xl" />
           </div>
           <span class="text-50 text-sm font-medium">{date}</span>
         </div>
@@ -116,7 +116,7 @@ const coverClass = gridCoverFullWidth
       {visibleTags.length > 0 && (
         <div class="flex items-center">
           <div class="meta-icon">
-            <Icon name="material-symbols:tag-rounded" class="text-xl" />
+            <Icon is:inline name="material-symbols:tag-rounded" class="text-xl" />
           </div>
           <span class="flex flex-row flex-nowrap items-center">
             {visibleTags.map((tag, i) => (
@@ -145,7 +145,7 @@ const coverClass = gridCoverFullWidth
     <div class="mt-auto pt-4 flex items-center gap-2">
       {location && (
         <span class="album-card-location flex items-center gap-1 min-w-0 text-50 text-sm font-medium">
-          <Icon name="material-symbols:location-on-outline-rounded" class="text-base shrink-0" />
+          <Icon is:inline name="material-symbols:location-on-outline-rounded" class="text-base shrink-0" />
           <span class="truncate">{location}</span>
         </span>
       )}
@@ -154,7 +154,7 @@ const coverClass = gridCoverFullWidth
         class="ml-auto shrink-0 inline-flex items-center gap-1 text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-(--primary) transition-colors"
       >
         {i18n(I18nKey.galleryEnterAlbum)}
-        <Icon name="material-symbols:chevron-right-rounded" class="text-sm" />
+        <Icon is:inline name="material-symbols:chevron-right-rounded" class="text-sm" />
       </a>
     </div>
   </div>

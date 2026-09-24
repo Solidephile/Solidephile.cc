@@ -10,7 +10,7 @@ const config = {
 	el: "#waline",
 	path: Astro.props.path,
 	dark: "html.dark",
-	wordLimit: ["2", "300"],
+
 	// 隐藏页脚的 RSS 订阅按钮（Waline 官方配置项）
 	noRss: true,
 	...(commentConfig.waline?.visitorCount ? { pageview: true } : {}),

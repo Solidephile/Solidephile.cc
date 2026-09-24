@@ -1,5 +1,23 @@
 import type { AnalyticsConfig } from "../types/analyticsConfig";
 
+// 读取环境变量：Vite/Astro 走 import.meta.env，构建脚本 / Node 环境回退到 process.env。
+// 这样自建 Umami 的实例地址与 Website ID 不必写死在仓库里（本文件在构建时求值）。
+function readEnv(key: string): string {
+	try {
+		const value = (import.meta.env as Record<string, unknown>)[key];
+		if (typeof value === "string" && value) return value;
+	} catch {
+		// import.meta.env 不可用（例如在纯 Node 脚本里）
+	}
+	if (typeof process !== "undefined") {
+		return process.env[key] ?? "";
+	}
+	return "";
+}
+
+// 自建 Umami 实例地址，例如 https://analytics.solidephile.cc（去掉结尾斜杠）
+const umamiUrl = readEnv("UMAMI_URL").replace(/\/+$/, "");
+
 export const analyticsConfig: AnalyticsConfig = {
 	// Google Analytics ID
 	googleAnalyticsId: "",
@@ -7,12 +25,16 @@ export const analyticsConfig: AnalyticsConfig = {
 	microsoftClarityId: "",
 	// Umami 统计配置
 	umamiAnalytics: {
-		// Umami Website ID
-		websiteId: "",
-		// Umami JS地址，支持使用自建
-		scriptUrl: "https://cloud.umami.is/script.js",
-		// Umami 会话回放脚本地址，支持使用自建
-		replaysScriptUrl: "https://cloud.umami.is/recorder.js",
+		// Umami Website ID（环境变量 UMAMI_WEBSITE_ID；留空则不会注入统计脚本）
+		websiteId: readEnv("UMAMI_WEBSITE_ID"),
+		// Umami JS地址：配置了 UMAMI_URL 就用自建实例，否则回退官方 Cloud
+		scriptUrl: umamiUrl
+			? `${umamiUrl}/script.js`
+			: "https://cloud.umami.is/script.js",
+		// Umami 会话回放脚本地址，同上
+		replaysScriptUrl: umamiUrl
+			? `${umamiUrl}/recorder.js`
+			: "https://cloud.umami.is/recorder.js",
 		// 是否追踪出站链接
 		trackOutboundLinks: true,
 		// 是否收集浏览器性能指标

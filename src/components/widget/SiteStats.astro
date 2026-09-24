@@ -72,6 +72,22 @@ const todayText = i18n(I18nKey.today);
 
 const stats = [
 	{
+		icon: "material-symbols:visibility-outline",
+		label: "总访问量",
+		value: 0,
+		placeholder: "—",
+		dynamic: true,
+		id: "site-pv",
+	},
+	{
+		icon: "material-symbols:group-outline",
+		label: "独立访客",
+		value: 0,
+		placeholder: "—",
+		dynamic: true,
+		id: "site-uv",
+	},
+	{
 		icon: "material-symbols:article-outline",
 		label: i18n(I18nKey.siteStatsPostCount),
 		value: posts.length,
@@ -117,7 +133,7 @@ const stats = [
       <div class="flex items-center justify-between px-3 py-1.5">
         <div class="flex items-center gap-2.5">
           <div class="text-(--primary) text-xl">
-            <Icon name={stat.icon} />
+            <Icon is:inline name={stat.icon} />
           </div>
           <span class="text-neutral-700 dark:text-neutral-300 font-medium text-sm">
             {stat.label}
@@ -128,7 +144,7 @@ const stats = [
             class="text-base font-bold text-neutral-900 dark:text-neutral-100"
             data-stat-id={stat.id}
           >
-            {stat.formatted ? formatNumber(stat.value) : stat.value}
+            {stat.placeholder || (stat.formatted ? formatNumber(stat.value) : stat.value)}
           </span>
           {stat.suffix && (
             <span class="ml-1 text-sm text-neutral-500 dark:text-neutral-400">
@@ -178,15 +194,39 @@ const stats = [
     }
   }
 
+  // 访问量 / 独立访客：从自建 Umami 的代理接口读取（Umami 凭据只在服务端）
+  function setStatText(id, value) {
+    if (value === undefined || value === null) return;
+    document.querySelectorAll('[data-stat-id="' + id + '"]').forEach(function (el) {
+      el.textContent = Number(value).toLocaleString();
+    });
+  }
+
+  async function updateUmamiStats() {
+    try {
+      const res = await fetch('/api/umami?t=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      setStatText('site-pv', data.pv);
+      setStatText('site-uv', data.uv);
+    } catch (err) {
+      console.warn('读取 Umami 统计失败:', err);
+    }
+  }
+
   // 页面加载时更新
   updateDynamicStats();
+  updateUmamiStats();
 
   // 防止 Swup 切页重跑脚本时重复注册监听器
   if (!window.__siteStatsInit) {
     window.__siteStatsInit = true;
-    // 页面切换时重新更新
+    // 页面切换时重新更新（侧栏属于 Swup 容器，会被替换，需要重新填充）
     document.addEventListener("swup:contentReplaced", () => {
-      setTimeout(updateDynamicStats, 100);
+      setTimeout(() => {
+        updateDynamicStats();
+        updateUmamiStats();
+      }, 100);
     });
   }
 </script>

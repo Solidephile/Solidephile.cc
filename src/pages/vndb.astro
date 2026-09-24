@@ -114,7 +114,7 @@ const activeTab = tabs[0]?.id || "all";
         <div class="mb-6">
           <div class="page-heading">
             <div class="page-icon" aria-hidden="true">
-              <Icon name="material-symbols:chrome-reader-mode-rounded" />
+              <Icon is:inline name="material-symbols:chrome-reader-mode-rounded" />
             </div>
             <div>
               <h2>{i18n(I18nKey.vndb)}</h2>
@@ -134,7 +134,7 @@ const activeTab = tabs[0]?.id || "all";
             {!isUserIdConfigured ? (
               <div class="text-center py-16">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-                  <Icon name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
+                  <Icon is:inline name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
                 </div>
                 <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
                   {i18n(I18nKey.vndbNotConfigured)}
@@ -161,7 +161,7 @@ const activeTab = tabs[0]?.id || "all";
             {fetchFailed ? (
               <div class="text-center py-16">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-                  <Icon name="material-symbols:error-outline" class="text-[2rem] text-red-500" />
+                  <Icon is:inline name="material-symbols:error-outline" class="text-[2rem] text-red-500" />
                 </div>
                 <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
                   {i18n(I18nKey.vndbFetchError)}
@@ -182,7 +182,7 @@ const activeTab = tabs[0]?.id || "all";
             ) : (
               <div class="text-center py-16">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-                  <Icon name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
+                  <Icon is:inline name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
                 </div>
                 <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
                   {isUserIdConfigured ? i18n(I18nKey.vndbEmpty) : i18n(I18nKey.vndbNotConfigured)}

@@ -35,7 +35,7 @@ const memos = dynamicConfig.memos;
 			<header class="page-header card-base">
 				<div class="page-heading">
 					<div class="page-icon" aria-hidden="true">
-						<Icon name="material-symbols:forum-rounded" />
+						<Icon is:inline name="material-symbols:forum-rounded" />
 					</div>
 					<div>
 						<h2 id="dynamic-page-title">{title}</h2>
@@ -46,13 +46,13 @@ const memos = dynamicConfig.memos;
 					class="page-count"
 					aria-label={i18n(I18nKey.dynamic)}
 				>
-					<Icon name="material-symbols:dynamic-feed-rounded" />
+					<Icon is:inline name="material-symbols:dynamic-feed-rounded" />
 					<strong data-dynamic-page-count>0</strong>
 					<span>{i18n(I18nKey.dynamic)}</span>
 				</div>
 				<div class="page-filter">
 					<label class="page-search">
-						<Icon name="material-symbols:search-rounded" />
+						<Icon is:inline name="material-symbols:search-rounded" />
 						<input
 							type="search"
 							data-dynamic-search
@@ -60,11 +60,11 @@ const memos = dynamicConfig.memos;
 						/>
 					</label>
 					<label class="page-year-select">
-						<Icon name="material-symbols:calendar-month-rounded" />
+						<Icon is:inline name="material-symbols:calendar-month-rounded" />
 						<select data-year-select aria-label={i18n(I18nKey.year)}>
 							<option value="all">{i18n(I18nKey.dynamicAllYears)}</option>
 						</select>
-						<Icon name="material-symbols:arrow-drop-down-rounded" />
+						<Icon is:inline name="material-symbols:arrow-drop-down-rounded" />
 					</label>
 				</div>
 			</header>

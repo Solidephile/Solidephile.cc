@@ -108,7 +108,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		children: [
 			{
 				name: "GitHub",
-				url: "https://github.com/Solidephile",
+				url: "https://github.com/Solidephile/Solidephile.cc",
 				external: true,
 				icon: "fa7-brands:github",
 			},
@@ -232,15 +232,15 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		pageKey: "sponsor",
 	},
 	Osu: {
-	name: "osu!",
-	url: "/osu/",
-	icon: "simple-icons:osu",
-	pageKey: "osu",
+		name: "osu!",
+		url: "/osu/",
+		icon: "simple-icons:osu",
+		pageKey: "osu",
 	},
 	About: {
 		name: "关于",
 		url: "/about/",
-		icon: "material-symbols:person",
+		icon: "material-symbols:info",
 	},
 };
 

@@ -155,7 +155,7 @@ const activeCategory = categories[0]?.id || "anime";
         <div class="mb-6">
           <div class="page-heading">
             <div class="page-icon" aria-hidden="true">
-              <Icon name="material-symbols:menu-book" />
+              <Icon is:inline name="material-symbols:menu-book" />
             </div>
             <div>
               <h2>{i18n(I18nKey.mal)}</h2>
@@ -172,7 +172,7 @@ const activeCategory = categories[0]?.id || "anime";
           /* 未配置提示 */
           <div class="text-center py-16">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-              <Icon name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
+              <Icon is:inline name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
             </div>
             <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
               {i18n(I18nKey.malNotConfigured)}
@@ -185,7 +185,7 @@ const activeCategory = categories[0]?.id || "anime";
           /* 获取失败提示 */
           <div class="text-center py-16">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-              <Icon name="material-symbols:error-outline" class="text-[2rem] text-red-500" />
+              <Icon is:inline name="material-symbols:error-outline" class="text-[2rem] text-red-500" />
             </div>
             <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
               {i18n(I18nKey.malFetchError)}
@@ -208,7 +208,7 @@ const activeCategory = categories[0]?.id || "anime";
           /* 空列表提示 */
           <div class="text-center py-16">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-              <Icon name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
+              <Icon is:inline name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
             </div>
             <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
               {isConfigured ? i18n(I18nKey.malEmpty) : i18n(I18nKey.malNotConfigured)}
