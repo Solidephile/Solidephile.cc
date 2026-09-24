@@ -96,6 +96,9 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 			// 关于页面
 			LinkPresets.About,
+
+			// 站点统计
+			LinkPresets.Analytics,
 		],
 	});
 
@@ -237,8 +240,14 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		icon: "simple-icons:osu",
 		pageKey: "osu",
 	},
+	Analytics: {
+		name: "站点统计",
+		url: "/analytics/",
+		icon: "material-symbols:analytics",
+		pageKey: "analytics",
+	},
 	About: {
-		name: "关于",
+		name: "关于我",
 		url: "/about/",
 		icon: "material-symbols:info",
 	},

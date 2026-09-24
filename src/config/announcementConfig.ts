@@ -14,10 +14,10 @@ export const announcementConfig: AnnouncementConfig = {
 		// 启用链接
 		enable: true,
 		// 链接文本
-		text: "关于我……",
+		text: "开源地址",
 		// 链接 URL
-		url: "/about/",
+		url: "https://github.com/Solidephile/Solidephile.cc",
 		// 内部链接
-		external: false,
+		external: true,
 	},
 };

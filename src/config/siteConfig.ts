@@ -35,6 +35,8 @@ const pages = resolvePageToggles({
 	mal: false,
     // osu! 数据页开关
 	osu: true,
+	// 站点统计页开关
+	analytics: true,
 
 	// ── 关于 (About) ──────────────────────────────────
 
