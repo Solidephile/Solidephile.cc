@@ -1,12 +1,12 @@
 <script lang="ts">
 /**
  * osu 页面的四个 tab：游戏简介 / 历史数据 / 最好成绩 / 谱面相关
- * 选中的 tab 会同步到 URL hash（由 OsuTabNav 处理）
+ * 使用共用的 TabNav（layout="fill" 等分铺满），选中的 tab 会同步到 URL hash
  */
+import TabNav from "@components/common/TabNav.svelte";
 import type { OsuHistoryItem } from "@/types/osu";
 
 import HistoryCharts from "./HistoryCharts.svelte";
-import OsuTabNav from "./OsuTabNav.svelte";
 
 interface Props {
 	history: OsuHistoryItem[];
@@ -29,7 +29,7 @@ function handleTabChange(tabId: string) {
 </script>
 
 <div class="mb-6">
-	<OsuTabNav tabs={TABS} {activeTab} onTabChange={handleTabChange} />
+	<TabNav tabs={TABS} {activeTab} onTabChange={handleTabChange} layout="fill" />
 
 	{#if activeTab === "intro"}
 		<!-- TODO: 游戏简介内容 -->

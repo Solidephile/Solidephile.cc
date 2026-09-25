@@ -106,7 +106,7 @@ let statusView = $derived.by(() => {
 </script>
 
 <div class="mb-3">
-	<div class="card-base flex flex-col gap-4 p-6">
+	<div class="card-base flex flex-col gap-4 px-6 pt-6 pb-4">
 		<div class="flex items-center gap-4">
 			<img
 				src={avatarSrc}
