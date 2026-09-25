@@ -215,7 +215,7 @@ function build(animate: boolean) {
 						? (context: { chart: Chart }) => {
 								const chartRef = context.chart;
 								const { chartArea } = chartRef;
-								if (!chartArea) return withAlpha(color, 0.25);
+								if (!chartArea) return withAlpha(color, 0.45);
 
 								const gradient = chartRef.ctx.createLinearGradient(
 									0,
@@ -223,7 +223,7 @@ function build(animate: boolean) {
 									0,
 									chartArea.bottom,
 								);
-								gradient.addColorStop(0, withAlpha(color, 0.25));
+								gradient.addColorStop(0, withAlpha(color, 0.45));
 								gradient.addColorStop(1, withAlpha(color, 0));
 								return gradient;
 							}
