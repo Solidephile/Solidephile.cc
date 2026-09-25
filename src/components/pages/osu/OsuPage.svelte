@@ -5,7 +5,7 @@
  * - OsuPanel（基本信息）位于 tabs 之外，任何 tab 下都可见
  */
 import { onMount } from "svelte";
-import type { OsuData, OsuHistoryItem, OsuStats } from "@/types/osu";
+import type { OsuData, OsuHistoryItem, OsuStats, OsuStatus } from "@/types/osu";
 
 import OsuPanel from "./OsuPanel.svelte";
 import OsuTabs from "./OsuTabs.svelte";
@@ -13,6 +13,10 @@ import OsuTabs from "./OsuTabs.svelte";
 let stats = $state<OsuStats | null>(null);
 let history = $state<OsuHistoryItem[]>([]);
 let error = $state<string | null>(null);
+
+// 实时在线状态（单独接口，与主数据互不影响）
+let status = $state<OsuStatus | null>(null);
+let statusError = $state(false);
 
 // ---------- Mock 数据（仅本地开发回退：/api/osu 拿不到时方便先看 UI） ----------
 function buildMockHistory(): OsuHistoryItem[] {
@@ -67,7 +71,21 @@ function prepareHistory(raw: OsuHistoryItem[]): OsuHistoryItem[] {
 		);
 }
 
+// 实时在线状态：与主数据并行请求，失败不影响主流程
+async function loadStatus() {
+	try {
+		const res = await fetch(`/api/osu_status?t=${Date.now()}`);
+		if (!res.ok) throw new Error(`API ${res.status}`);
+		status = (await res.json()) as OsuStatus;
+	} catch (e) {
+		console.warn("osu 在线状态获取失败:", e);
+		statusError = true;
+	}
+}
+
 onMount(async () => {
+	loadStatus();
+
 	try {
 		const res = await fetch(`/api/osu?t=${Date.now()}`);
 		if (!res.ok) throw new Error(`API ${res.status}`);
@@ -94,7 +112,7 @@ onMount(async () => {
 	<div class="py-16 text-center text-neutral-500 dark:text-neutral-400">Loading...</div>
 {:else}
 	<!-- 基本信息：不属于任何 tab，任何 tab 下都显示 -->
-	<OsuPanel {stats} />
+	<OsuPanel {stats} {status} {statusError} />
 
 	<!-- 四个 tab 的内容区 -->
 	<OsuTabs {history} />

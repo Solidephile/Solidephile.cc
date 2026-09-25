@@ -34,3 +34,15 @@ export interface OsuData {
 	stats: OsuStats;
 	history: OsuHistoryItem[];
 }
+
+/** /api/osu_status 返回的实时在线状态 */
+export interface OsuStatus {
+	/** 是否在线；拿不到时为 null */
+	is_online: boolean | null;
+	/** 最后访问时间；null 表示用户隐藏了在线状态（隐身） */
+	last_visit: string | null;
+	/** 状态获取时间（ISO 字符串） */
+	fetched_at: string;
+	/** true 表示本次返回的是失败时回退的旧缓存 */
+	stale?: boolean;
+}

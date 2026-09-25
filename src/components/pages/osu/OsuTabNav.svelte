@@ -50,7 +50,7 @@ function clickTab(tabId: string) {
 			<button
 				type="button"
 				aria-current={tab.id === activeTab ? "page" : undefined}
-				class="flex min-w-0 flex-col items-center justify-center gap-1 rounded-t-lg border-b-2 px-1 py-2.5 text-base font-medium transition-colors duration-200 @lg:flex-row @lg:gap-2 @lg:px-3 @lg:py-3 @lg:text-base
+				class="flex min-w-0 flex-col items-center justify-center gap-1 rounded-t-lg border-b-2 px-1 py-2.5 text-base font-semibold transition-colors duration-200 @lg:flex-row @lg:gap-2 @lg:px-3 @lg:py-3 @lg:text-base
 					{tab.id === activeTab
 					? 'border-(--primary) text-(--primary)'
 					: 'border-transparent text-neutral-500 hover:bg-black/5 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-(--btn-plain-bg-hover) dark:hover:text-neutral-200'}"
