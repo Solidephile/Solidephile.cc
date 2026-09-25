@@ -2,7 +2,8 @@
 import { onMount } from "svelte";
 import Icon from "@/components/common/Icon.svelte";
 import LineChart from "@/components/common/LineChart.svelte";
-import TabNav from "@/components/common/TabNav.svelte";
+import LoadingState from "@/components/common/LoadingState.svelte";
+import SegmentedControl from "@/components/common/SegmentedControl.svelte";
 import AnalyticsPanel from "./AnalyticsPanel.svelte";
 import BreakdownList from "./BreakdownList.svelte";
 
@@ -39,10 +40,10 @@ interface SeriesData {
 	};
 }
 
-const RANGE_TABS = [
-	{ id: "7d", name: "近 7 天" },
-	{ id: "30d", name: "近 30 天" },
-	{ id: "90d", name: "近 90 天" },
+const RANGE_OPTIONS = [
+	{ id: "7d", name: "7 天" },
+	{ id: "30d", name: "30 天" },
+	{ id: "90d", name: "90 天" },
 ];
 
 // Umami 的渠道名是英文（direct / search / ...），展示时转成中文
@@ -176,10 +177,8 @@ const channelItems = $derived(
 			{dashboardError}
 		</div>
 	{:else if !dashboard}
-		<div
-			class="card-base p-10 text-center text-sm text-neutral-500 dark:text-neutral-400"
-		>
-			加载中…
+		<div class="card-base p-6">
+			<LoadingState />
 		</div>
 	{:else}
 		<!-- 汇总数据：累计 + 今日 -->
@@ -217,14 +216,14 @@ const channelItems = $derived(
 
 		<!-- 访问趋势：只有这里可以切换时间范围 -->
 		<AnalyticsPanel icon="material-symbols:show-chart" title="访问趋势">
-			<div class="mb-3">
-				<TabNav
-					tabs={RANGE_TABS}
-					activeTab={range}
-					onTabChange={handleRangeChange}
-					useHash={false}
+			{#snippet trailing()}
+				<SegmentedControl
+					options={RANGE_OPTIONS}
+					value={range}
+					onChange={handleRangeChange}
+					label="时间范围"
 				/>
-			</div>
+			{/snippet}
 
 			<div
 				class="transition-opacity duration-200 {loadingSeries
@@ -248,12 +247,7 @@ const channelItems = $derived(
 						clampZero
 					/>
 				{:else}
-					<div
-						class="flex items-center justify-center text-sm text-neutral-500 dark:text-neutral-400"
-						style="height: 280px;"
-					>
-						加载中…
-					</div>
+					<LoadingState height={280} />
 				{/if}
 			</div>
 		</AnalyticsPanel>

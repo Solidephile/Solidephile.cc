@@ -5,6 +5,7 @@
  * - OsuPanel（基本信息）位于 tabs 之外，任何 tab 下都可见
  */
 import { onMount } from "svelte";
+import LoadingState from "@/components/common/LoadingState.svelte";
 import type { OsuData, OsuHistoryItem, OsuStats, OsuStatus } from "@/types/osu";
 
 import OsuPanel from "./OsuPanel.svelte";
@@ -109,7 +110,7 @@ onMount(async () => {
 		{error}
 	</div>
 {:else if !stats}
-	<div class="py-16 text-center text-neutral-500 dark:text-neutral-400">Loading...</div>
+	<LoadingState />
 {:else}
 	<!-- 基本信息：不属于任何 tab，任何 tab 下都显示 -->
 	<OsuPanel {stats} {status} {statusError} />
