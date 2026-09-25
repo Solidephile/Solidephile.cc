@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import AnalyticsDashboard from "@/components/pages/analytics/AnalyticsDashboard.svelte";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import "@/styles/pages/common.css";
@@ -11,19 +12,12 @@ if (!siteConfig.pages.analytics) {
 
 const title = "站点统计";
 const description = "本站访问数据看板";
-
-// 计划接入的看板模块（目前仅作占位展示）
-const plannedModules = [
-	{ icon: "material-symbols:show-chart", label: "访问趋势" },
-	{ icon: "material-symbols:description", label: "热门页面" },
-	{ icon: "material-symbols:link", label: "来源渠道" },
-	{ icon: "material-symbols:public", label: "访客地区" },
-	{ icon: "material-symbols:devices", label: "设备与浏览器" },
-	{ icon: "material-symbols:schedule", label: "访问时段" },
-];
 ---
 
 <MainGridLayout title={title} description={description}>
+	<!-- 统计页不需要被搜索引擎收录 -->
+	<meta slot="head" name="robots" content="noindex, nofollow" />
+
 	<section class="page-shell">
 		<!-- 标题面板 -->
 		<header class="card-base page-header">
@@ -39,41 +33,9 @@ const plannedModules = [
 		</header>
 
 		<!--
-			占位内容：完整看板之后再接入。
-			数据来源走已有的服务端代理 /api/umami（Umami 凭据只在服务端），
-			需要更多维度时再扩这个接口或另开一个更详细的代理。
+			看板数据全部走服务端代理 /api/umami?view=dashboard&range=...
+			（Umami 凭据只在服务端；响应带 5 分钟 CDN 缓存）
 		-->
-		<div class="card-base px-6 py-12 md:px-9 md:py-16">
-			<div class="flex flex-col items-center text-center">
-				<div
-					class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-(--btn-regular-bg) text-(--primary)"
-				>
-					<Icon is:inline name="material-symbols:monitoring" class="text-4xl" />
-				</div>
-
-				<h3 class="mb-3 text-xl font-bold text-neutral-900 dark:text-neutral-100">
-					看板建设中
-				</h3>
-
-				<p class="max-w-xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-					完整的访问数据看板还在开发中。侧边栏的「站点统计」目前已经能看到总访问量与近 30 天独立访客。
-				</p>
-
-				<div class="mt-8 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
-					{
-						plannedModules.map((item) => (
-							<div class="flex flex-col items-center gap-2 rounded-xl border border-(--line-divider) bg-(--card-bg) px-3 py-4">
-								<div class="text-xl text-(--primary)">
-									<Icon is:inline name={item.icon} />
-								</div>
-								<span class="text-xs text-neutral-500 dark:text-neutral-400">
-									{item.label}
-								</span>
-							</div>
-						))
-					}
-				</div>
-			</div>
-		</div>
+		<AnalyticsDashboard client:load />
 	</section>
 </MainGridLayout>

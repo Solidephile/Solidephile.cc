@@ -66,7 +66,7 @@ function lastVisitText(timestamp: string): string {
 
 // 胶囊的中性样式（离线 / 隐身 / 未知共用）
 const NEUTRAL_PILL =
-	"border-(--line-divider) bg-black/5 text-neutral-600 dark:bg-white/5 dark:text-neutral-300";
+	"border-(--line-divider) bg-(--btn-regular-bg) text-(--btn-content)";
 
 // 在线状态展示：在线 / 最后活跃 / 隐身 / 未知 / 读取中
 // 每种状态给出 { 文案, 圆点样式, 胶囊样式 }，模板里统一渲染成胶囊
@@ -123,24 +123,24 @@ let statusView = $derived.by(() => {
 		</div>
 
 		<div class="grid grid-cols-2 gap-3 @2xl:grid-cols-4">
-			<div class="rounded-xl bg-(--card-bg) p-3 border border-(--line-divider)">
-				<div class="text-base font-bold text-neutral-500 dark:text-neutral-400">全球排名</div>
-				<div class="text-[10px] tracking-wide text-neutral-400 dark:text-neutral-500">GLOBAL RANK</div>
+			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
+				<div class="text-base font-bold text-(--btn-content)">全球排名</div>
+				<div class="text-[10px] tracking-wide text-neutral-500 dark:text-neutral-400">GLOBAL RANK</div>
 				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">#{formatNumber(stats.global_rank)}</div>
 			</div>
-			<div class="rounded-xl bg-(--card-bg) p-3 border border-(--line-divider)">
-				<div class="text-base font-bold text-neutral-500 dark:text-neutral-400">国家排名</div>
-				<div class="text-[10px] tracking-wide text-neutral-400 dark:text-neutral-500">COUNTRY RANK</div>
+			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
+				<div class="text-base font-bold text-(--btn-content)">国家排名</div>
+				<div class="text-[10px] tracking-wide text-neutral-500 dark:text-neutral-400">COUNTRY RANK</div>
 				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">#{formatNumber(stats.country_rank)}</div>
 			</div>
-			<div class="rounded-xl bg-(--card-bg) p-3 border border-(--line-divider)">
-				<div class="text-base font-bold text-neutral-500 dark:text-neutral-400">PP 值</div>
-				<div class="text-[10px] tracking-wide text-neutral-400 dark:text-neutral-500">PERFORMANCE</div>
+			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
+				<div class="text-base font-bold text-(--btn-content)">PP 值</div>
+				<div class="text-[10px] tracking-wide text-neutral-500 dark:text-neutral-400">PERFORMANCE</div>
 				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">{formatNumber(stats.pp, 2)} pp</div>
 			</div>
-			<div class="rounded-xl bg-(--card-bg) p-3 border border-(--line-divider)">
-				<div class="text-base font-bold text-neutral-500 dark:text-neutral-400">游玩时间</div>
-				<div class="text-[10px] tracking-wide text-neutral-400 dark:text-neutral-500">PLAY TIME</div>
+			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
+				<div class="text-base font-bold text-(--btn-content)">游玩时间</div>
+				<div class="text-[10px] tracking-wide text-neutral-500 dark:text-neutral-400">PLAY TIME</div>
 				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">{formatPlayTime(stats.play_time)}</div>
 			</div>
 		</div>
@@ -162,7 +162,7 @@ let statusView = $derived.by(() => {
 				href={OSU_PROFILE_URL}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="inline-flex items-center gap-1.5 rounded-lg border border-(--line-divider) px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-black/5 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-neutral-100"
+				class="btn-regular rounded-lg px-3 py-1.5 gap-1.5 text-sm font-medium text-(--btn-content) active:scale-95"
 			>
 				<Icon icon="material-symbols:open-in-new" class="text-base" />
 				我的 osu! 主页
@@ -170,7 +170,7 @@ let statusView = $derived.by(() => {
 		</div>
 	</div>
 
-	<div class="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
+	<div class="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
 		{formatRelativeTime(stats.updated_at)} 前更新 · 历史数据每日更新
 	</div>
 </div>
