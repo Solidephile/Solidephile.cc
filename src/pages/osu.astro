@@ -1,6 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
-import OsuPanel from "@/components/pages/osu/OsuPanel.svelte";
+import OsuPage from "@/components/pages/osu/OsuPage.svelte";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import "@/styles/pages/common.css";
@@ -29,6 +29,7 @@ const description = "个人 osu! 数据面板";
 			</div>
 		</header>
 
-		<OsuPanel client:load />
+		<!-- 基本信息 + 四个 tab（数据在 OsuPage 内统一获取） -->
+		<OsuPage client:load />
 	</section>
 </MainGridLayout>

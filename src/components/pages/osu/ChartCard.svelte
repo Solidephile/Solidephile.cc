@@ -44,7 +44,7 @@ let {
 	yMax,
 }: Props = $props();
 
-/* ---------- 主题色：读取 Firefly 的 CSS 变量 ---------- */
+/* ---------- 主题色：读取 CSS 变量 ---------- */
 
 function readVar(name: string, fallback: string): string {
 	if (typeof window === "undefined") return fallback;
@@ -258,7 +258,7 @@ function onThemeChange() {
 onMount(() => {
 	chart = createChart(true);
 
-	// 与 Firefly WavesEffect 一致：theme-change 事件 + MutationObserver 兜底
+	// 与 WavesEffect 一致：theme-change 事件 + MutationObserver 兜底
 	window.addEventListener("theme-change", onThemeChange);
 	themeObserver = new MutationObserver(onThemeChange);
 	themeObserver.observe(document.documentElement, {
