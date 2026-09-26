@@ -7,6 +7,7 @@ import TabNav from "@components/common/TabNav.svelte";
 import type { OsuHistoryItem } from "@/types/osu";
 
 import HistoryCharts from "./HistoryCharts.svelte";
+import ScoresList from "./ScoresList.svelte";
 
 interface Props {
 	history: OsuHistoryItem[];
@@ -23,8 +24,16 @@ const TABS = [
 
 let activeTab = $state("intro");
 
+// 「最好成绩」首次打开后保持挂载（用 CSS 隐藏，而不是销毁）：
+// 这样切走再切回来不会重复请求，也不会丢掉已经展开的条数
+let scoresOpened = $state(false);
+
 function handleTabChange(tabId: string) {
 	activeTab = tabId;
+
+	if (tabId === "scores") {
+		scoresOpened = true;
+	}
 }
 </script>
 
@@ -36,12 +45,16 @@ function handleTabChange(tabId: string) {
 		{@render placeholder("游戏简介", "内容待补充")}
 	{:else if activeTab === "history"}
 		<HistoryCharts {history} />
-	{:else if activeTab === "scores"}
-		<!-- TODO: 最好成绩内容 -->
-		{@render placeholder("最好成绩", "内容待补充")}
 	{:else if activeTab === "beatmaps"}
 		<!-- TODO: 谱面相关内容 -->
 		{@render placeholder("谱面相关", "内容待补充")}
+	{/if}
+
+	<!-- 最好成绩：懒加载（首次打开才挂载），打开后靠 hidden 切换以保留状态 -->
+	{#if scoresOpened}
+		<div class:hidden={activeTab !== "scores"}>
+			<ScoresList />
+		</div>
 	{/if}
 </div>
 

@@ -46,3 +46,48 @@ export interface OsuStatus {
 	/** true 表示本次返回的是失败时回退的旧缓存 */
 	stale?: boolean;
 }
+
+/** 成绩评级（osu! 的 rank 字段） */
+export type OsuScoreRank =
+	| "XH" // 银 SS
+	| "X" // SS
+	| "SH" // 银 S
+	| "S"
+	| "A"
+	| "B"
+	| "C"
+	| "D"
+	| "F";
+
+/** 单条成绩（后端已裁剪，只含展示所需字段） */
+export interface OsuScore {
+	id: number | null;
+	pp: number;
+	rank: OsuScoreRank | null;
+	/** 准确率，0–1 */
+	accuracy: number;
+	/** mod 缩写，如 ["HD", "DT"] */
+	mods: string[];
+	/** 谱面名（优先原名 title_unicode，无则罗马音 title） */
+	title: string;
+	/** 艺术家（优先原名 artist_unicode，无则罗马音 artist） */
+	artist: string;
+	/** 难度名（beatmap.version） */
+	version: string;
+	/** 难度星级 */
+	stars: number;
+	/** 铺面封面图地址 */
+	cover: string;
+	/** 权重百分比；只有最好成绩有 */
+	weight: number | null;
+}
+
+/** /api/osu_scores 的返回结构 */
+export interface OsuScoresData {
+	/** 手动置顶的成绩，顺序即配置顺序 */
+	pinned: OsuScore[];
+	/** 按 pp 排序的最好成绩 */
+	best: OsuScore[];
+	/** 数据更新时间（ISO 字符串） */
+	updated_at: string;
+}
