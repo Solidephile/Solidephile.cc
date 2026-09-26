@@ -3,8 +3,9 @@
  * osu 基本信息卡片（资料卡 + 关键统计 + 在线状态 / 游戏内主页链接）
  * 由 OsuPage 传入数据；位于 tabs 之外，任何 tab 下都可见。
  */
-import Icon from "@components/common/Icon.svelte";
+
 import avatarModule from "@assets/images/avatar.avif";
+import Icon from "@components/common/Icon.svelte";
 import type { OsuStats, OsuStatus } from "@/types/osu";
 
 interface Props {
@@ -99,7 +100,8 @@ let statusView = $derived.by(() => {
 	// last_visit 为 null：用户隐藏了在线状态（空心圆点表示「不可见」）
 	return {
 		text: "隐身",
-		dotClass: "border border-neutral-400 bg-transparent dark:border-neutral-500",
+		dotClass:
+			"border border-neutral-400 bg-transparent dark:border-neutral-500",
 		pillClass: NEUTRAL_PILL,
 	};
 });
@@ -114,7 +116,7 @@ let statusView = $derived.by(() => {
 				class="h-16 w-16 rounded-md object-cover"
 			/>
 			<div>
-				<p class="text-xs text-neutral-500 dark:text-neutral-400">PLAYER</p>
+				<p class="text-xs tracking-widest text-neutral-500 dark:text-neutral-400">PLAYER</p>
 				<h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.username}</h2>
 				<p class="text-sm text-neutral-600 dark:text-neutral-400">
 					{stats.country}{stats.country_code ? ` · ${stats.country_code}` : ""}
@@ -125,22 +127,22 @@ let statusView = $derived.by(() => {
 		<div class="grid grid-cols-2 gap-3 @2xl:grid-cols-4">
 			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
 				<div class="text-base font-bold text-(--btn-content)">全球排名</div>
-				<div class="text-[10px] tracking-wide text-neutral-500 dark:text-neutral-400">GLOBAL RANK</div>
+				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">GLOBAL RANK</div>
 				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">#{formatNumber(stats.global_rank)}</div>
 			</div>
 			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
 				<div class="text-base font-bold text-(--btn-content)">国家排名</div>
-				<div class="text-[10px] tracking-wide text-neutral-500 dark:text-neutral-400">COUNTRY RANK</div>
+				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">COUNTRY RANK</div>
 				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">#{formatNumber(stats.country_rank)}</div>
 			</div>
 			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
 				<div class="text-base font-bold text-(--btn-content)">PP 值</div>
-				<div class="text-[10px] tracking-wide text-neutral-500 dark:text-neutral-400">PERFORMANCE</div>
+				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">PERFORMANCE</div>
 				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">{formatNumber(stats.pp, 2)} pp</div>
 			</div>
 			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
 				<div class="text-base font-bold text-(--btn-content)">游玩时间</div>
-				<div class="text-[10px] tracking-wide text-neutral-500 dark:text-neutral-400">PLAY TIME</div>
+				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">PLAY TIME</div>
 				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">{formatPlayTime(stats.play_time)}</div>
 			</div>
 		</div>

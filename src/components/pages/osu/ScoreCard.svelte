@@ -51,37 +51,48 @@ onMount(() => {
 	});
 });
 
-// 评级配色：XH/SH 是 Hidden 的「银」评级，X/S 为金
-const RANK_STYLES: Record<string, string> = {
-	XH: "bg-neutral-300 text-neutral-800",
-	X: "bg-amber-400 text-amber-950",
-	SH: "bg-neutral-300 text-neutral-800",
-	S: "bg-amber-400 text-amber-950",
-	A: "bg-emerald-500 text-white",
-	B: "bg-sky-500 text-white",
-	C: "bg-violet-500 text-white",
-	D: "bg-rose-500 text-white",
-	F: "bg-neutral-500 text-white",
+// 评级徽章：配色照搬 osu-web v2019 官方徽章
+// 来源：resources/images/badges/score-ranks-v2019/GradeSmall-*.svg
+//
+// 官方没有「银底徽章」——SS 一律品红底、S 一律青底，银与金的区别只在字母颜色
+// （金渐变 #FFE7A8→#FFB800 / 银渐变 white→#AADFF0）。
+//
+// 亮/暗分开写的原因：
+//   官方底色是给深色界面设计的，直接放在白卡片上会显得发闷，所以亮色模式把底色
+//   的 HSL 亮度 +4%。但青底（S 系）本身亮度居中，提亮会让浅色字母更糊，所以亮色
+//   模式同时把字母换成官方渐变的浅端（金 #FFE7A8 / 银 纯白）来补回对比度——
+//   实测 A/B/C/D 对比度上升，S 系基本持平，没有一处变差。
+//   F 是失败徽章，官方就是深灰，两种模式都保持原样（且最佳成绩里不会出现）。
+//
+// 类名必须写成完整字面量：Tailwind 只扫描源码中的字面字符串，模板拼接不会被识别。
+const RANKS: Record<OsuScoreRank, { label: string; style: string }> = {
+	XH: {
+		label: "SS",
+		style: "bg-[#e01eab] text-white dark:bg-[#CE1C9D] dark:text-[#D5EFF8]",
+	},
+	X: {
+		label: "SS",
+		style: "bg-[#e01eab] text-[#FFE7A8] dark:bg-[#CE1C9D] dark:text-[#FFD054]",
+	},
+	SH: {
+		label: "S",
+		style: "bg-[#00bbc9] text-white dark:bg-[#00A8B5] dark:text-[#D5EFF8]",
+	},
+	S: {
+		label: "S",
+		style: "bg-[#00bbc9] text-[#FFE7A8] dark:bg-[#00A8B5] dark:text-[#FFD054]",
+	},
+	A: { label: "A", style: "bg-[#87e116] text-[#275227] dark:bg-[#7CCE14]" },
+	B: { label: "B", style: "bg-[#e5b842] text-[#553A2B] dark:bg-[#E3B130]" },
+	C: { label: "C", style: "bg-[#f39065] text-[#473625] dark:bg-[#F18252]" },
+	D: { label: "D", style: "bg-[#eb6565] text-[#512525] dark:bg-[#E95353]" },
+	F: { label: "F", style: "bg-[#3F3F3F] text-[#CC3333]" },
 };
 
-const DEFAULT_RANK_STYLE = "bg-neutral-400 text-white";
+/** rank 缺失时的兜底（老数据 / 异常响应） */
+const FALLBACK_RANK = { label: "?", style: "bg-neutral-400 text-white" };
 
-function rankLabel(rank: OsuScoreRank | null): string {
-	switch (rank) {
-		case "XH":
-		case "X":
-			return "SS";
-		case "SH":
-		case "S":
-			return "S";
-		default:
-			return rank ?? "?";
-	}
-}
-
-let rankStyle = $derived(
-	(score.rank && RANK_STYLES[score.rank]) || DEFAULT_RANK_STYLE,
-);
+const rankView = $derived((score.rank && RANKS[score.rank]) || FALLBACK_RANK);
 
 // 星级胶囊：底色与文字色都走 osu-web 的难度色带，星级越高颜色越深
 let starBg = $derived(difficultyColour(score.stars));
@@ -132,11 +143,11 @@ function modStyle(mod: string): string {
 
 	<!-- 内容 -->
 	<div class="relative flex items-center gap-3 px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
-		<!-- 评级（最左） -->
+		<!-- 评级（最左）；内描边（inset-ring）让徽章看起来更有质感 -->
 		<div
-			class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-base font-black {rankStyle}"
+			class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg font-black inset-ring-1 inset-ring-white/30 {rankView.style}"
 		>
-			{rankLabel(score.rank)}
+			{rankView.label}
 		</div>
 
 		<!-- 谱面信息 -->
@@ -153,11 +164,11 @@ function modStyle(mod: string): string {
 					{score.title}
 				</span>
 				{#if score.artist}
-					<!-- 艺术家与歌曲名同色、小一号。整块用极大的 flex-shrink 权重：
-					     宽度不够时先把「by 艺术家」压缩掉，再轮到歌曲名省略，
-					     所以顺序是「歌曲名 by 艺术家…」→「歌曲名…」 -->
+					<!-- 艺术家让位给歌曲名。用 flex:1 1 0（基准宽度 0）而不是缩小权重：
+					     基准为 0 意味着空间不足时它无处可缩，收缩量只能全部落在歌曲名上。
+					     于是顺序恒为「歌曲名 by 艺术家…」→「歌曲名…」，不会两个一起省略 -->
 					<span
-						class="min-w-0 shrink-[100] truncate text-xs text-neutral-900 dark:text-neutral-100"
+						class="min-w-0 flex-1 truncate text-xs text-neutral-900 dark:text-neutral-100"
 						>by <span class="font-medium">{score.artist}</span></span
 					>
 				{/if}

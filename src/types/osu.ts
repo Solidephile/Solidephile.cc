@@ -78,8 +78,6 @@ export interface OsuScore {
 	stars: number;
 	/** 铺面封面图地址 */
 	cover: string;
-	/** 权重百分比；只有最好成绩有 */
-	weight: number | null;
 }
 
 /** /api/osu_scores 的返回结构 */

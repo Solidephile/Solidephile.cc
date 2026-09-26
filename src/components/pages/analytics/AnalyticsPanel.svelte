@@ -18,11 +18,11 @@ let { icon, title, trailing, children }: Props = $props();
 	<div
 		class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
 	>
-		<div class="flex items-center gap-2">
-			<span class="text-lg text-(--primary)">
+		<div class="flex items-center gap-2.5">
+			<span class="text-2xl text-(--primary)">
 				<Icon {icon} />
 			</span>
-			<h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+			<h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
 				{title}
 			</h3>
 		</div>

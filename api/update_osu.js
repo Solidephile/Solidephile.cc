@@ -76,14 +76,18 @@ async function getUser(token) {
 function normalizeMods(mods) {
     if (!Array.isArray(mods)) return [];
 
-    return mods
-        .map((mod) =>
-            typeof mod === "string" ? mod : mod && mod.acronym
-        )
-        .filter(
-            (mod) =>
-                typeof mod === "string" && mod.length > 0
-        );
+    const acronyms = [];
+
+    for (const mod of mods) {
+        const acronym =
+            typeof mod === "string" ? mod : mod && mod.acronym;
+
+        if (typeof acronym === "string" && acronym.length > 0) {
+            acronyms.push(acronym);
+        }
+    }
+
+    return acronyms;
 }
 
 // 只保留前端要显示的字段：原样转发一条约 3~4KB，裁剪后约 200 字节
@@ -109,9 +113,7 @@ function trimScore(score) {
             covers.cover ||
             covers["cover@2x"] ||
             covers.card ||
-            "",
-        // weight 只在最好成绩里有（置顶成绩没有）
-        weight: score.weight ? score.weight.percentage ?? null : null
+            ""
     };
 }
 

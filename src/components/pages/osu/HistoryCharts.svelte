@@ -59,9 +59,7 @@ function handleRangeChange(nextRange: string) {
 // 准确率的纵轴范围跟着当前时段走
 // （用 $derived 而不是顶层直接取值，避免 Svelte 的 state_referenced_locally 告警）
 let accuracyValues = $derived(
-	filteredHistory
-		.map((item) => Number(item.accuracy))
-		.filter(Number.isFinite),
+	filteredHistory.map((item) => Number(item.accuracy)).filter(Number.isFinite),
 );
 let accuracyMin = $derived(
 	accuracyValues.length > 0 ? Math.min(...accuracyValues) : 0,
@@ -75,7 +73,7 @@ let accuracyMax = $derived(
 	class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
 >
 	<div>
-		<p class="mb-1 text-xs text-neutral-500 dark:text-neutral-400">HISTORY</p>
+		<p class="mb-1 text-xs tracking-widest text-neutral-500 dark:text-neutral-400">HISTORY</p>
 		<h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
 			数据历史曲线
 		</h3>

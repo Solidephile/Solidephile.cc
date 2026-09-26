@@ -51,7 +51,7 @@ const values = $derived(history.map((item) => Number(item[dataKey])));
 	<div class="card-base p-4">
 		<div class="mb-2 flex items-center justify-between">
 			<div>
-				<h4 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+				<h4 class="mb-0.5 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
 					{title}
 				</h4>
 				<p class="text-xs text-neutral-500 dark:text-neutral-400">

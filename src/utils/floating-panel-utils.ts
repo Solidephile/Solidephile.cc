@@ -32,6 +32,22 @@ function syncFloatingPanelState(panel: HTMLElement): void {
 	const isOpen = !panel.classList.contains(CLOSED_CLASS);
 	const wasOpen = panelOpenStates.get(panel);
 
+	// 关闭面板时若焦点还留在面板内部，先把焦点移出去。
+	// 否则给祖先设 aria-hidden 会被浏览器直接拦截并告警
+	// （"Blocked aria-hidden on an element because its descendant retained focus"），
+	// 而那次 aria-hidden 实际并未生效，已隐藏的面板仍会暴露给读屏软件；
+	// 同时焦点会滞留在隐藏面板里，键盘用户会失去位置。
+	if (!isOpen && panel.contains(document.activeElement)) {
+		const focusTarget = getPanelTriggers(panel).find(isVisible);
+
+		if (focusTarget) {
+			// preventScroll：面板可能在页面任意滚动位置关闭，避免聚焦触发器时把页面拉回顶部
+			focusTarget.focus({ preventScroll: true });
+		} else if (document.activeElement instanceof HTMLElement) {
+			document.activeElement.blur();
+		}
+	}
+
 	panel.inert = !isOpen;
 	panel.setAttribute("aria-hidden", String(!isOpen));
 

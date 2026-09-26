@@ -64,7 +64,7 @@ onMount(async () => {
 			<section>
 				<div class="mb-3 flex items-center justify-between">
 					<div>
-						<p class="mb-1 text-xs text-neutral-500 dark:text-neutral-400">PINNED</p>
+						<p class="mb-1 text-xs tracking-widest text-neutral-500 dark:text-neutral-400">PINNED</p>
 						<h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">置顶成绩</h3>
 					</div>
 					<span class="text-sm text-neutral-500 dark:text-neutral-400">
@@ -85,7 +85,7 @@ onMount(async () => {
 			<section>
 				<div class="mb-3 flex items-center justify-between">
 					<div>
-						<p class="mb-1 text-xs text-neutral-500 dark:text-neutral-400">BEST</p>
+						<p class="mb-1 text-xs tracking-widest text-neutral-500 dark:text-neutral-400">BEST</p>
 						<h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">最好成绩</h3>
 					</div>
 					<span class="text-sm text-neutral-500 dark:text-neutral-400">
