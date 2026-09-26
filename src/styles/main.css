@@ -17,9 +17,19 @@
 
 /* Tailwind v4 配置 - 从 tailwind.config.cjs 迁移 */
 @theme {
+  /* 全局字体栈。顺序有两处讲究：
+     1. 「具名字体 → 泛型关键字 → emoji」是唯一正确的顺序。
+        泛型关键字（sans-serif / system-ui 之外的 serif 等）永远算「匹配成功」，
+        一旦排在中间，它后面的所有条目都永远不会被读到。
+     2. 拉丁与中文分开列：拉丁字体不含汉字，浏览器会为汉字自动往后找，
+        所以先排一批拉丁 UI 字体、再排一批中文 UI 字体，两边各取各的。
+     各平台实际命中：Windows → Segoe UI / 微软雅黑，macOS → SF Pro / 苹方，
+     Android（含 HyperOS）→ 系统 UI 字体（小米即 MiSans）。 */
   --font-sans:
-    'Roboto', 'sans-serif', ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans SC', sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 /* 自定义工具类 - Tailwind v4 使用 @utility 定义 */
