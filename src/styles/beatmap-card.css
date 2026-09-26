@@ -1,0 +1,233 @@
+/* ===== 谱面卡片（正文里的 ::beatmap{id=...}）=====
+ *
+ * 节点由 src/plugins/rehype-component-beatmap.mjs 生成。
+ *
+ * 这份样式单独放一个 .css 而不是写进 markdown-extend.styl：
+ * Stylus 的表达式解析器会把 color-mix(in oklab, …) 里的 in 当成运算符而报错
+ * （项目里 variables.styl 是靠 unquote() 绕过的），原生 CSS 没这个问题。
+ */
+
+.custom-md a.card-beatmap {
+	display: block;
+	position: relative;
+	margin: 14px 0;
+	padding: 0;
+	border-radius: var(--radius-large);
+	background-color: var(--card-bg);
+	color: var(--tw-prose-body);
+	font-weight: inherit;
+	text-decoration: none;
+	/* 让封面 / 遮罩的负 z-index 停在本卡片内部，
+	   同时给悬浮的难度层一个独立的层叠上下文 */
+	isolation: isolate;
+	transition: transform 0.15s ease;
+}
+
+.custom-md a.card-beatmap:hover {
+	z-index: 10;
+}
+
+.custom-md a.card-beatmap:active {
+	transform: scale(0.995);
+}
+
+/* ---- 封面与遮罩 ----
+   卡片本身刻意不设 overflow:hidden，否则难度浮层溢不出去；
+   圆角裁切交给封面 / 遮罩各自继承 border-radius 来实现 */
+.card-beatmap .bm-cover {
+	position: absolute;
+	inset: 0;
+	z-index: -2;
+	border-radius: inherit;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+}
+
+/* 左实右透：左侧压住封面保证文字可读，右侧留出封面本身 */
+.card-beatmap .bm-scrim {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	border-radius: inherit;
+	background: linear-gradient(
+		to right,
+		color-mix(in oklab, var(--card-bg) 88%, transparent) 0%,
+		color-mix(in oklab, var(--card-bg) 74%, transparent) 52%,
+		color-mix(in oklab, var(--card-bg) 46%, transparent) 100%
+	);
+}
+
+/* 卡片竖直方向的尺寸一律用整数 px。
+   用 rem / 小数 line-height 会累积出 .x px 的卡片高度，
+   hover 触发重排时四舍五入的边界会翻过去，表现为「下面所有内容抖动 1px」。 */
+.card-beatmap .bm-body {
+	position: relative;
+	padding: 14px 18px;
+}
+
+.card-beatmap .bm-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.card-beatmap .bm-titles {
+	min-width: 0;
+}
+
+.card-beatmap .bm-title {
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 26px;
+	color: var(--tw-prose-headings);
+	overflow-wrap: anywhere;
+}
+
+.card-beatmap .bm-artist {
+	margin-top: 2px;
+	font-size: 14px;
+	line-height: 20px;
+	opacity: 0.85;
+	overflow-wrap: anywhere;
+}
+
+.card-beatmap .bm-mapper {
+	opacity: 0.7;
+}
+
+/* 谱面状态：颜色由插件按 osu! 官方状态色内联注入 */
+.card-beatmap .bm-status {
+	flex-shrink: 0;
+	padding: 3px 8px;
+	border: 1px solid currentColor;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	line-height: 16px;
+	text-transform: uppercase;
+	white-space: nowrap;
+	background-color: color-mix(in oklab, currentColor 14%, transparent);
+}
+
+.card-beatmap .bm-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 11px;
+}
+
+.card-beatmap .bm-chip {
+	padding: 2px 7px;
+	border: 1px solid var(--line-divider);
+	border-radius: 7px;
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	line-height: 18px;
+	background-color: color-mix(in oklab, var(--card-bg) 72%, transparent);
+}
+
+/* ---- 难度列表 ---- */
+
+.card-beatmap .bm-diffs {
+	display: flex;
+	flex-direction: column;
+	padding: 0.35rem 0.6rem;
+}
+
+.card-beatmap .bm-diff {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	padding: 0.15rem 0;
+	font-size: 0.78rem;
+	line-height: 1.6;
+}
+
+.card-beatmap .bm-diff-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.card-beatmap .bm-diff-mode {
+	margin-right: 0.35em;
+	font-size: 0.85em;
+	opacity: 0.6;
+	text-transform: uppercase;
+}
+
+/* 星级胶囊复用 osu-web 的难度色带（底色 / 文字色由插件内联注入） */
+.card-beatmap .bm-diff-star {
+	flex-shrink: 0;
+	min-width: 3.4rem;
+	padding: 0.05rem 0.4rem;
+	border-radius: 999px;
+	font-size: 0.72rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	text-align: center;
+}
+
+.card-beatmap .bm-diff-extra {
+	flex-shrink: 0;
+	font-size: 0.72rem;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	opacity: 0.75;
+}
+
+.card-beatmap .bm-diff-length {
+	flex-shrink: 0;
+	min-width: 2.6rem;
+	font-size: 0.72rem;
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+	opacity: 0.75;
+}
+
+/* 只有真正支持 hover 的设备才把难度做成浮层。
+   用 top:100% 绝对定位而不是展开高度，是为了不挤压下方卡片的排版。 */
+@media (hover: hover) {
+	.card-beatmap .bm-diffs {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		z-index: 20;
+		margin-top: -0.35rem;
+		border: 1px solid var(--line-divider);
+		border-radius: 0.7rem;
+		background-color: var(--float-panel-bg);
+		box-shadow: 0 14px 32px -14px rgb(0 0 0 / 0.45);
+		opacity: 0;
+		visibility: hidden;
+		/* 只有淡入，不做位移：浮层本身挪动 4px 会让人以为下方内容在抖 */
+		transition:
+			opacity 0.15s ease,
+			visibility 0.15s;
+	}
+
+	.card-beatmap:hover .bm-diffs,
+	.card-beatmap:focus-within .bm-diffs {
+		opacity: 1;
+		visibility: visible;
+	}
+}
+
+/* 触屏没有 hover：难度常驻在卡片内部，直接可读 */
+@media (hover: none) {
+	.card-beatmap .bm-diffs {
+		margin-top: 0.15rem;
+		border-top: 1px solid var(--line-divider);
+	}
+}
+
+/* 兜底卡片（元数据没抓到）不需要封面层 */
+.card-beatmap--fallback {
+	background-color: var(--btn-regular-bg);
+}

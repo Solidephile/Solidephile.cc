@@ -1,4 +1,4 @@
-// osu! 页面数据类型（供 OsuPage / OsuPanel / OsuTabs 等共享）
+// osu! 页面数据类型（供 osu 页面各个 island 共享）
 
 /** /api/osu 返回的当前统计数据 */
 export interface OsuStats {

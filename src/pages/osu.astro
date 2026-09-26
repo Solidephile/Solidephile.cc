@@ -1,6 +1,11 @@
 ---
+import { getEntry, render } from "astro:content";
 import { Icon } from "astro-icon/components";
-import OsuPage from "@/components/pages/osu/OsuPage.svelte";
+import Markdown from "@/components/common/Markdown.astro";
+import HistoryCharts from "@/components/pages/osu/HistoryCharts.svelte";
+import OsuPanelHost from "@/components/pages/osu/OsuPanelHost.svelte";
+import OsuTabNav from "@/components/pages/osu/OsuTabNav.svelte";
+import ScoresList from "@/components/pages/osu/ScoresList.svelte";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import "@/styles/pages/common.css";
@@ -9,6 +14,17 @@ import "@/styles/pages/common.css";
 if (!siteConfig.pages.osu) {
 	return Astro.redirect("/404/");
 }
+
+// 「游戏简介」与「谱面相关」的正文来自内容集合（src/content/osu/）
+// 用 Markdown.astro 包一层，既拿到 prose 排版，也拿到卡片所需的样式
+async function loadPanel(id: string) {
+	const entry = await getEntry("osu", id);
+	if (!entry) return null;
+	return (await render(entry)).Content;
+}
+
+const IntroContent = await loadPanel("intro");
+const BeatmapsContent = await loadPanel("beatmaps");
 
 const title = "osu! 数据统计";
 const description = "个人 osu! 数据面板";
@@ -29,7 +45,90 @@ const description = "个人 osu! 数据面板";
 			</div>
 		</header>
 
-		<!-- 基本信息 + 四个 tab（数据在 OsuPage 内统一获取） -->
-		<OsuPage client:load />
+		<!--
+			四个 tab 的面板在这里由 Astro 渲染，而不是塞进 Svelte island：
+			只有 Astro 侧渲染的内容才能放 MDX（游戏简介 / 谱面相关之后都走内容集合）。
+			OsuTabNav 只负责把选中态写到下面这个容器的 data-active-tab 上，
+			显隐交给 <style> 里的规则，所以选中态只有一个来源。
+			data-active-tab 的初始值同时也是 SSR 默认值（无 JS 时展示游戏简介）。
+		-->
+		<div data-osu-tabs data-active-tab="intro">
+			<!-- 基本信息：不属于任何 tab，任何 tab 下都可见 -->
+			<OsuPanelHost client:load />
+
+			<OsuTabNav client:load />
+
+			<!--
+				MDX 面板整体套一张卡片（和文章页一样）。
+				没有这层卡片的话，正文会直接贴着 page-shell 的边，
+				看起来比上方页头卡片里的文字更靠外、显得挤。
+				左右内边距刻意对齐 .page-header（手机 1.25rem / ≥640px 2rem），
+				这样正文和页头标题的左边缘在同一条竖线上。
+			-->
+			<div data-panel="intro">
+				<div class="card-base overflow-visible px-5 py-6 sm:px-8">
+					{
+						IntroContent ? (
+							<Markdown class="">
+								<IntroContent />
+							</Markdown>
+						) : (
+							<p class="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">内容待补充</p>
+						)
+					}
+				</div>
+			</div>
+
+			<!-- client:visible：面板隐藏时子元素不相交，切到该 tab 才真正挂载并取数 -->
+			<div data-panel="history">
+				<HistoryCharts client:visible />
+			</div>
+
+			<div data-panel="scores">
+				<ScoresList client:visible />
+			</div>
+
+			<div data-panel="beatmaps">
+				<div class="card-base overflow-visible px-5 py-6 sm:px-8">
+					{
+						BeatmapsContent ? (
+							<Markdown class="">
+								<BeatmapsContent />
+							</Markdown>
+						) : (
+							<p class="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">内容待补充</p>
+						)
+					}
+				</div>
+			</div>
+		</div>
 	</section>
 </MainGridLayout>
+
+<style is:global>
+	/* 面板显隐：选中态由 OsuTabNav 写在 [data-osu-tabs] 上。
+	   用 is:global 避免 Astro 的作用域类改写属性选择器。 */
+	[data-osu-tabs] [data-panel] {
+		display: none;
+	}
+
+	[data-osu-tabs][data-active-tab="intro"] [data-panel="intro"],
+	[data-osu-tabs][data-active-tab="history"] [data-panel="history"],
+	[data-osu-tabs][data-active-tab="scores"] [data-panel="scores"],
+	[data-osu-tabs][data-active-tab="beatmaps"] [data-panel="beatmaps"] {
+		display: block;
+	}
+
+	/*
+		首个标题的上边距要清掉。
+		remark-sectionize 会把每个标题及其后面的内容包进 <section>，
+		于是 h2 不再是 .prose 的直接子元素——prose 自带的
+		`.prose > :first-child { margin-top: 0 }` 只作用到 <section> 上，
+		h2 自己的 margin-top: 2em 照常生效，卡片顶部就多出一大截。
+		这里同时兜住「有 section 包裹」和「没有包裹」两种情况。
+	*/
+	[data-osu-tabs] .custom-md > :first-child,
+	[data-osu-tabs] .custom-md > section:first-child > :first-child {
+		margin-top: 0;
+	}
+</style>

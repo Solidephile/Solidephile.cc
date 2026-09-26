@@ -130,14 +130,28 @@ const projectsCollection: ContentCollection<ProjectData> = defineCollection({
 	}),
 });
 
+/**
+ * osu 页面的 tab 内容（游戏简介 / 谱面相关）
+ *
+ * 两者都是手写正文，正文里可以用 `::beatmap{id=...}` 插谱面卡片
+ * （由 rehype-component-beatmap.mjs 渲染，数据来自构建期抓取的 JSON 缓存）。
+ */
+const osuCollection: ContentCollection<Record<string, never>> =
+	defineCollection({
+		loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/osu" }),
+		schema: z.object({}),
+	});
+
 export const collections: {
 	dynamic: typeof dynamicCollection;
 	posts: typeof postsCollection;
 	spec: typeof specCollection;
 	projects: typeof projectsCollection;
+	osu: typeof osuCollection;
 } = {
 	dynamic: dynamicCollection,
 	posts: postsCollection,
 	spec: specCollection,
 	projects: projectsCollection,
+	osu: osuCollection,
 };

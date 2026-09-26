@@ -1,6 +1,8 @@
 ---
 import "@/styles/markdown.css";
 import "@/styles/markdown-extend.styl";
+// 谱面卡片样式单独放 .css：Stylus 解析不了 color-mix(in oklab, …)
+import "@/styles/beatmap-card.css";
 
 interface Props {
 	class: string;

@@ -1,0 +1,233 @@
+{
+	"111587": {
+		"id": 111587,
+		"title": "Snow halation",
+		"artist": "μ's",
+		"creator": "Guy",
+		"status": "ranked",
+		"bpm": 173,
+		"cover": "https://assets.ppy.sh/beatmaps/111587/covers/cover.jpg?1622067071",
+		"diffs": [
+			{
+				"name": "Normal",
+				"stars": 2.01733,
+				"mode": "osu",
+				"length": 246,
+				"od": 3,
+				"hp": 3,
+				"cs": 3,
+				"ar": 4,
+				"maxCombo": 542
+			},
+			{
+				"name": "Hard",
+				"stars": 3.45926,
+				"mode": "osu",
+				"length": 246,
+				"od": 6,
+				"hp": 6,
+				"cs": 4,
+				"ar": 7,
+				"maxCombo": 937
+			},
+			{
+				"name": "Insane",
+				"stars": 4.7872,
+				"mode": "osu",
+				"length": 246,
+				"od": 8,
+				"hp": 7,
+				"cs": 4,
+				"ar": 9,
+				"maxCombo": 1197
+			}
+		]
+	},
+	"147962": {
+		"id": 147962,
+		"title": "オメガリズム",
+		"artist": "UPLIFT SPICE",
+		"creator": "Jemmmmy",
+		"status": "ranked",
+		"bpm": 173,
+		"cover": "https://assets.ppy.sh/beatmaps/147962/covers/cover.jpg?1650620437",
+		"diffs": [
+			{
+				"name": "Easy",
+				"stars": 1.46101,
+				"mode": "osu",
+				"length": 176,
+				"od": 2,
+				"hp": 2,
+				"cs": 3,
+				"ar": 3,
+				"maxCombo": 533
+			},
+			{
+				"name": "Normal",
+				"stars": 2.18945,
+				"mode": "osu",
+				"length": 177,
+				"od": 4,
+				"hp": 4,
+				"cs": 3,
+				"ar": 5,
+				"maxCombo": 631
+			},
+			{
+				"name": "Hard",
+				"stars": 3.43212,
+				"mode": "osu",
+				"length": 178,
+				"od": 6,
+				"hp": 5,
+				"cs": 4,
+				"ar": 6.5,
+				"maxCombo": 831
+			},
+			{
+				"name": "Hyper",
+				"stars": 4.10674,
+				"mode": "osu",
+				"length": 178,
+				"od": 7,
+				"hp": 5,
+				"cs": 4,
+				"ar": 8,
+				"maxCombo": 912
+			},
+			{
+				"name": "lightr's Insane",
+				"stars": 5.21052,
+				"mode": "osu",
+				"length": 178,
+				"od": 7.5,
+				"hp": 6,
+				"cs": 4,
+				"ar": 9,
+				"maxCombo": 1023
+			},
+			{
+				"name": "Extra",
+				"stars": 5.98061,
+				"mode": "osu",
+				"length": 178,
+				"od": 8.5,
+				"hp": 6.5,
+				"cs": 4,
+				"ar": 9.2,
+				"maxCombo": 1046
+			}
+		]
+	},
+	"514038": {
+		"id": 514038,
+		"title": "Love Live! School Idol Compilation",
+		"artist": "μ's & Aqours",
+		"creator": "Kami-senpai",
+		"status": "loved",
+		"bpm": 110,
+		"cover": "https://assets.ppy.sh/beatmaps/514038/covers/cover.jpg?1622109350",
+		"diffs": [
+			{
+				"name": "Marathon",
+				"stars": 5.82791,
+				"mode": "osu",
+				"length": 1041,
+				"od": 8,
+				"hp": 5,
+				"cs": 4,
+				"ar": 9.2,
+				"maxCombo": 5257
+			}
+		]
+	},
+	"2581369": {
+		"id": 2581369,
+		"title": "わたしの恋はホッチキス",
+		"artist": "放課後ティータイム",
+		"creator": "Solidephile",
+		"status": "graveyard",
+		"bpm": 130,
+		"cover": "https://assets.ppy.sh/beatmaps/2581369/covers/cover.jpg?1786464047",
+		"diffs": [
+			{
+				"name": "My love is a stapler!!",
+				"stars": 4.5428,
+				"mode": "osu",
+				"length": 246,
+				"od": 7,
+				"hp": 5,
+				"cs": 4,
+				"ar": 9,
+				"maxCombo": 1294
+			}
+		]
+	},
+	"2586048": {
+		"id": 2586048,
+		"title": "恋してズッキューン!",
+		"artist": "Rev.from DVL",
+		"creator": "Solidephile",
+		"status": "graveyard",
+		"bpm": 162,
+		"cover": "https://assets.ppy.sh/beatmaps/2586048/covers/cover.jpg?1787479215",
+		"diffs": [
+			{
+				"name": "I love you <3",
+				"stars": 4.86098,
+				"mode": "osu",
+				"length": 218,
+				"od": 7,
+				"hp": 5,
+				"cs": 4,
+				"ar": 9.2,
+				"maxCombo": 1098
+			}
+		]
+	},
+	"2594029": {
+		"id": 2594029,
+		"title": "リセエンヌ",
+		"artist": "折笠富美子",
+		"creator": "Solidephile",
+		"status": "graveyard",
+		"bpm": 69,
+		"cover": "https://assets.ppy.sh/beatmaps/2594029/covers/cover.jpg?1789444812",
+		"diffs": [
+			{
+				"name": "And then, Tomorrow is hope.",
+				"stars": 3.0324,
+				"mode": "osu",
+				"length": 318,
+				"od": 4,
+				"hp": 4,
+				"cs": 4.2,
+				"ar": 7.5,
+				"maxCombo": 813
+			}
+		]
+	},
+	"2615570": {
+		"id": 2615570,
+		"title": "Fay",
+		"artist": "笠原弘子",
+		"creator": "Solidephile",
+		"status": "wip",
+		"bpm": 160,
+		"cover": "https://assets.ppy.sh/beatmaps/2615570/covers/cover.jpg?1788685146",
+		"diffs": [
+			{
+				"name": "I don't ask for any rewards, Because...only love.",
+				"stars": 4.20163,
+				"mode": "osu",
+				"length": 194,
+				"od": 5,
+				"hp": 5,
+				"cs": 4,
+				"ar": 8.8,
+				"maxCombo": 834
+			}
+		]
+	}
+}
