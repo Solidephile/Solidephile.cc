@@ -98,16 +98,31 @@ const rankView = $derived((score.rank && RANKS[score.rank]) || FALLBACK_RANK);
 let starBg = $derived(difficultyColour(score.stars));
 let starText = $derived(difficultyTextColour(score.stars));
 
-// mod 胶囊配色：按「降低难度 / 提升难度 / 中性」分档，而不是每个 mod 一个品牌色
-const TONE_STYLES: Record<ModTone, string> = {
-	reduce: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-	increase: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
-	plain: "bg-(--btn-regular-bg) text-(--btn-content)",
+// mod 胶囊配色：按「降低难度 / 提升难度 / 中性」分档，而不是每个 mod 一个品牌色。
+//
+// 底色用 color-mix 把色调「压实」到卡片底色上，而不是用半透明的 bg-*/15：
+// 移动端的 meta 行渲染在信息列里、压在封面图上，半透明底色会跟着背后的封面走，
+// 亮色模式下封面被白色遮罩洗过，胶囊的小方框就糊掉了。混上 --card-bg 后底色不透明，
+// 不论压在封面还是纯色底上都一样，桌面端观感也和原来一致。
+const TONE_STYLES: Record<ModTone, { class: string; style: string }> = {
+	reduce: {
+		// #10b981 = emerald-500
+		class:
+			"text-emerald-700 dark:text-emerald-300 inset-ring-1 inset-ring-emerald-500/50",
+		style: "background: color-mix(in oklab, var(--card-bg) 75%, #10b981);",
+	},
+	increase: {
+		// #f43f5e = rose-500
+		class:
+			"text-rose-700 dark:text-rose-300 inset-ring-1 inset-ring-rose-500/50",
+		style: "background: color-mix(in oklab, var(--card-bg) 75%, #f43f5e);",
+	},
+	// 中性档本来就是不透明的主题色令牌，不需要额外处理
+	plain: {
+		class: "bg-(--btn-regular-bg) text-(--btn-content)",
+		style: "",
+	},
 };
-
-function modStyle(mod: string): string {
-	return TONE_STYLES[modTone(mod)];
-}
 </script>
 
 <a
@@ -132,9 +147,9 @@ function modStyle(mod: string): string {
 	     0–40% 保持平台浓度（--scrim-plateau）→ 左侧封面压暗但可见，不会越往右越淡
 	     40–75% 才渐隐到卡片底色 → 右侧文字落在纯色底上
 	     亮/暗分开：亮色模式下遮罩是白色的，会把封面洗成灰白、整张卡「发淡」，
-	     所以亮色的平台浓度降到 50%，暗色保持 60% 不动 -->
+	     所以亮色的平台浓度降到 55%，暗色保持 60% 不动 -->
 	<div
-		class="pointer-events-none absolute inset-0 [--scrim-plateau:50%] dark:[--scrim-plateau:60%]"
+		class="pointer-events-none absolute inset-0 [--scrim-plateau:55%] dark:[--scrim-plateau:60%]"
 		style="background: linear-gradient(to right, color-mix(in oklab, var(--card-bg) var(--scrim-plateau), transparent) 0%, color-mix(in oklab, var(--card-bg) var(--scrim-plateau), transparent) 40%, var(--card-bg) 75%, var(--card-bg) 100%);"
 	></div>
 
@@ -156,11 +171,13 @@ function modStyle(mod: string): string {
 		<div class="min-w-0 flex-1">
 			<div class="flex items-baseline gap-1.5">
 				{#if pinned}
-					<!-- 原来用 --primary 当文字色（oklch 0.70），压在 15% 的浅 tint 上
-					     亮色模式下几乎糊在一起。改成「可读的强调色文字」令牌
-					     --btn-content（oklch 0.55），底色加深到 25%，字号也提一档 -->
+					<!-- 亮 / 暗分开处理：
+					     亮色下封面被白色遮罩洗过，压在上面的半透明底色会跟着一起糊，
+					     所以用 color-mix 把强调色压实到卡片底色上（不透明），
+					     文字配中性高对比色——强调色底 + 强调色字，底色一加深对比度反而掉。
+					     暗色下卡片底本身就是深的，原来的半透明配方观感更好，维持不变。 -->
 					<span
-						class="shrink-0 rounded bg-(--primary)/25 px-1.5 py-px text-[11px] font-bold text-(--btn-content)"
+						class="shrink-0 rounded px-1.5 py-px text-[11px] font-bold text-neutral-900 dark:text-(--btn-content) bg-[color:color-mix(in_oklab,var(--card-bg)_62%,var(--primary))] dark:bg-(--primary)/25"
 					>
 						置顶
 					</span>
@@ -238,7 +255,11 @@ function modStyle(mod: string): string {
 		{#if score.mods.length > 0}
 			<span class="flex flex-wrap items-center gap-1 sm:order-1">
 				{#each score.mods as mod (mod)}
-					<span class="rounded px-1.5 py-0.5 text-[10px] font-bold sm:text-[12px] {modStyle(mod)}">
+					{@const tone = TONE_STYLES[modTone(mod)]}
+					<span
+						class="rounded px-1.5 py-0.5 text-[10px] font-bold sm:text-[12px] {tone.class}"
+						style={tone.style}
+					>
 						{mod}
 					</span>
 				{/each}

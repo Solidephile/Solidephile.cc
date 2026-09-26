@@ -115,6 +115,11 @@ let statusView = $derived.by(() => {
 			style="background: linear-gradient(to right, transparent, var(--primary), transparent);"
 			aria-hidden="true"
 		></div>
+		<div
+			class="pointer-events-none absolute inset-x-0 bottom-0 h-px opacity-50"
+			style="background: linear-gradient(to right, transparent, var(--primary), transparent);"
+			aria-hidden="true"
+		></div>
 
 		<!-- 资料行：头像 + 玩家信息 -->
 		<div class="flex items-center gap-4 sm:gap-5">
