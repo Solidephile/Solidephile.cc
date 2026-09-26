@@ -3,12 +3,15 @@
  * 单条成绩卡片（横向）
  *
  * 布局：评级（最左）— 谱面信息 — 元信息 — pp（最右）
+ *       谱面信息两行：第一行「歌曲名 by 艺术家」，第二行「星级胶囊 + 难度名」
  * 背景：铺面封面铺满整卡，再用 card-bg 遮罩从左到右渐隐（两段式，参照 osu! Expert+）：
  *       0–40% 保持同一浓度（平台段），40–80% 才渐隐到卡片底色。
  * 封面按视口加载：进入/接近视口才渲染 <img>，离开后移除，释放解码后的位图内存。
  *
  * 色彩映射（星级胶囊、mod 档位配色）集中在 ./score-visuals.ts
  */
+
+import Icon from "@components/common/Icon.svelte";
 import { onMount } from "svelte";
 import type { OsuScore, OsuScoreRank } from "@/types/osu";
 
@@ -27,6 +30,13 @@ interface Props {
 }
 
 const { score, pinned = false }: Props = $props();
+
+/** osu! 成绩页（v2 API 的全局成绩 ID，与 /scores/{id} 一致） */
+const SCORE_URL_BASE = "https://osu.ppy.sh/scores/";
+
+const scoreUrl = $derived(
+	score.id ? `${SCORE_URL_BASE}${score.id}` : undefined,
+);
 
 // 封面按视口加载。
 // 100 张 400×240 的封面解码后约 38MB，离开视口不卸载会一直占着内存。
@@ -89,7 +99,13 @@ function modStyle(mod: string): string {
 }
 </script>
 
-<article class="card-base relative overflow-hidden" bind:this={cardEl}>
+<a
+	class="card-base group relative block overflow-hidden"
+	href={scoreUrl}
+	target="_blank"
+	rel="noopener noreferrer"
+	bind:this={cardEl}
+>
 	<!-- 铺面封面：整卡背景；按视口加载 / 离开视口后卸载 -->
 	{#if score.cover && coverInView}
 		<img
@@ -102,11 +118,16 @@ function modStyle(mod: string): string {
 	{/if}
 
 	<!-- 遮罩：两段式渐隐（浓度与 Expert+ 一致）
-	     0–40% 保持 72% 浓度（平台段）→ 左侧封面压暗但可见，不会越往右越淡
+	     0–40% 保持 60% 浓度（平台段）→ 左侧封面压暗但可见，不会越往右越淡
 	     40–75% 才渐隐到卡片底色 → 右侧文字落在纯色底上 -->
 	<div
 		class="pointer-events-none absolute inset-0"
-		style="background: linear-gradient(to right, color-mix(in oklab, var(--card-bg) 72%, transparent) 0%, color-mix(in oklab, var(--card-bg) 72%, transparent) 40%, var(--card-bg) 75%, var(--card-bg) 100%);"
+		style="background: linear-gradient(to right, color-mix(in oklab, var(--card-bg) 60%, transparent) 0%, color-mix(in oklab, var(--card-bg) 60%, transparent) 40%, var(--card-bg) 75%, var(--card-bg) 100%);"
+	></div>
+
+	<!-- 可点击反馈：只叠一层很淡的中性明暗，不换色（避免同亮度异彩度的问题） -->
+	<div
+		class="pointer-events-none absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 dark:bg-white/10"
 	></div>
 
 	<!-- 内容 -->
@@ -132,57 +153,71 @@ function modStyle(mod: string): string {
 					{score.title}
 				</span>
 				{#if score.artist}
-					<!-- 艺术家与歌曲名同色，小一号；宽度不足时标题与艺术家各自省略 -->
-					<span class="shrink-0 text-xs text-neutral-900 dark:text-neutral-100">by</span>
-					<span class="truncate text-xs font-medium text-neutral-900 dark:text-neutral-100">
-						{score.artist}
-					</span>
+					<!-- 艺术家与歌曲名同色、小一号。整块用极大的 flex-shrink 权重：
+					     宽度不够时先把「by 艺术家」压缩掉，再轮到歌曲名省略，
+					     所以顺序是「歌曲名 by 艺术家…」→「歌曲名…」 -->
+					<span
+						class="min-w-0 shrink-[100] truncate text-xs text-neutral-900 dark:text-neutral-100"
+						>by <span class="font-medium">{score.artist}</span></span
+					>
 				{/if}
 			</div>
 
-			<div class="truncate text-xs text-neutral-600 dark:text-neutral-400">
-				{score.version}
+			<!-- 难度名；星级胶囊固定在标题下方的最左侧 -->
+			<div class="mt-1 flex items-center gap-2">
+				<span
+					class="inline-flex min-h-[1.35em] shrink-0 items-center justify-center gap-[0.15em] rounded-full px-[0.55em] py-[0.22em] text-[11px] leading-none font-extrabold tabular-nums"
+					style="background-color: {starBg}; color: {starText};"
+				>
+					<!-- 用 SVG 圆角星，而不是 ★ 字形：字形在小字号下尖角锯齿很明显 -->
+					<Icon icon="material-symbols:star-rounded" class="shrink-0 text-[1.15em]" />
+					{score.stars.toFixed(2)}
+				</span>
+
+				<!-- 金色取自 Expert+ 的成绩卡配色；纯金在亮色底上太浅，亮色改用更深的琥珀 -->
+				<span class="truncate text-xs font-medium text-neutral-700 dark:text-amber-400">
+					{score.version}
+				</span>
 			</div>
 
 			<!-- 窄屏：元信息另起一行 -->
 			<div class="mt-1.5 sm:hidden">{@render meta()}</div>
 		</div>
 
-		<!-- 宽屏：元信息单列 -->
-		<div class="hidden shrink-0 sm:block">{@render meta()}</div>
+		<!-- 宽屏：元信息单列；靠右对齐，让 mod 的右端与准确率落点固定 -->
+		<div class="hidden shrink-0 sm:block">{@render meta("justify-end")}</div>
 
-		<!-- pp（最右）：强调色；tabular-nums 让各行的数位与小数点纵向对齐 -->
-		<div class="shrink-0 text-right">
-			<div class="text-lg leading-tight font-bold tabular-nums text-(--primary)">
+		<!-- pp（最右）：强调色；tabular-nums 让各行的数位与小数点纵向对齐。
+		     宽屏给固定轨道宽度——它是右轨的最后一列，宽度一变，左边 mod / 准确率
+		     的落点就跟着漂，准确率就再也对不齐了 -->
+		<div class="shrink-0 text-right sm:w-[6.75rem]">
+			<div class="text-xl leading-tight font-bold tabular-nums text-(--primary)">
 				{score.pp.toFixed(2)}
 			</div>
 			<div class="text-[10px] font-medium text-neutral-500 dark:text-neutral-400">pp</div>
 		</div>
 	</div>
-</article>
+</a>
 
-{#snippet meta()}
+{#snippet meta(extra = "")}
 	<div
-		class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-700 dark:text-neutral-300"
+		class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-700 dark:text-neutral-300 {extra}"
 	>
-		<!-- 难度星级：胶囊底色 = osu-web 难度色带，文字色走对应的高对比色带。
-		     宽度下限的作用是让不同卡片的星级胶囊等宽，从而对齐右侧的准确率与 mod -->
+		<!-- 准确率：窄屏排在最左——它的左缘就是本行的起点，与 mod 数量无关，因此各行严格对齐。
+		     宽屏用 order 移到 mod 右侧，改成固定 7.5ch 轨道 + 右对齐（与 Expert+ 同值），
+		     落点同样是固定的，mod 贴着它的左缘排。
+		     字号只在宽屏放大：窄屏的信息密度本来就高，跟着放大会挤成一团 -->
 		<span
-			class="inline-flex min-h-[1.35em] min-w-[3.75rem] shrink-0 items-center justify-center gap-[0.1em] rounded-full px-[0.55em] py-[0.22em] text-[11px] leading-none font-extrabold tabular-nums"
-			style="background-color: {starBg}; color: {starText};"
+			class="shrink-0 text-[12px] font-bold text-neutral-700 tabular-nums sm:order-2 sm:w-[7.5ch] sm:text-right sm:text-[16px] dark:text-amber-400"
 		>
-			<span class="text-[0.7em] leading-none" aria-hidden="true">★</span>
-			{score.stars.toFixed(2)}
+			{(score.accuracy * 100).toFixed(2)}%
 		</span>
-
-		<!-- 准确率 -->
-		<span class="font-medium tabular-nums">{(score.accuracy * 100).toFixed(2)}%</span>
 
 		<!-- 使用的 mod -->
 		{#if score.mods.length > 0}
-			<span class="flex flex-wrap items-center gap-1">
+			<span class="flex flex-wrap items-center gap-1 sm:order-1">
 				{#each score.mods as mod (mod)}
-					<span class="rounded px-1.5 py-0.5 text-[10px] font-bold {modStyle(mod)}">
+					<span class="rounded px-1.5 py-0.5 text-[10px] font-bold sm:text-[12px] {modStyle(mod)}">
 						{mod}
 					</span>
 				{/each}

@@ -101,9 +101,12 @@ onMount(async () => {
 
 				{#if hasMore}
 					<div class="mt-5 flex justify-center">
+						<!-- 按钮落在页面底色 --page-bg 上，而 --btn-regular-bg 与它是同亮度、
+						     只差彩度（oklch 0.95 / 0.95），会糊在一起。这里沿用 SegmentedControl
+						     的做法，整档下沉到 --btn-regular-bg-hover，色差才看得出来 -->
 						<button
 							type="button"
-							class="btn-regular rounded-lg px-5 py-2 text-sm font-medium text-(--btn-content) active:scale-95"
+							class="rounded-lg bg-(--btn-regular-bg-hover) px-5 py-2 text-sm font-medium text-(--btn-content) transition-colors duration-150 hover:bg-(--btn-regular-bg-active) active:scale-95"
 							onclick={showMore}
 						>
 							展示更多（还有 {bestScores.length - visibleBest.length} 条）
