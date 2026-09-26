@@ -108,16 +108,42 @@ let statusView = $derived.by(() => {
 </script>
 
 <div class="mb-3">
-	<div class="card-base flex flex-col gap-4 px-6 pt-6 pb-4">
-		<div class="flex items-center gap-4">
-			<img
-				src={avatarSrc}
-				alt="osu! avatar"
-				class="h-16 w-16 rounded-md object-cover"
-			/>
-			<div>
+	<div class="card-base relative flex flex-col gap-4 px-6 pt-6 pb-4">
+		<!-- 顶部主题色发丝线：两端渐隐到透明，所以圆角裁切看不出来 -->
+		<div
+			class="pointer-events-none absolute inset-x-0 top-0 h-px opacity-50"
+			style="background: linear-gradient(to right, transparent, var(--primary), transparent);"
+			aria-hidden="true"
+		></div>
+
+		<!-- 资料行：头像 + 玩家信息 -->
+		<div class="flex items-center gap-4 sm:gap-5">
+			<!-- 头像：主题色渐变描边环 + 一圈外发光。
+			     光晕用「模糊的实心色块」而不是 box-shadow，这样它会自动跟随
+			     --primary 的色相，亮/暗两种主题下都不用各写一份 -->
+			<div class="relative shrink-0">
+				<div
+					class="pointer-events-none absolute -inset-1.5 rounded-full opacity-45 blur-lg"
+					style="background: var(--primary);"
+					aria-hidden="true"
+				></div>
+				<div
+					class="relative rounded-full p-[3px]"
+					style="background: linear-gradient(145deg, var(--primary), color-mix(in oklab, var(--primary) 40%, transparent));"
+				>
+					<img
+						src={avatarSrc}
+						alt="osu! avatar"
+						class="h-20 w-20 rounded-full object-cover sm:h-24 sm:w-24"
+					/>
+				</div>
+			</div>
+
+			<div class="min-w-0">
 				<p class="text-xs tracking-widest text-neutral-500 dark:text-neutral-400">PLAYER</p>
-				<h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.username}</h2>
+				<h2 class="truncate text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+					{stats.username}
+				</h2>
 				<p class="text-sm text-neutral-600 dark:text-neutral-400">
 					{stats.country}{stats.country_code ? ` · ${stats.country_code}` : ""}
 				</p>
@@ -125,25 +151,41 @@ let statusView = $derived.by(() => {
 		</div>
 
 		<div class="grid grid-cols-2 gap-3 @2xl:grid-cols-4">
-			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
+			<div
+				class="rounded-xl bg-(--btn-regular-bg) p-3 inset-ring-1 inset-ring-(--primary)/10"
+			>
 				<div class="text-base font-bold text-(--btn-content)">全球排名</div>
 				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">GLOBAL RANK</div>
-				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">#{formatNumber(stats.global_rank)}</div>
+				<div
+					class="mt-1 text-xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100"
+				>#{formatNumber(stats.global_rank)}</div>
 			</div>
-			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
+			<div
+				class="rounded-xl bg-(--btn-regular-bg) p-3 inset-ring-1 inset-ring-(--primary)/10"
+			>
 				<div class="text-base font-bold text-(--btn-content)">国家排名</div>
 				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">COUNTRY RANK</div>
-				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">#{formatNumber(stats.country_rank)}</div>
+				<div
+					class="mt-1 text-xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100"
+				>#{formatNumber(stats.country_rank)}</div>
 			</div>
-			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
+			<div
+				class="rounded-xl bg-(--btn-regular-bg) p-3 inset-ring-1 inset-ring-(--primary)/10"
+			>
 				<div class="text-base font-bold text-(--btn-content)">PP 值</div>
 				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">PERFORMANCE</div>
-				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">{formatNumber(stats.pp, 2)} pp</div>
+				<div
+					class="mt-1 text-xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100"
+				>{formatNumber(stats.pp, 2)} pp</div>
 			</div>
-			<div class="rounded-xl bg-(--btn-regular-bg) p-3">
+			<div
+				class="rounded-xl bg-(--btn-regular-bg) p-3 inset-ring-1 inset-ring-(--primary)/10"
+			>
 				<div class="text-base font-bold text-(--btn-content)">游玩时间</div>
 				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">PLAY TIME</div>
-				<div class="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">{formatPlayTime(stats.play_time)}</div>
+				<div
+					class="mt-1 text-xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100"
+				>{formatPlayTime(stats.play_time)}</div>
 			</div>
 		</div>
 

@@ -28,17 +28,21 @@ function buildMockHistory(): OsuHistoryItem[] {
 		d.setDate(d.getDate() - i);
 		d.setUTCHours(10, 0, 0, 0);
 		const k = days - i; // 1..10
+		const totalHits = 4800000 + k * 120000;
+		const pp = 5000 + k * 68;
 		items.push({
 			timestamp: d.toISOString(),
 			global_rank: 16000 - k * 365,
 			country_rank: 1300 - k * 41,
-			pp: 5000 + k * 68,
+			pp,
 			play_count: 2900 + k * 60,
 			play_time: 1050000 + k * 18000,
 			total_score: 7500000000 + k * 200000000,
-			total_hits: 4800000 + k * 120000,
+			total_hits: totalHits,
 			accuracy: 97.2 + k * 0.08,
 			maximum_combo: 1100 + k * 35,
+			// 和后端同一条公式，保证 mock 的曲线形状与真实数据一致
+			pptth: Number(((pp / totalHits) * 10000).toFixed(2)),
 		});
 	}
 	return items;

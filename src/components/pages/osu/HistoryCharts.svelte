@@ -67,6 +67,19 @@ let accuracyMin = $derived(
 let accuracyMax = $derived(
 	accuracyValues.length > 0 ? Math.max(...accuracyValues) : 100,
 );
+
+// PPTTH 的纵轴范围也得自己算：它的量程只有零点几（6.7~7.2 这种），
+// 而 LineChart 默认的 minPadding 是 1，会把曲线压成一条直线。
+// 过滤掉非正数是为了兜住后端 total_hits 为 0 时返回的 null（Number(null) 会变成 0）。
+let pptthValues = $derived(
+	filteredHistory
+		.map((item) => Number(item.pptth))
+		.filter((v) => Number.isFinite(v) && v > 0),
+);
+let pptthMin = $derived(pptthValues.length > 0 ? Math.min(...pptthValues) : 0);
+let pptthMax = $derived(pptthValues.length > 0 ? Math.max(...pptthValues) : 1);
+/** 上下各留 15% 量程；下限 0.02 保证所有点同值时也还有一点带宽，不会贴着边框 */
+let pptthPad = $derived(Math.max((pptthMax - pptthMin) * 0.15, 0.02));
 </script>
 
 <div
@@ -101,4 +114,5 @@ let accuracyMax = $derived(
 	<ChartCard title="总分" description="Total Score" unit="score" history={filteredHistory} dataKey="total_score" valueFormat="compact" />
 	<ChartCard title="总命中次数" description="Total Hits" unit="hits" history={filteredHistory} dataKey="total_hits" valueFormat="compact" />
 	<ChartCard title="准确率" description="Accuracy" unit="%" history={filteredHistory} dataKey="accuracy" valueFormat="decimal" suffix="%" yMin={Math.max(0, accuracyMin - 0.02)} yMax={Math.min(100, accuracyMax + 0.02)} />
+	<ChartCard title="PPTTH" description="PP / Total Hits" unit="pp / 10k hits" history={filteredHistory} dataKey="pptth" valueFormat="decimal" yMin={pptthMin - pptthPad} yMax={pptthMax + pptthPad} />
 </div>

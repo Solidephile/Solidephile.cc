@@ -27,6 +27,11 @@ export interface OsuHistoryItem {
 	maximum_combo: number;
 	/** 由 play_time 换算出的小时数，仅供图表使用 */
 	play_time_hours?: number;
+	/**
+	 * PPTTH：累计每 1 万次击打平均换来多少 pp（在后端 SQL 里算好）
+	 * pp 减总击打为 0 时后端会返回 null，取用时需要过滤
+	 */
+	pptth: number;
 }
 
 /** /api/osu 的完整返回结构 */

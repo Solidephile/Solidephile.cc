@@ -128,12 +128,14 @@ function modStyle(mod: string): string {
 		/>
 	{/if}
 
-	<!-- 遮罩：两段式渐隐（浓度与 Expert+ 一致）
-	     0–40% 保持 60% 浓度（平台段）→ 左侧封面压暗但可见，不会越往右越淡
-	     40–75% 才渐隐到卡片底色 → 右侧文字落在纯色底上 -->
+	<!-- 遮罩：两段式渐隐（平台浓度对齐 Expert+ 的 0.72 量级）
+	     0–40% 保持平台浓度（--scrim-plateau）→ 左侧封面压暗但可见，不会越往右越淡
+	     40–75% 才渐隐到卡片底色 → 右侧文字落在纯色底上
+	     亮/暗分开：亮色模式下遮罩是白色的，会把封面洗成灰白、整张卡「发淡」，
+	     所以亮色的平台浓度降到 50%，暗色保持 60% 不动 -->
 	<div
-		class="pointer-events-none absolute inset-0"
-		style="background: linear-gradient(to right, color-mix(in oklab, var(--card-bg) 60%, transparent) 0%, color-mix(in oklab, var(--card-bg) 60%, transparent) 40%, var(--card-bg) 75%, var(--card-bg) 100%);"
+		class="pointer-events-none absolute inset-0 [--scrim-plateau:50%] dark:[--scrim-plateau:60%]"
+		style="background: linear-gradient(to right, color-mix(in oklab, var(--card-bg) var(--scrim-plateau), transparent) 0%, color-mix(in oklab, var(--card-bg) var(--scrim-plateau), transparent) 40%, var(--card-bg) 75%, var(--card-bg) 100%);"
 	></div>
 
 	<!-- 可点击反馈：只叠一层很淡的中性明暗，不换色（避免同亮度异彩度的问题） -->
@@ -145,7 +147,7 @@ function modStyle(mod: string): string {
 	<div class="relative flex items-center gap-3 px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
 		<!-- 评级（最左）；内描边（inset-ring）让徽章看起来更有质感 -->
 		<div
-			class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg font-black inset-ring-1 inset-ring-white/30 {rankView.style}"
+			class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xl font-black inset-ring-3 inset-ring-white/30 {rankView.style}"
 		>
 			{rankView.label}
 		</div>
@@ -154,8 +156,11 @@ function modStyle(mod: string): string {
 		<div class="min-w-0 flex-1">
 			<div class="flex items-baseline gap-1.5">
 				{#if pinned}
+					<!-- 原来用 --primary 当文字色（oklch 0.70），压在 15% 的浅 tint 上
+					     亮色模式下几乎糊在一起。改成「可读的强调色文字」令牌
+					     --btn-content（oklch 0.55），底色加深到 25%，字号也提一档 -->
 					<span
-						class="shrink-0 rounded px-1 py-px text-[10px] font-bold bg-(--primary)/15 text-(--primary)"
+						class="shrink-0 rounded bg-(--primary)/25 px-1.5 py-px text-[11px] font-bold text-(--btn-content)"
 					>
 						置顶
 					</span>
@@ -180,8 +185,13 @@ function modStyle(mod: string): string {
 					class="inline-flex min-h-[1.35em] shrink-0 items-center justify-center gap-[0.15em] rounded-full px-[0.55em] py-[0.22em] text-[11px] leading-none font-extrabold tabular-nums"
 					style="background-color: {starBg}; color: {starText};"
 				>
-					<!-- 用 SVG 圆角星，而不是 ★ 字形：字形在小字号下尖角锯齿很明显 -->
-					<Icon icon="material-symbols:star-rounded" class="shrink-0 text-[1.15em]" />
+					<!-- 用 SVG 圆角星，而不是 ★ 字形：字形在小字号下尖角锯齿很明显。
+					     SVG 的 24×24 画布里星星本体只占 x≈3.7~20.3，左右各留了约 15% 空白，
+					     所以左边看起来比右边空——用负左边距把这部分内边距抵消掉 -->
+					<Icon
+						icon="material-symbols:star-rounded"
+						class="-ml-[0.15em] shrink-0 text-[1.15em]"
+					/>
 					{score.stars.toFixed(2)}
 				</span>
 

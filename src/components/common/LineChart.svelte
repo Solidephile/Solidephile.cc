@@ -76,7 +76,7 @@ let {
 
 const legendVisible = $derived(showLegend ?? series.length > 1);
 
-/* ---------- 主题色：读取 Firefly 的 CSS 变量 ---------- */
+/* ---------- 主题色：读取 CSS 变量 ---------- */
 
 function readVar(name: string, fallback: string): string {
 	if (typeof window === "undefined") return fallback;

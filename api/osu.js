@@ -36,7 +36,10 @@ export default async function handler(req, res) {
                 total_score,
                 total_hits,
                 accuracy,
-                maximum_combo
+                maximum_combo,
+                -- PPTTH：累计每 1 万次击打平均换来多少 pp
+                -- NULLIF 让 total_hits 为 0 时返回 NULL 而不是除零报错
+                ROUND(pp / NULLIF(total_hits, 0) * 10000, 2) AS pptth
             FROM osu_history
             ORDER BY updated_at ASC
         `;
