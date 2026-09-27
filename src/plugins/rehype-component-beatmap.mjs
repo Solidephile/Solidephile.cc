@@ -58,40 +58,109 @@ function invalid(reason) {
 	);
 }
 
-/** 一个难度行：名字 + 星级胶囊 + 关键参数 */
+/**
+ * 四个模式的极简几何图标（手绘，非 osu! 官方资源）
+ * 每个图标是一组 [标签, 属性] ，统一在 24×24 画布上，颜色跟随 currentColor。
+ */
+const MODE_ICONS = {
+	// 打击圈：外环 + 中心点
+	osu: [
+		["circle", { cx: 12, cy: 12, r: 9, fill: "none", stroke: "currentColor", "stroke-width": 2 }],
+		["circle", { cx: 12, cy: 12, r: 6, fill: "currentColor" }],
+	],
+	// 太鼓：鼓身（胶囊）+ 中心音符
+	taiko: [
+		["rect", { x: 2, y: 7, width: 20, height: 10, rx: 5, fill: "none", stroke: "currentColor", "stroke-width": 2 }],
+		["circle", { cx: 12, cy: 12, r: 2.8, fill: "currentColor" }],
+	],
+	// 接水果：水果 + 接盘
+	catch: [
+		["circle", { cx: 12, cy: 9.5, r: 5.5, fill: "currentColor" }],
+		["rect", { x: 2.5, y: 17, width: 19, height: 3.5, rx: 1.75, fill: "currentColor" }],
+	],
+	// 下落式：四条轨道
+	mania: [
+		["rect", { x: 1.6, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" }],
+		["rect", { x: 7.2, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" }],
+		["rect", { x: 12.8, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" }],
+		["rect", { x: 18.4, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" }],
+	],
+};
+
+/** 圆角星星，与成绩卡片的 material-symbols:star-rounded 是同一个图形 */
+const STAR_PATH =
+	"m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z";
+
+/** 拼一个内联 SVG；HTML 解析器会自动给 svg 子树加上命名空间，所以不需要额外处理 */
+function svgEl(shapes) {
+	return h(
+		"svg",
+		{
+			xmlns: "http://www.w3.org/2000/svg",
+			viewBox: "0 0 24 24",
+			"aria-hidden": "true",
+		},
+		shapes.map(([tag, props]) => h(tag, props)),
+	);
+}
+
+/** 按模式分组，保持原有顺序（diffs 已按星级升序） */
+function groupByMode(diffs) {
+	const groups = new Map();
+	for (const diff of diffs) {
+		const mode = MODE_ICONS[diff.mode] ? diff.mode : "osu";
+		if (!groups.has(mode)) groups.set(mode, []);
+		groups.get(mode).push(diff);
+	}
+	return [...groups.entries()];
+}
+
+/**
+ * 难度概览条：每个模式一组 = 模式图标 + 一排竖胶囊，
+ * 胶囊颜色就是该难度在 osu-web 难度色带上的颜色。
+ * 纯图形，信息由下拉菜单里的文字承载，所以这里 aria-hidden。
+ */
+function difficultyBar(diffs) {
+	return h(
+		"div",
+		{ class: "bm-diffbar", "aria-hidden": "true" },
+		groupByMode(diffs).map(([mode, list]) =>
+			h("span", { class: "bm-diffbar-group" }, [
+				svgEl(MODE_ICONS[mode]),
+				h(
+					"span",
+					{ class: "bm-diffbar-bars" },
+					list.map((diff) =>
+						h("span", {
+							class: "bm-diffbar-bar",
+							style: `background-color:${difficultyColour(diff.stars)};`,
+						}),
+					),
+				),
+			]),
+		),
+	);
+}
+
+/**
+ * 一个难度行：模式图标 | 星级胶囊（带圆角星星）| 难度名
+ * 不再显示时长与 AR / OD / HP / CS。
+ */
 function difficultyRow(diff) {
 	const starText = Number(diff.stars).toFixed(2);
-	const extras = [
-		diff.ar !== null && diff.ar !== undefined ? `AR${diff.ar}` : null,
-		diff.od !== null && diff.od !== undefined ? `OD${diff.od}` : null,
-		diff.hp !== null && diff.hp !== undefined ? `HP${diff.hp}` : null,
-		diff.cs !== null && diff.cs !== undefined ? `CS${diff.cs}` : null,
-	]
-		.filter(Boolean)
-		.join(" · ");
-
-	// 非 std 难度标一下模式，避免和 std 星级混在一起看
-	const modeTag = diff.mode && diff.mode !== "osu" ? diff.mode : null;
+	const mode = MODE_ICONS[diff.mode] ? diff.mode : "osu";
 
 	return h("div", { class: "bm-diff" }, [
-		h(
-			"span",
-			{ class: "bm-diff-name" },
-			[
-				modeTag ? h("span", { class: "bm-diff-mode" }, modeTag) : null,
-				diff.name,
-			].filter(Boolean),
-		),
+		h("span", { class: "bm-diff-mode" }, svgEl(MODE_ICONS[mode])),
 		h(
 			"span",
 			{
 				class: "bm-diff-star",
 				style: `background-color:${difficultyColour(diff.stars)};color:${difficultyTextColour(diff.stars)};`,
 			},
-			starText,
+			[svgEl([["path", { d: STAR_PATH, fill: "currentColor" }]]), starText],
 		),
-		h("span", { class: "bm-diff-extra" }, extras || "—"),
-		h("span", { class: "bm-diff-length" }, formatLength(diff.length)),
+		h("span", { class: "bm-diff-name" }, diff.name),
 	]);
 }
 
@@ -137,15 +206,14 @@ export function BeatmapCardComponent(properties, children) {
 
 	const diffs = Array.isArray(data.diffs) ? data.diffs : [];
 	const longest = diffs.reduce((max, d) => Math.max(max, d.length || 0), 0);
-	const starMin = diffs.length ? Math.min(...diffs.map((d) => d.stars)) : 0;
-	const starMax = diffs.length ? Math.max(...diffs.map((d) => d.stars)) : 0;
 
-	const chips = [
-		formatLength(longest),
-		`${formatBpm(data.bpm)} BPM`,
+	// 元信息行：时长 / BPM / 难度概览条
+	const metaChildren = [
+		h("span", { class: "bm-chip" }, formatLength(longest)),
+		h("span", { class: "bm-chip" }, `${formatBpm(data.bpm)} BPM`),
 		diffs.length
-			? `${diffs.length} 难度 · ${starMin.toFixed(2)}★ ~ ${starMax.toFixed(2)}★`
-			: "暂无难度数据",
+			? difficultyBar(diffs)
+			: h("span", { class: "bm-chip" }, "暂无难度数据"),
 	];
 
 	return h(
@@ -189,7 +257,9 @@ export function BeatmapCardComponent(properties, children) {
 						"span",
 						{
 							class: "bm-status",
-							style: `color:${status.color};border-color:${status.color};`,
+							// 只暴露成 CSS 变量：亮/暗主题下状态色的用法不同
+							// （亮色当底色、暗色当文字色），直接写 color 会被内联优先级压过主题样式
+							style: `--status-color:${status.color};`,
 						},
 						status.label,
 					),
@@ -197,7 +267,7 @@ export function BeatmapCardComponent(properties, children) {
 				h(
 					"div",
 					{ class: "bm-meta" },
-					chips.map((text) => h("span", { class: "bm-chip" }, text)),
+					metaChildren,
 				),
 			]),
 			diffs.length

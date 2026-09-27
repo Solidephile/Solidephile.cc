@@ -44,6 +44,20 @@
 	background-size: cover;
 }
 
+/* 遮罩浓度分主题：亮色下纯白遮罩会把封面洗成灰白、整张卡「发淡」，
+   所以比暗色低一档，让封面更透出来一些 */
+:root {
+	--bm-scrim-a: 76%;
+	--bm-scrim-b: 60%;
+	--bm-scrim-c: 34%;
+}
+
+:root.dark {
+	--bm-scrim-a: 88%;
+	--bm-scrim-b: 74%;
+	--bm-scrim-c: 46%;
+}
+
 /* 左实右透：左侧压住封面保证文字可读，右侧留出封面本身 */
 .card-beatmap .bm-scrim {
 	position: absolute;
@@ -52,9 +66,9 @@
 	border-radius: inherit;
 	background: linear-gradient(
 		to right,
-		color-mix(in oklab, var(--card-bg) 88%, transparent) 0%,
-		color-mix(in oklab, var(--card-bg) 74%, transparent) 52%,
-		color-mix(in oklab, var(--card-bg) 46%, transparent) 100%
+		color-mix(in oklab, var(--card-bg) var(--bm-scrim-a), transparent) 0%,
+		color-mix(in oklab, var(--card-bg) var(--bm-scrim-b), transparent) 52%,
+		color-mix(in oklab, var(--card-bg) var(--bm-scrim-c), transparent) 100%
 	);
 }
 
@@ -97,11 +111,12 @@
 	opacity: 0.7;
 }
 
-/* 谱面状态：颜色由插件按 osu! 官方状态色内联注入 */
+/* 谱面状态：状态色由插件写成 --status-color（内联变量，可以被下面的主题样式读取） */
 .card-beatmap .bm-status {
+	--status-color: #9aa4ad;
 	flex-shrink: 0;
 	padding: 3px 8px;
-	border: 1px solid currentColor;
+	border: 1px solid color-mix(in oklab, var(--status-color) 75%, #1a1a1a);
 	border-radius: 999px;
 	font-size: 11px;
 	font-weight: 700;
@@ -109,7 +124,19 @@
 	line-height: 16px;
 	text-transform: uppercase;
 	white-space: nowrap;
-	background-color: color-mix(in oklab, currentColor 14%, transparent);
+	/* 亮色：osu! 的状态色都是「浅色」——它们本来是设计给深色底当文字用的，
+	   放在浅底上当文字几乎看不见（GRAVEYARD 的灰尤其糟）。
+	   反过来当不透明底色 + 深色文字，既保住「绿=ranked / 灰=graveyard」
+	   的辨识度，又保证清晰。 */
+	background-color: var(--status-color);
+	color: #1a1a1a;
+}
+
+/* 暗色：维持原来的配方（状态色当文字 + 一层淡底），你之前确认过暗色没问题 */
+:root.dark .card-beatmap .bm-status {
+	border-color: var(--status-color);
+	background-color: color-mix(in oklab, var(--status-color) 14%, transparent);
+	color: var(--status-color);
 }
 
 .card-beatmap .bm-meta {
@@ -129,21 +156,61 @@
 	background-color: color-mix(in oklab, var(--card-bg) 72%, transparent);
 }
 
+/* ---- 难度概览条：每个模式一组「模式图标 + 一排竖胶囊」 ---- */
+
+.card-beatmap .bm-diffbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px;
+	/* 和左边的 BPM 胶囊留出一点视觉间距 */
+	margin-left: 2px;
+}
+
+.card-beatmap .bm-diffbar-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 1px;
+}
+
+.card-beatmap .bm-diffbar-group svg {
+	display: block;
+	width: 20px;
+	height: 20px;
+	opacity: 1;
+}
+
+.card-beatmap .bm-diffbar-bars {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+}
+
+/* 竖胶囊：颜色由插件按 osu-web 难度色带内联注入 */
+.card-beatmap .bm-diffbar-bar {
+	display: block;
+	width: 8px;
+	height: 16px;
+	border-radius: 6px;
+}
+
 /* ---- 难度列表 ---- */
 
 .card-beatmap .bm-diffs {
 	display: flex;
 	flex-direction: column;
-	padding: 0.35rem 0.6rem;
+	padding: 8px 12px;
 }
 
+/* 一行 = 模式图标 | 星级胶囊 | 难度名 */
 .card-beatmap .bm-diff {
 	display: flex;
 	align-items: center;
-	gap: 0.55rem;
-	padding: 0.15rem 0;
-	font-size: 0.78rem;
-	line-height: 1.6;
+	gap: 6px;
+	/* 文字放大后把上下留白收掉，行间才显得紧凑 */
+	padding: 1px 0;
+	font-size: 13px;
+	line-height: 16px;
 }
 
 .card-beatmap .bm-diff-name {
@@ -154,40 +221,40 @@
 	text-overflow: ellipsis;
 }
 
+/* 模式图标（osu / taiko / catch / mania），由插件内联 SVG */
 .card-beatmap .bm-diff-mode {
-	margin-right: 0.35em;
-	font-size: 0.85em;
-	opacity: 0.6;
-	text-transform: uppercase;
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	opacity: 1;
 }
 
-/* 星级胶囊复用 osu-web 的难度色带（底色 / 文字色由插件内联注入） */
+.card-beatmap .bm-diff-mode svg {
+	display: block;
+	width: 20px;
+	height: 20px;
+}
+
+/* 星级胶囊：圆角星星 + 数值（底色 / 文字色由插件内联注入） */
 .card-beatmap .bm-diff-star {
 	flex-shrink: 0;
-	min-width: 3.4rem;
-	padding: 0.05rem 0.4rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	min-width: 58px;
+	padding: 0.5px 9px;
 	border-radius: 999px;
-	font-size: 0.72rem;
+	font-size: 13px;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
-	text-align: center;
+	line-height: 18px;
 }
 
-.card-beatmap .bm-diff-extra {
-	flex-shrink: 0;
-	font-size: 0.72rem;
-	font-variant-numeric: tabular-nums;
-	white-space: nowrap;
-	opacity: 0.75;
-}
-
-.card-beatmap .bm-diff-length {
-	flex-shrink: 0;
-	min-width: 2.6rem;
-	font-size: 0.72rem;
-	font-variant-numeric: tabular-nums;
-	text-align: right;
-	opacity: 0.75;
+.card-beatmap .bm-diff-star svg {
+	flex: none;
+	display: block;
+	width: 14px;
+	height: 14px;
 }
 
 /* 只有真正支持 hover 的设备才把难度做成浮层。
