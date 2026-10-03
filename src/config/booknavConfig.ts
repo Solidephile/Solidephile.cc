@@ -61,4 +61,20 @@ export const booknavConfig: BooknavGroup[] = [
 			},
 		],
 	},
+	{
+		id: "games",
+		name: "游戏",
+		icon: "material-symbols:sports-esports",
+		desc: "我喜欢的游戏",
+		weight: 90,
+		items: [
+			{
+				title: "OSU!",
+				url: "https://osu.ppy.sh",
+				desc: "世界上最好玩的音游",
+				icon: "simple-icons:osu",
+				weight: 10,
+			},
+		],
+	},
 ];
