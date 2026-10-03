@@ -1,0 +1,335 @@
+---
+/**
+ * 首页「页面推荐」区块
+ *
+ * 整块是一张大卡片：
+ *   上半 = 标题栏（复用站内 .page-header / .page-heading / .page-icon，
+ *          和 osu、相册等页面的页头完全同一套观感）
+ *   下半 = 入口卡片网格
+ *
+ * 入口卡片的结构参考 bangumi 页的卡片：**封面占满、内容压底**。
+ * 这不是随意选的——封面是任意图片，文字压在哪，就得在哪压暗：
+ *   - 内容压底 + 自下而上的渐变压暗 → 下半接近实心暗，白字和浅灰小字
+ *     在任何封面上都稳；上半几乎不动，封面反而比「整卡平铺遮罩」更亮更透
+ *   - 图标块从行内挪到左上角当浮标，用 bg-black/* + backdrop-blur 的玻璃块
+ *     （bangumi 的角标就是这一套），亮封面/暗封面上都立得住
+ *   - 悬停整卡 scale(1.02) + 阴影浮起，封面同时 scale(1.05) 轻微推近
+ * 没配封面图的卡片退化成主题色渐变底，遮罩按比例减弱，白字依然成立。
+ *
+ * 网格用 flex 而不是 grid：一行最多两张、窄了就变一列、span 2 占满整行，
+ * 这三件事用 flex-basis + min-width 表达即可，不依赖视口断点——首页内容列
+ * 宽度会随侧栏开关变化，用 sm:/md: 这类断点会排错。
+ *
+ * 配置见 src/config/homeCardsConfig.ts
+ */
+import { Icon } from "astro-icon/components";
+import { homeFeatureConfig } from "@/config/homeCardsConfig";
+import homeCardLqips from "@/constants/home-card-lqips.json";
+import { getLqipProps } from "@/utils/lqip-utils";
+// .page-header / .page-heading / .page-icon 定义在这份「按页引入」的骨架里，
+// 首页之前没引过，所以标题栏会退化成纯文本
+import "@/styles/pages/common.css";
+
+const cards = homeFeatureConfig.cards.filter((card) => card.enabled !== false);
+const show = homeFeatureConfig.enable && cards.length > 0;
+
+/**
+ * 封面加载占位色。
+ *
+ * 卡片封面是外部 URL，而 generate-lqips.ts 只扫本地 src/ / public/ 下的图片，
+ * 所以这份 LQIP 由 scripts/generate-home-card-lqips.ts 单独抓取生成
+ * （格式和 lqips.json 完全一致，只是 key 是完整 URL）。
+ * 抓不到就退回 getLqipProps 对外部图片的默认值（主题中性色），
+ * 总之不会再用卡片底色那种高饱和渐变当占位。
+ */
+function lqipStyle(url: string): string {
+	const compact = (homeCardLqips as Record<string, string>)[url];
+	if (compact?.length === 18) {
+		const stops = [0, 6, 12].map((i) => `#${compact.slice(i, i + 6)}`);
+		return `background: linear-gradient(135deg, ${stops[0]} 0%, ${stops[1]} 50%, ${stops[2]} 100%)`;
+	}
+	return getLqipProps(url).style;
+}
+---
+
+{
+  show && (
+    <section class="hf-section card-base mb-4">
+      <div class="page-header">
+        <div class="page-heading">
+          <div class="page-icon" aria-hidden="true">
+            <Icon is:inline name={homeFeatureConfig.icon} />
+          </div>
+          <div>
+            <h2>{homeFeatureConfig.title}</h2>
+            {homeFeatureConfig.description && <p>{homeFeatureConfig.description}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div class="hf-grid px-5 pb-6 sm:px-8">
+        {cards.map((card) => (
+          <a
+            class="hf-card card-base group"
+            href={card.href}
+            data-cover={card.image ? "1" : "0"}
+            data-span={card.span === 2 ? "2" : "1"}
+          >
+            <span class="hf-media" aria-hidden="true">
+              {card.image && (
+                <span class="hf-lqip lqip-placeholder" style={lqipStyle(card.image)} />
+              )}
+              {card.image && (
+                <img
+                  class="hf-cover"
+                  src={card.image}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              <span class="hf-scrim" />
+            </span>
+
+            <span class="hf-icon" aria-hidden="true">
+              <Icon name={card.icon} />
+            </span>
+
+            <span class="hf-body">
+              <span class="hf-text">
+                <span class="hf-title">{card.title}</span>
+                <span class="hf-desc">{card.description}</span>
+              </span>
+
+              <span class="hf-arrow" aria-hidden="true">
+                <Icon name="material-symbols:arrow-forward-rounded" />
+              </span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  /* 标题栏和卡片之间的间距：.page-header 默认 padding-bottom 1.5rem +
+     margin-bottom 1rem = 40px，偏大。这里收掉 padding-bottom，
+     margin-bottom 取 1.5rem，和 .hf-grid 的 pb-6（卡片↔大卡片下边界）等值 */
+  .hf-section .page-header {
+    padding-bottom: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .hf-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* 一行最多两张；容器窄到塞不下两张时自动变成一列。
+     纵向排列：图标在上当浮标，文字压底——底部那块是遮罩最实的地方 */
+  .hf-card {
+    display: flex;
+    flex: 1 1 calc(50% - 0.5rem);
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.25rem;
+    min-width: 260px;
+    min-height: 158px;
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    isolation: isolate;
+    /* 卡片自带深色封面/渐变底，.enable-card-border 那条 1px 主题色描边压在
+       深色块边缘会显出锯齿，而且和封面颜色打架，这里直接去掉 */
+    border: none;
+    text-decoration: none;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  /* 主题色渐变只给「没有封面图」的卡片当底色。
+     有封面的卡片底下一律是 --card-bg（中性色）——悬停整卡缩放时，
+     封面层边缘的亚像素舍入会漏出底下一丝底色，垫高饱和的主题色就等于
+     漏出一条亮边（暗色模式下最明显），垫中性色则完全看不出来 */
+  .hf-card[data-cover="0"] {
+    background-image: linear-gradient(
+      135deg,
+      var(--primary),
+      color-mix(in oklab, var(--primary) 88%, #000)
+    );
+  }
+
+  /* span: 2 —— 占满整行；窄屏时 min-width 已经让它自然掉成一列 */
+  .hf-card[data-span="2"] {
+    flex-basis: 100%;
+  }
+
+  /* 参考 bangumi：轻微放大 + 阴影浮起（不做位移，位移会显得抖） */
+  .hf-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 14px 30px -12px rgb(0 0 0 / 0.45);
+  }
+
+  /* ---- 封面与遮罩 ----
+     LQIP / 封面 / 遮罩合成在一个 .hf-media 里，由它自己裁圆角，三层之间
+     只靠 DOM 顺序分层，**不用负 z-index**。
+
+     负 z-index 的后代是被父级裁剪框单独裁的，和普通流的遮罩不在同一个
+     裁剪阶段；卡片一缩放，两边 1px 的取整就对不上，图片那层会从遮罩底下
+     露出 1px（hover 时底部那条会闪的亮边）。bangumi 的卡片没这个问题，
+     正因为它是「overflow:hidden 的父级 + normal flow 里的封面和遮罩」。
+
+     .hf-media 自己 inset: -1px 往外多留一点，再被 .card-base 的
+     overflow:hidden 裁一刀：两张裁剪框取整差 1px 时，露出来的是图片边缘
+     而不是卡片底色 */
+  .hf-media {
+    position: absolute;
+    inset: -1px;
+    z-index: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* LQIP 占位：真实 LQIP 来自构建期脚本，取不到就是主题中性色 */
+  .hf-lqip {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hf-cover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 淡入由 layout-init.ts 里的 initImageLoadFadeIn 触发：
+       它给 img 写内联 opacity:1，并给 .lqip-placeholder 加 .loaded */
+    opacity: 0;
+    transition:
+      opacity 0.5s ease-out,
+      transform 0.5s ease-out;
+  }
+
+  .hf-card:hover .hf-cover {
+    transform: scale(1.05);
+  }
+
+  /* 两层叠加：
+     1) 自下而上 —— 文字区（下半）压到接近实心，往上快速衰减到全透明，
+        这是小字能看清的根本；衰减用多档而不是线性，边缘才不会有明显色带
+     2) 自左而右 —— 很轻的一层，给左下角的标题再垫一点底，右侧完全不动
+     悬停不再改遮罩（改动会牵动过暗/过亮两头），悬停反馈交给缩放和阴影 */
+  .hf-scrim {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(
+        to top,
+        rgb(0 0 0 / 0.82) 0%,
+        rgb(0 0 0 / 0.68) 28%,
+        rgb(0 0 0 / 0.36) 50%,
+        rgb(0 0 0 / 0.1) 74%,
+        rgb(0 0 0 / 0) 100%
+      ),
+      linear-gradient(
+        100deg,
+        rgb(0 0 0 / 0.28) 0%,
+        rgb(0 0 0 / 0.08) 55%,
+        rgb(0 0 0 / 0) 100%
+      );
+  }
+
+  /* 渐变底（没配封面图的卡）本身就是主题色，明暗可控，不需要按照片那样压，
+     按比例收一下——乘完大约相当于底部 55% 黑，白字对比度仍然够 */
+  .hf-card[data-cover="0"] .hf-scrim {
+    opacity: 0.65;
+  }
+
+  /* ---- 内容 ----
+     两块都要 position + z-index 抬到 .hf-media 之上：
+     .hf-media 是有 z-index 的定位元素，非定位的普通流内容反而会被它盖住 */
+
+  /* 左上角浮标：玻璃块压黑而不是压白，亮封面/暗封面都能立住 */
+  .hf-icon {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-self: flex-start;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 0.875rem;
+    background-color: rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(6px);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+    color: #fff;
+    font-size: 28px;
+    transition: background-color 0.2s ease;
+  }
+
+  .hf-card:hover .hf-icon {
+    background-color: rgb(0 0 0 / 0.5);
+  }
+
+  /* 底部一行：文字占满剩余宽度，箭头贴右下 */
+  .hf-body {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+
+  .hf-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .hf-title {
+    color: #fff;
+    font-size: 1.1875rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.85);
+  }
+
+  /* 说明最多两行，超出打省略号 —— 卡片高度才不会被长文案撑得不齐。
+     小字是这次可视性的重点：字号提到 15px、白度提到 88%，
+     再叠一层光晕式投影（小字靠投影自描边比靠加大遮罩划算得多） */
+  .hf-desc {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    color: rgb(255 255 255 / 0.88);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    text-shadow:
+      0 1px 2px rgb(0 0 0 / 0.8),
+      0 0 8px rgb(0 0 0 / 0.5);
+  }
+
+  .hf-arrow {
+    flex-shrink: 0;
+    color: rgb(255 255 255 / 0.75);
+    font-size: 22px;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.7));
+    transition:
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .hf-card:hover .hf-arrow {
+    color: #fff;
+    transform: translateX(4px);
+  }
+</style>

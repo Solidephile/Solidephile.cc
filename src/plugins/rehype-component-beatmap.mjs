@@ -87,8 +87,25 @@ const MODE_ICONS = {
 	],
 };
 
-/** 圆角星星，与成绩卡片的 material-symbols:star-rounded 是同一个图形 */
-const STAR_PATH =
+/**
+ * 展开指示：一个朝下的折线箭头，hover 时由 CSS 翻 180°。
+ * 和上面四个模式图标同一套画法（24×24 画布 + currentColor）
+ */
+const CHEVRON_ICON = [
+	[
+		"path",
+		{
+			d: "M6 9.5 12 15.5 18 9.5",
+			fill: "none",
+			stroke: "currentColor",
+			"stroke-width": 2.4,
+			"stroke-linecap": "round",
+			"stroke-linejoin": "round",
+		},
+	],
+];
+
+/** 圆角星星，与成绩卡片的 material-symbols:star-rounded 是同一个图形 */const STAR_PATH =
 	"m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z";
 
 /** 拼一个内联 SVG；HTML 解析器会自动给 svg 子树加上命名空间，所以不需要额外处理 */
@@ -207,14 +224,22 @@ export function BeatmapCardComponent(properties, children) {
 	const diffs = Array.isArray(data.diffs) ? data.diffs : [];
 	const longest = diffs.reduce((max, d) => Math.max(max, d.length || 0), 0);
 
-	// 元信息行：时长 / BPM / 难度概览条
+	// 元信息行：时长 / BPM / 展开指示 / 难度概览条
 	const metaChildren = [
 		h("span", { class: "bm-chip" }, formatLength(longest)),
 		h("span", { class: "bm-chip" }, `${formatBpm(data.bpm)} BPM`),
+		// 难度浮层的展开指示，紧跟 BPM 胶囊；没有难度可展开时就不出现
+		diffs.length
+			? h(
+					"span",
+					{ class: "bm-toggle", "aria-hidden": "true" },
+					svgEl(CHEVRON_ICON),
+				)
+			: null,
 		diffs.length
 			? difficultyBar(diffs)
 			: h("span", { class: "bm-chip" }, "暂无难度数据"),
-	];
+	].filter(Boolean);
 
 	return h(
 		"a",

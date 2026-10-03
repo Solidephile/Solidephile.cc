@@ -2,6 +2,7 @@
 import type { GetStaticPaths } from "astro";
 import Pagination from "@/components/common/Pagination.astro";
 import PostPage from "@/components/layout/PostPage.astro";
+import HomeFeatureCards from "@/components/pages/home/HomeFeatureCards.astro";
 import { siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -28,6 +29,8 @@ const heading =
 ---
 
 <MainGridLayout heading={heading}>
+  {/* 入口卡片只在首页第一页出现，翻页时不重复 */}
+  {page.currentPage === 1 && <HomeFeatureCards />}
   <PostPage page={page} />
   {
     page.total > page.size && (

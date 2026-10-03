@@ -23,6 +23,9 @@
 	transition: transform 0.15s ease;
 }
 
+/* 悬停时只抬层级：难度浮层要盖住下面的卡片。
+   刻意不做整体上浮（卡片是整块 <a>，位移会显得页面在抖），
+   反馈交给封面推近 + BPM 胶囊右边那个翻转的箭头 */
 .custom-md a.card-beatmap:hover {
 	z-index: 10;
 }
@@ -33,15 +36,38 @@
 
 /* ---- 封面与遮罩 ----
    卡片本身刻意不设 overflow:hidden，否则难度浮层溢不出去；
-   圆角裁切交给封面 / 遮罩各自继承 border-radius 来实现 */
+   圆角裁切交给封面 / 遮罩各自继承 border-radius 来实现。
+
+   封面推近靠 .bm-cover::before 而不是直接缩放 .bm-cover：
+   元素缩放自己剪不掉自己（不设 overflow 就没裁切，设了又会连伪元素一起裁），
+   所以让 .bm-cover 只当裁剪框（overflow:hidden + 继承圆角），
+   真正带背景的是里面那层伪元素，缩放它即可。
+   background-image 是插件写在 .bm-cover 上的内联样式，伪元素用
+   background-image: inherit 取到同一个值，父层自己那份被完整盖住，看不出重影 */
 .card-beatmap .bm-cover {
 	position: absolute;
 	inset: 0;
 	z-index: -2;
+	overflow: hidden;
 	border-radius: inherit;
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: cover;
+}
+
+.card-beatmap .bm-cover::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: inherit;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	transition: transform 0.45s ease-out;
+}
+
+.card-beatmap:hover .bm-cover::before {
+	transform: scale(1.045);
 }
 
 /* 遮罩浓度分主题：亮色下纯白遮罩会把封面洗成灰白、整张卡「发淡」，
@@ -154,6 +180,35 @@
 	font-variant-numeric: tabular-nums;
 	line-height: 18px;
 	background-color: color-mix(in oklab, var(--card-bg) 72%, transparent);
+}
+
+/* 展开指示：紧跟 BPM 胶囊的朝下箭头，hover 翻 180° 变朝上，
+   和难度浮层的淡入同时发生，给「这里有东西要展开」一个前兆动作 */
+.card-beatmap .bm-toggle {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 22px;
+	color: var(--tw-prose-body);
+	opacity: 0.55;
+	transition:
+		transform 0.3s ease,
+		opacity 0.2s ease,
+		color 0.2s ease;
+}
+
+.card-beatmap .bm-toggle svg {
+	display: block;
+	width: 16px;
+	height: 16px;
+}
+
+.card-beatmap:hover .bm-toggle {
+	transform: rotate(180deg);
+	color: var(--primary);
+	opacity: 1;
 }
 
 /* ---- 难度概览条：每个模式一组「模式图标 + 一排竖胶囊」 ---- */
@@ -286,8 +341,12 @@
 	}
 }
 
-/* 触屏没有 hover：难度常驻在卡片内部，直接可读 */
+/* 触屏没有 hover：难度常驻在卡片内部，直接可读，箭头也就没意义了 */
 @media (hover: none) {
+	.card-beatmap .bm-toggle {
+		display: none;
+	}
+
 	.card-beatmap .bm-diffs {
 		margin-top: 0.15rem;
 		border-top: 1px solid var(--line-divider);
