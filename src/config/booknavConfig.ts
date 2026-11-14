@@ -77,4 +77,25 @@ export const booknavConfig: BooknavGroup[] = [
 			},
 		],
 	},
+	{
+		id: "misc",
+		name: "杂项",
+		icon: "material-symbols:toys-fan",
+		desc: "其它各种好玩的网站！",
+		weight: 80,
+		items: [
+			{
+				title: "LLwiki",
+				url: "https://llwiki.org",
+				desc: "LoveLive! wiki",
+				weight: 10,
+			},
+			{
+				title: "LLwiki",
+				url: "https://llcall.live",
+				desc: "LoveLive! 打 call 教学网站",
+				weight: 9,
+			},
+		],
+	},
 ];

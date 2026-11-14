@@ -62,6 +62,7 @@ export const siteConfig: SiteConfig = {
 	keywords: [
 		"Solidephile",
 		"osu",
+		"LoveLive",
 		"ACGN",
 	],
 

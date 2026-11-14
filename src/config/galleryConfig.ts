@@ -16,12 +16,12 @@ export const galleryConfig: GalleryConfig = {
 		// passwordHint: 密码提示，设置后在输入密码错误时显示（可选，需配合password使用）
 		// 每添加一个数组项就相当于添加了一个相册，记得在 public/gallery/ 目录下创建对应的子目录并放入图片
 		{
-			id: "test",
-			name: "测试相册",
-			description: "这是一个测试相册",
+			id: "u's",
+			name: "LoveLive! μ's",
+			description: "みんなで叶える物語",
 			location: "",
-			date: "2026-09-20",
-			tags: ["测试"],
+			date: "2026-11-14",
+			tags: ["LoveLive!", "μ's", "缪斯"],
 		},
 	],
 

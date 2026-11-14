@@ -2,7 +2,7 @@ import type { BackgroundWallpaperConfig } from "@/types/backgroundWallpaper";
 
 export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	// 壁纸模式："banner" 横幅壁纸，"fullscreen" 全屏壁纸，"overlay" 覆盖透明，"none" 纯色背景无壁纸
-	mode: "banner",
+	mode: "fullscreen",
 	// 是否启用背景视频播放，配置后将在导航栏显示视频播放按钮
 	playerEnable: false,
 	/**
@@ -39,12 +39,12 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		// 桌面背景图片（支持单张或多张随机）
 		// desktop: "assets/images/DesktopWallpaper/d1.avif",
 		desktop: [
-			"assets/images/DesktopWallpaper/test.avif",
+			"assets/images/DesktopWallpaper/1.jpg",
 		],
 		// 移动背景图片（支持单张或多张随机）
 		// mobile: "assets/images/MobileWallpaper/m1.avif",
 		mobile: [
-			"assets/images/MobileWallpaper/test.avif",
+			"assets/images/MobileWallpaper/1.jpg",
 		],
 		// 背景视频播放地址
 		// 支持单个视频路径（字符串）或多个视频循环（数组，参考上面壁纸配置）
@@ -63,15 +63,17 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 是否启用主页横幅文字
 			enable: true,
 			// 主页横幅主标题
-			title: "Everything's alright.",
+			title: "～μ'sic Forever～",
 			// 主页横幅主标题字体大小
-			titleSize: "4.5rem",
+			titleSize: "4rem",
 			// 主页横幅副标题
 			subtitle: [
-				"Just chilling...",
+				"♪♪♪♪♪♪♪♪♪",
+				"みんなで叶える物語",
 				"Let's play some osu!",
+				"NicoNicoNi~",
 				"It was never meant to be.",
-				"At least I hope so."
+				"いまが最高!"
 			],
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
@@ -88,7 +90,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				pauseTime: 2000,
 			},
 			// 是否显示标题下方的链接图标
-			linksEnable: true,
+			linksEnable: false,
 			// 首页横幅标题下方的链接图标（可选，支持 showName 显示文字）
 			// 图标支持 Iconify 格式：fa7-brands:github、fa7-solid:envelope、mdi:rss 等
 			links: [
@@ -129,7 +131,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		// 图片位置
 		// 支持所有CSS object-position值，如: 'top', 'center', 'bottom', 'left top', 'right bottom', '25% 75%', '10px 20px'..
 		// 如果不知道怎么配置百分百之类的配置，推荐直接使用：'center'居中，'top'顶部居中，'bottom' 底部居中，'left'左侧居中，'right'右侧居中
-		position: "top",
+		position: "center",
 		// 文章横幅信息："description" 显示描述，"meta" 显示日期、字数和阅读时长
 		postInfo: {
 			mode: "description",
@@ -165,7 +167,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		// 全屏壁纸模式的导航栏配置
 		navbar: {
 			// 导航栏透明模式："semi" 半透明，"semifull" 动态透明（仅首页顶部透明、下滑玻璃化；非首页均跟卡片半透明）
-			transparentMode: "semifull",
+			transparentMode: "semi",
 			// 导航栏毛玻璃模糊度，0 即关闭（玻璃态生效）
 			blur: 12,
 		},
