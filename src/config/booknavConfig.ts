@@ -85,13 +85,13 @@ export const booknavConfig: BooknavGroup[] = [
 		weight: 80,
 		items: [
 			{
-				title: "LLwiki",
+				title: "LL wiki",
 				url: "https://llwiki.org",
 				desc: "LoveLive! wiki",
 				weight: 10,
 			},
 			{
-				title: "LLwiki",
+				title: "LL Callbook",
 				url: "https://llcall.live",
 				desc: "LoveLive! 打 call 教学网站",
 				weight: 9,

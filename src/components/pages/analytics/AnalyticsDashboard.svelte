@@ -57,7 +57,8 @@ const CHANNEL_LABELS: Record<string, string> = {
 	organic: "自然流量",
 };
 
-let range = $state("30d");
+// 趋势默认看 90 天；切换只影响趋势图，汇总与排名固定近 30 天
+let range = $state("90d");
 let dashboard = $state<DashboardData | null>(null);
 let series = $state<SeriesData | null>(null);
 let dashboardError = $state<string | null>(null);
@@ -191,7 +192,7 @@ const channelItems = $derived(
 					数据来源：Umami
 				</p>
 			</div>
-			<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+			<div class="grid grid-cols-2 gap-3 2xl:grid-cols-4">
 				{#each summaryCards as card (card.label)}
 					<div class="card-base flex items-center gap-3 p-4">
 						<div
@@ -241,7 +242,6 @@ const channelItems = $derived(
 						labels={series.series.labels}
 						series={[
 							{ label: "访问量", data: series.series.pageviews, fill: true },
-							{ label: "会话数", data: series.series.sessions },
 						]}
 						height={280}
 						clampZero
