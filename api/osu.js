@@ -2,9 +2,9 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL);
 
-export default async function handler(req, res) {
-    try {
-        const currentResult = await sql`
+export default async function handler(_req, res) {
+	try {
+		const currentResult = await sql`
             SELECT
                 username,
                 avatar_url,
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             LIMIT 1
         `;
 
-        const historyResult = await sql`
+		const historyResult = await sql`
             SELECT
                 updated_at AS timestamp,
                 global_rank,
@@ -44,22 +44,21 @@ export default async function handler(req, res) {
             ORDER BY updated_at ASC
         `;
 
-        if (currentResult.length === 0) {
-            return res.status(404).json({
-                error: "osu_current 没有数据"
-            });
-        }
+		if (currentResult.length === 0) {
+			return res.status(404).json({
+				error: "osu_current 没有数据",
+			});
+		}
 
-        return res.status(200).json({
-            stats: currentResult[0],
-            history: historyResult
-        });
+		return res.status(200).json({
+			stats: currentResult[0],
+			history: historyResult,
+		});
+	} catch (error) {
+		console.error("Database error:", error);
 
-    } catch (error) {
-        console.error("Database error:", error);
-
-        return res.status(500).json({
-            error: "读取数据库失败"
-        });
-    }
+		return res.status(500).json({
+			error: "读取数据库失败",
+		});
+	}
 }

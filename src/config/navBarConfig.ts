@@ -79,7 +79,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 			// MyAnimeList
 			LinkPresets.MAL,
-			
+
 			// osu!
 			LinkPresets.Osu,
 		],

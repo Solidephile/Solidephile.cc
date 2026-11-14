@@ -76,7 +76,8 @@ export const homeFeatureConfig: HomeFeatureConfig = {
 			description: "看看有多少人来过这里QAQ",
 			href: "/analytics/",
 			icon: "material-symbols:analytics",
-			image: "https://assets.ppy.sh/contests/282/winners/-%20Y%20u%20m%20i%20J%20i-.jpg",
+			image:
+				"https://assets.ppy.sh/contests/282/winners/-%20Y%20u%20m%20i%20J%20i-.jpg",
 			span: 1,
 		},
 		// 之后想展示别的页面，在这里追加一项就行，例如：

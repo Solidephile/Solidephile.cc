@@ -8,8 +8,7 @@ export const sponsorConfig: SponsorConfig = {
 	description: "",
 
 	// 打赏用途说明
-	usage:
-		"您的打赏将用于服务器维护、内容创作和功能开发。",
+	usage: "您的打赏将用于服务器维护、内容创作和功能开发。",
 
 	// 是否显示打赏者列表
 	showSponsorsList: true,
@@ -62,8 +61,7 @@ export const sponsorConfig: SponsorConfig = {
 		// 示例：已实名打赏者
 		{
 			name: "123",
-			avatar:
-				"https://xxx",
+			avatar: "https://xxx",
 			amount: "¥50",
 			date: "2025-10-01",
 		},

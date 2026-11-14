@@ -13,23 +13,23 @@ const sql = neon(process.env.DATABASE_URL);
 
 // jsonb 列由驱动解析后通常是数组；这里对字符串形式也做兼容
 function toArray(value) {
-    if (Array.isArray(value)) return value;
+	if (Array.isArray(value)) return value;
 
-    if (typeof value === "string") {
-        try {
-            const parsed = JSON.parse(value);
-            return Array.isArray(parsed) ? parsed : [];
-        } catch {
-            return [];
-        }
-    }
+	if (typeof value === "string") {
+		try {
+			const parsed = JSON.parse(value);
+			return Array.isArray(parsed) ? parsed : [];
+		} catch {
+			return [];
+		}
+	}
 
-    return [];
+	return [];
 }
 
-export default async function handler(req, res) {
-    try {
-        const result = await sql`
+export default async function handler(_req, res) {
+	try {
+		const result = await sql`
             SELECT
                 best_scores,
                 pinned_scores,
@@ -39,25 +39,24 @@ export default async function handler(req, res) {
             LIMIT 1
         `;
 
-        if (result.length === 0) {
-            return res.status(404).json({
-                error: "osu_current 没有数据"
-            });
-        }
+		if (result.length === 0) {
+			return res.status(404).json({
+				error: "osu_current 没有数据",
+			});
+		}
 
-        const row = result[0];
+		const row = result[0];
 
-        return res.status(200).json({
-            pinned: toArray(row.pinned_scores),
-            best: toArray(row.best_scores),
-            updated_at: row.updated_at
-        });
+		return res.status(200).json({
+			pinned: toArray(row.pinned_scores),
+			best: toArray(row.best_scores),
+			updated_at: row.updated_at,
+		});
+	} catch (error) {
+		console.error("读取成绩失败:", error);
 
-    } catch (error) {
-        console.error("读取成绩失败:", error);
-
-        return res.status(500).json({
-            error: "读取成绩失败"
-        });
-    }
+		return res.status(500).json({
+			error: "读取成绩失败",
+		});
+	}
 }

@@ -45,7 +45,8 @@ const RANGES = {
 const DEFAULT_RANGE = "30d";
 
 // 统一的 CDN 缓存策略：省 Umami 的 API 调用，数字也不会太旧
-const CACHE_HEADER = "public, max-age=60, s-maxage=300, stale-while-revalidate=600";
+const CACHE_HEADER =
+	"public, max-age=60, s-maxage=300, stale-while-revalidate=600";
 
 // 登录 token 缓存在函数实例内存里，实例复用期间有效；过期或失效会自动重登
 const TOKEN_TTL_MS = 30 * 60 * 1000;
@@ -69,7 +70,7 @@ async function getToken() {
 
 	const data = await res.json();
 
-	if (!data || !data.token) {
+	if (!data?.token) {
 		throw new Error("Umami 登录响应里没有 token");
 	}
 
@@ -267,9 +268,7 @@ async function handleDashboard(res) {
 /** 趋势入口：只返回时序数据，range 可切换 */
 async function handleSeries(query, res) {
 	const requested = String(query?.range || DEFAULT_RANGE);
-	const rangeKey = Object.prototype.hasOwnProperty.call(RANGES, requested)
-		? requested
-		: DEFAULT_RANGE;
+	const rangeKey = Object.hasOwn(RANGES, requested) ? requested : DEFAULT_RANGE;
 	const { days, label } = RANGES[rangeKey];
 
 	const endAt = Date.now();

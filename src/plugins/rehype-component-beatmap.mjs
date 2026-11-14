@@ -65,25 +65,62 @@ function invalid(reason) {
 const MODE_ICONS = {
 	// 打击圈：外环 + 中心点
 	osu: [
-		["circle", { cx: 12, cy: 12, r: 9, fill: "none", stroke: "currentColor", "stroke-width": 2 }],
+		[
+			"circle",
+			{
+				cx: 12,
+				cy: 12,
+				r: 9,
+				fill: "none",
+				stroke: "currentColor",
+				"stroke-width": 2,
+			},
+		],
 		["circle", { cx: 12, cy: 12, r: 6, fill: "currentColor" }],
 	],
 	// 太鼓：鼓身（胶囊）+ 中心音符
 	taiko: [
-		["rect", { x: 2, y: 7, width: 20, height: 10, rx: 5, fill: "none", stroke: "currentColor", "stroke-width": 2 }],
+		[
+			"rect",
+			{
+				x: 2,
+				y: 7,
+				width: 20,
+				height: 10,
+				rx: 5,
+				fill: "none",
+				stroke: "currentColor",
+				"stroke-width": 2,
+			},
+		],
 		["circle", { cx: 12, cy: 12, r: 2.8, fill: "currentColor" }],
 	],
 	// 接水果：水果 + 接盘
 	catch: [
 		["circle", { cx: 12, cy: 9.5, r: 5.5, fill: "currentColor" }],
-		["rect", { x: 2.5, y: 17, width: 19, height: 3.5, rx: 1.75, fill: "currentColor" }],
+		[
+			"rect",
+			{ x: 2.5, y: 17, width: 19, height: 3.5, rx: 1.75, fill: "currentColor" },
+		],
 	],
 	// 下落式：四条轨道
 	mania: [
-		["rect", { x: 1.6, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" }],
-		["rect", { x: 7.2, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" }],
-		["rect", { x: 12.8, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" }],
-		["rect", { x: 18.4, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" }],
+		[
+			"rect",
+			{ x: 1.6, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" },
+		],
+		[
+			"rect",
+			{ x: 7.2, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" },
+		],
+		[
+			"rect",
+			{ x: 12.8, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" },
+		],
+		[
+			"rect",
+			{ x: 18.4, y: 4, width: 4, height: 16, rx: 1.5, fill: "currentColor" },
+		],
 	],
 };
 
@@ -105,7 +142,7 @@ const CHEVRON_ICON = [
 	],
 ];
 
-/** 圆角星星，与成绩卡片的 material-symbols:star-rounded 是同一个图形 */const STAR_PATH =
+/** 圆角星星，与成绩卡片的 material-symbols:star-rounded 是同一个图形 */ const STAR_PATH =
 	"m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z";
 
 /** 拼一个内联 SVG；HTML 解析器会自动给 svg 子树加上命名空间，所以不需要额外处理 */
@@ -289,11 +326,7 @@ export function BeatmapCardComponent(properties, children) {
 						status.label,
 					),
 				]),
-				h(
-					"div",
-					{ class: "bm-meta" },
-					metaChildren,
-				),
+				h("div", { class: "bm-meta" }, metaChildren),
 			]),
 			diffs.length
 				? h(

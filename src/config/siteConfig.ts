@@ -33,7 +33,7 @@ const pages = resolvePageToggles({
 	vndb: false,
 	// MyAnimeList页面开关
 	mal: false,
-    // osu! 数据页开关
+	// osu! 数据页开关
 	osu: true,
 
 	// ── 关于 (About) ──────────────────────────────────
@@ -55,16 +55,10 @@ export const siteConfig: SiteConfig = {
 	site_url: "https://solidephile.cc",
 
 	// 站点描述
-	description:
-		"这是我的小窝。",
+	description: "这是我的小窝。",
 
 	// 站点关键词
-	keywords: [
-		"Solidephile",
-		"osu",
-		"LoveLive",
-		"ACGN",
-	],
+	keywords: ["Solidephile", "osu", "LoveLive", "ACGN"],
 
 	// 主题色
 	themeColor: {

@@ -4,9 +4,9 @@ import {
 	Chart,
 	Filler,
 	Legend,
+	LinearScale,
 	LineController,
 	LineElement,
-	LinearScale,
 	PointElement,
 	Tooltip,
 } from "chart.js";

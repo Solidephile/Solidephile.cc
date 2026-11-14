@@ -38,14 +38,10 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	src: {
 		// 桌面背景图片（支持单张或多张随机）
 		// desktop: "assets/images/DesktopWallpaper/d1.avif",
-		desktop: [
-			"assets/images/DesktopWallpaper/1.jpg",
-		],
+		desktop: ["assets/images/DesktopWallpaper/1.jpg"],
 		// 移动背景图片（支持单张或多张随机）
 		// mobile: "assets/images/MobileWallpaper/m1.avif",
-		mobile: [
-			"assets/images/MobileWallpaper/1.jpg",
-		],
+		mobile: ["assets/images/MobileWallpaper/1.jpg"],
 		// 背景视频播放地址
 		// 支持单个视频路径（字符串）或多个视频循环（数组，参考上面壁纸配置）
 		// 支持远程视频URL，本地视频请放在 public/assets/videos/ 目录下
@@ -73,7 +69,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				"Let's play some osu!",
 				"NicoNicoNi~",
 				"It was never meant to be.",
-				"いまが最高!"
+				"いまが最高!",
 			],
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
@@ -93,8 +89,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			linksEnable: false,
 			// 首页横幅标题下方的链接图标（可选，支持 showName 显示文字）
 			// 图标支持 Iconify 格式：fa7-brands:github、fa7-solid:envelope、mdi:rss 等
-			links: [
-			],
+			links: [],
 		},
 		// 壁纸轮播配置，横幅壁纸和全屏壁纸共享，仅在配置多张图片时生效
 		carousel: {
