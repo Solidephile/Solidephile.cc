@@ -12,6 +12,15 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { glob } from "glob";
 
+// 本地跑 `pnpm beatmaps` 时从仓库根目录的 .env 读取 OSU_CLIENT_ID / OSU_CLIENT_SECRET，
+// 否则 tsx 不会自动加载 .env，会一直提示「未配置」。Vercel 等平台直接注入环境变量、
+// 仓库里没有 .env，此时 loadEnvFile 会抛错，忽略即可（已存在的变量不会被覆盖）。
+try {
+	process.loadEnvFile();
+} catch {
+	// 没有 .env：CI / Vercel / 直接在 shell 里 export 的情况
+}
+
 const OUTPUT_FILE = "src/constants/beatmap-card-data.json";
 const CONTENT_GLOB = "src/content/**/*.{md,mdx}";
 const BEATMAP_DIRECTIVE_PATTERN =
@@ -23,11 +32,6 @@ interface BeatmapDiffData {
 	mode: string;
 	/** 秒 */
 	length: number;
-	od: number | null;
-	hp: number | null;
-	cs: number | null;
-	ar: number | null;
-	maxCombo: number | null;
 }
 
 interface BeatmapCardData {
@@ -49,13 +53,6 @@ interface RawBeatmap {
 	difficulty_rating?: number;
 	mode?: string;
 	total_length?: number;
-	/** OD（注意字段名不是 od） */
-	accuracy?: number;
-	/** HP（注意字段名不是 hp） */
-	drain?: number;
-	cs?: number;
-	ar?: number;
-	max_combo?: number;
 }
 
 interface RawBeatmapset {
@@ -142,11 +139,6 @@ function trimBeatmapset(raw: RawBeatmapset, id: number): BeatmapCardData {
 			stars: num(b.difficulty_rating) ?? 0,
 			mode: typeof b.mode === "string" ? b.mode : "osu",
 			length: num(b.total_length) ?? 0,
-			od: num(b.accuracy),
-			hp: num(b.drain),
-			cs: num(b.cs),
-			ar: num(b.ar),
-			maxCombo: num(b.max_combo),
 		}))
 		.sort((a, b) => a.stars - b.stars);
 

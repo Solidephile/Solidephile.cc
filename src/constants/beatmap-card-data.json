@@ -12,221 +12,272 @@
 				"name": "Normal",
 				"stars": 2.01733,
 				"mode": "osu",
-				"length": 246,
-				"od": 3,
-				"hp": 3,
-				"cs": 3,
-				"ar": 4,
-				"maxCombo": 542
+				"length": 246
 			},
 			{
 				"name": "Hard",
 				"stars": 3.45926,
 				"mode": "osu",
-				"length": 246,
-				"od": 6,
-				"hp": 6,
-				"cs": 4,
-				"ar": 7,
-				"maxCombo": 937
+				"length": 246
 			},
 			{
 				"name": "Insane",
 				"stars": 4.7872,
 				"mode": "osu",
-				"length": 246,
-				"od": 8,
-				"hp": 7,
-				"cs": 4,
-				"ar": 9,
-				"maxCombo": 1197
+				"length": 246
 			}
 		]
 	},
-	"147962": {
-		"id": 147962,
-		"title": "オメガリズム",
-		"artist": "UPLIFT SPICE",
-		"creator": "Jemmmmy",
+	"230367": {
+		"id": 230367,
+		"title": "Necro Fantasia",
+		"artist": "美里",
+		"creator": "Aka",
 		"status": "ranked",
-		"bpm": 173,
-		"cover": "https://assets.ppy.sh/beatmaps/147962/covers/cover.jpg?1650620437",
+		"bpm": 175,
+		"cover": "https://assets.ppy.sh/beatmaps/230367/covers/cover.jpg?1622079268",
 		"diffs": [
 			{
 				"name": "Easy",
-				"stars": 1.46101,
+				"stars": 1.73726,
 				"mode": "osu",
-				"length": 176,
-				"od": 2,
-				"hp": 2,
-				"cs": 3,
-				"ar": 3,
-				"maxCombo": 533
+				"length": 167
 			},
 			{
 				"name": "Normal",
-				"stars": 2.18945,
+				"stars": 2.48797,
 				"mode": "osu",
-				"length": 177,
-				"od": 4,
-				"hp": 4,
-				"cs": 3,
-				"ar": 5,
-				"maxCombo": 631
+				"length": 167
 			},
 			{
 				"name": "Hard",
-				"stars": 3.43212,
+				"stars": 3.46689,
 				"mode": "osu",
-				"length": 178,
-				"od": 6,
-				"hp": 5,
-				"cs": 4,
-				"ar": 6.5,
-				"maxCombo": 831
+				"length": 167
 			},
 			{
-				"name": "Hyper",
-				"stars": 4.10674,
+				"name": "Lunatic",
+				"stars": 4.78752,
 				"mode": "osu",
-				"length": 178,
-				"od": 7,
-				"hp": 5,
-				"cs": 4,
-				"ar": 8,
-				"maxCombo": 912
-			},
-			{
-				"name": "lightr's Insane",
-				"stars": 5.21052,
-				"mode": "osu",
-				"length": 178,
-				"od": 7.5,
-				"hp": 6,
-				"cs": 4,
-				"ar": 9,
-				"maxCombo": 1023
-			},
-			{
-				"name": "Extra",
-				"stars": 5.98061,
-				"mode": "osu",
-				"length": 178,
-				"od": 8.5,
-				"hp": 6.5,
-				"cs": 4,
-				"ar": 9.2,
-				"maxCombo": 1046
+				"length": 167
 			}
 		]
 	},
-	"514038": {
-		"id": 514038,
-		"title": "Love Live! School Idol Compilation",
-		"artist": "μ's & Aqours",
-		"creator": "Kami-senpai",
-		"status": "loved",
-		"bpm": 110,
-		"cover": "https://assets.ppy.sh/beatmaps/514038/covers/cover.jpg?1622109350",
+	"437113": {
+		"id": 437113,
+		"title": "MOMENT RING",
+		"artist": "μ's",
+		"creator": "Chaoslitz",
+		"status": "ranked",
+		"bpm": 196,
+		"cover": "https://assets.ppy.sh/beatmaps/437113/covers/cover.jpg?1650639841",
 		"diffs": [
 			{
-				"name": "Marathon",
-				"stars": 5.82791,
+				"name": "Nardo's Inner Oni",
+				"stars": 5.03202,
+				"mode": "taiko",
+				"length": 362
+			},
+			{
+				"name": "wkyik's Insane",
+				"stars": 5.23982,
 				"mode": "osu",
-				"length": 1041,
-				"od": 8,
-				"hp": 5,
-				"cs": 4,
-				"ar": 9.2,
-				"maxCombo": 5257
+				"length": 362
+			},
+			{
+				"name": "Final LoveLive!",
+				"stars": 5.98112,
+				"mode": "osu",
+				"length": 362
 			}
 		]
 	},
-	"2581369": {
-		"id": 2581369,
-		"title": "わたしの恋はホッチキス",
-		"artist": "放課後ティータイム",
+	"453963": {
+		"id": 453963,
+		"title": "みんなで叶えた物語",
+		"artist": "μ's",
+		"creator": "_MiaoFUuU_",
+		"status": "graveyard",
+		"bpm": 220,
+		"cover": "https://assets.ppy.sh/beatmaps/453963/covers/cover.jpg?1500916257",
+		"diffs": [
+			{
+				"name": "Miracle Memories",
+				"stars": 5.93469,
+				"mode": "osu",
+				"length": 830
+			}
+		]
+	},
+	"580215": {
+		"id": 580215,
+		"title": "dorchadas",
+		"artist": "Rita",
+		"creator": "Delis",
+		"status": "ranked",
+		"bpm": 188,
+		"cover": "https://assets.ppy.sh/beatmaps/580215/covers/cover.jpg?1650649809",
+		"diffs": [
+			{
+				"name": "Trynna's Easy",
+				"stars": 2.31091,
+				"mode": "osu",
+				"length": 265
+			},
+			{
+				"name": "Milkshake's Normal",
+				"stars": 2.53767,
+				"mode": "osu",
+				"length": 269
+			},
+			{
+				"name": "Intermediate",
+				"stars": 3.02532,
+				"mode": "osu",
+				"length": 269
+			},
+			{
+				"name": "alacat's Hard",
+				"stars": 3.62939,
+				"mode": "osu",
+				"length": 269
+			},
+			{
+				"name": "Mirash's Insane",
+				"stars": 4.35913,
+				"mode": "osu",
+				"length": 269
+			},
+			{
+				"name": "Insane",
+				"stars": 5.2193,
+				"mode": "osu",
+				"length": 269
+			},
+			{
+				"name": "Sharnoth",
+				"stars": 6.35158,
+				"mode": "osu",
+				"length": 269
+			}
+		]
+	},
+	"1282289": {
+		"id": 1282289,
+		"title": "Alice in 冷凍庫",
+		"artist": "めありー",
+		"creator": "Airiesu",
+		"status": "ranked",
+		"bpm": 88,
+		"cover": "https://assets.ppy.sh/beatmaps/1282289/covers/cover.jpg?1622200003",
+		"diffs": [
+			{
+				"name": "Soliloquy of Broken Tears",
+				"stars": 5.33847,
+				"mode": "osu",
+				"length": 336
+			}
+		]
+	},
+	"1351835": {
+		"id": 1351835,
+		"title": "Everlasting Summer (feat. Bao Ch​.​)",
+		"artist": "Seycara",
+		"creator": "Winnie",
+		"status": "ranked",
+		"bpm": 87,
+		"cover": "https://assets.ppy.sh/beatmaps/1351835/covers/cover.jpg?1753307767",
+		"diffs": [
+			{
+				"name": "Paradise",
+				"stars": 4.40345,
+				"mode": "osu",
+				"length": 252
+			}
+		]
+	},
+	"2207718": {
+		"id": 2207718,
+		"title": "K-ON! - Episode #1",
+		"artist": "",
+		"creator": "TheShadowOfDark",
+		"status": "graveyard",
+		"bpm": 163.5,
+		"cover": "https://assets.ppy.sh/beatmaps/2207718/covers/cover.jpg?1722389444",
+		"diffs": [
+			{
+				"name": "Disband the Club!",
+				"stars": 6.40668,
+				"mode": "osu",
+				"length": 1446
+			}
+		]
+	},
+	"2547798": {
+		"id": 2547798,
+		"title": "LOVE -arigatou-",
+		"artist": "Rev.from DVL // 橋本環奈",
 		"creator": "Solidephile",
 		"status": "graveyard",
-		"bpm": 130,
-		"cover": "https://assets.ppy.sh/beatmaps/2581369/covers/cover.jpg?1786464047",
+		"bpm": 124,
+		"cover": "https://assets.ppy.sh/beatmaps/2547798/covers/cover.jpg?1781605811",
 		"diffs": [
 			{
-				"name": "My love is a stapler!!",
-				"stars": 4.5428,
+				"name": "Kanna chan daisuki!!",
+				"stars": 4.44331,
 				"mode": "osu",
-				"length": 246,
-				"od": 7,
-				"hp": 5,
-				"cs": 4,
-				"ar": 9,
-				"maxCombo": 1294
+				"length": 219
 			}
 		]
 	},
-	"2586048": {
-		"id": 2586048,
-		"title": "恋してズッキューン!",
+	"2556313": {
+		"id": 2556313,
+		"title": "Wanna Be",
 		"artist": "Rev.from DVL",
 		"creator": "Solidephile",
 		"status": "graveyard",
-		"bpm": 162,
-		"cover": "https://assets.ppy.sh/beatmaps/2586048/covers/cover.jpg?1787479215",
+		"bpm": 172,
+		"cover": "https://assets.ppy.sh/beatmaps/2556313/covers/cover.jpg?1781607621",
 		"diffs": [
 			{
-				"name": "I love you <3",
-				"stars": 4.86098,
+				"name": "Kiseki",
+				"stars": 4.82567,
 				"mode": "osu",
-				"length": 218,
-				"od": 7,
-				"hp": 5,
-				"cs": 4,
-				"ar": 9.2,
-				"maxCombo": 1098
+				"length": 241
 			}
 		]
 	},
-	"2594029": {
-		"id": 2594029,
-		"title": "リセエンヌ",
-		"artist": "折笠富美子",
+	"2557656": {
+		"id": 2557656,
+		"title": "Never Say Goodbye",
+		"artist": "Rev.from DVL",
 		"creator": "Solidephile",
 		"status": "graveyard",
-		"bpm": 69,
-		"cover": "https://assets.ppy.sh/beatmaps/2594029/covers/cover.jpg?1789444812",
+		"bpm": 130,
+		"cover": "https://assets.ppy.sh/beatmaps/2557656/covers/cover.jpg?1782709209",
 		"diffs": [
 			{
-				"name": "And then, Tomorrow is hope.",
-				"stars": 3.0324,
+				"name": "If only, we can be together...",
+				"stars": 4.38266,
 				"mode": "osu",
-				"length": 318,
-				"od": 4,
-				"hp": 4,
-				"cs": 4.2,
-				"ar": 7.5,
-				"maxCombo": 813
+				"length": 275
 			}
 		]
 	},
-	"2615570": {
-		"id": 2615570,
-		"title": "Fay",
-		"artist": "笠原弘子",
+	"2570756": {
+		"id": 2570756,
+		"title": "心拍数♯0822",
+		"artist": "鹿乃",
 		"creator": "Solidephile",
-		"status": "wip",
-		"bpm": 160,
-		"cover": "https://assets.ppy.sh/beatmaps/2615570/covers/cover.jpg?1788685146",
+		"status": "graveyard",
+		"bpm": 100,
+		"cover": "https://assets.ppy.sh/beatmaps/2570756/covers/cover.jpg?1785063613",
 		"diffs": [
 			{
-				"name": "I don't ask for any rewards, Because...only love.",
-				"stars": 4.20163,
+				"name": "Heartbeat",
+				"stars": 3.47555,
 				"mode": "osu",
-				"length": 194,
-				"od": 5,
-				"hp": 5,
-				"cs": 4,
-				"ar": 8.8,
-				"maxCombo": 834
+				"length": 312
 			}
 		]
 	}
