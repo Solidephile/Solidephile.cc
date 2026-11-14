@@ -31,7 +31,9 @@ export const fontsList: FontDefinition[] = [
 		name: "Zen Maru Gothic",
 		cssVariable: "--font-zen-maru-gothic",
 		provider: "fontsource",
-		weights: ["300", "400", "500", "600", "700"],
+		// Fontsource 的 Zen Maru Gothic 只有 300/400/500/700/900（没有 600），
+		// 写不存在的字重会在 enable=true 时找不到字体文件
+		weights: ["300", "400", "500", "700", "900"],
 		styles: ["normal"],
 		subsets: ["latin", "cyrillic"],
 		fallbacks: ["sans-serif"],
@@ -63,24 +65,14 @@ export const fontsList: FontDefinition[] = [
 			"monospace",
 		],
 	},
-	// ─── 本地字体示例 ───
+	// ─── 本地字体（默认没有，按需添加）───
 	// 使用步骤：
-	// 1. 将 TTF/OTF/WOFF2 字体文件放在 public/assets/fonts/ 目录下
-	// 2. 参考下方配置填写正确的字体信息
-	// 3. 在 fontConfig.selected 或区域字段中引用 cssVariable
-	{
-		name: "GreatVibes Regular 2",
-		cssVariable: "--font-greatvibes",
-		provider: "local",
-		options: {
-			variants: [
-				{
-					src: ["./public/assets/fonts/GreatVibes-Regular-2.otf"],
-				},
-			],
-		},
-		fallbacks: ["sans-serif"],
-	},
+	// 1. 将 TTF/OTF/WOFF2 字体文件放在 public/assets/fonts/ 目录下（该目录默认是空的）
+	// 2. 在下方数组里追加一条 provider: "local" 的配置，src 指向刚放进去的文件
+	// 3. 在 fontConfig.selected 或区域字段中引用它的 cssVariable
+	// 4. 如需构建期子集化，在下方 fontConfig.subsetFonts 里补一个同名 key
+	// 注意：这里不要留“引用了不存在文件”的示例条目——那样一开 enable 构建就会
+	// 报 `Font file not found` 并静默跳过，排查起来很费劲。
 ];
 
 // ─── 字体选择与区域覆盖 ─────────────────────────────────────
@@ -103,11 +95,7 @@ export const fontConfig: FontSelectionConfig = {
 	codeFont: "--font-jetbrains-mono",
 
 	// 本地字体子集化配置（构建时由 scripts/subset-fonts.ts 处理）
-	// key 为 fonts 数组中对应的 cssVariable，value 为子集化选项
-	subsetFonts: {
-		"--font-greatvibes": {
-			// 额外包含的字符
-			extraChars: "",
-		},
-	},
+	// key 为 fonts 数组中本地字体的 cssVariable，value 为子集化选项
+	// 当前 fontsList 里没有本地字体，所以这里是空的
+	subsetFonts: {},
 };
