@@ -28,7 +28,7 @@ const bangumiConfig = {
 	mode: (siteConfig.bangumi?.mode || "static") as "static" | "dynamic",
 	apiUrl: siteConfig.bangumi?.apiUrl || "https://api.bangumi.one",
 	subjectBaseUrl:
-		siteConfig.bangumi?.subjectBaseUrl || "https://bangumi.one/subject/",
+		siteConfig.bangumi?.subjectBaseUrl || "https://bgm.tv/subject/",
 	// 从配置文件中读取各分类是否启用，若未配置则使用默认值
 	categories: {
 		book: siteConfig.bangumi?.categories?.book ?? true,
