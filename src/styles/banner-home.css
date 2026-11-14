@@ -340,6 +340,8 @@ html.is-page-transitioning .banner-home-text-overlay {
 
 .banner-subtitle {
     text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
+    /* 与主标题一致用粗字重（Zen Maru Gothic 只有 400/700 两个静态字重） */
+    font-weight: bold;
     /* 独立字体设置，通过 fontConfig.bannerSubtitleFont 配置 */
     font-family: var(--font-banner-subtitle, inherit);
 }

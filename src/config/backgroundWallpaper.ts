@@ -51,7 +51,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	// 横幅壁纸和全屏壁纸共享配置
 	common: {
 		// 壁纸遮罩暗度，让横幅文字显示更清晰，0-1之间，值越大越暗
-		dimOpacity: 0.05,
+		dimOpacity: 0.08,
 		// 多视频播放模式："order" 顺序循环，"random" 随机切换（仅当 playerUrl 为数组时生效）
 		playerMode: "random",
 		// 主页横幅文字
@@ -59,9 +59,9 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 是否启用主页横幅文字
 			enable: true,
 			// 主页横幅主标题
-			title: "～μ'sic Forever～",
+			title: "〜μ'sic Forever〜",
 			// 主页横幅主标题字体大小
-			titleSize: "4rem",
+			titleSize: "5rem",
 			// 主页横幅副标题
 			subtitle: [
 				"♪♪♪♪♪♪♪♪♪",
@@ -72,7 +72,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				"いまが最高!",
 			],
 			// 主页横幅副标题字体大小
-			subtitleSize: "1.5rem",
+			subtitleSize: "2rem",
 			typewriter: {
 				// 是否启用打字机效果
 				// 打字机开启 → 循环显示所有副标题
@@ -164,7 +164,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 导航栏透明模式："semi" 半透明，"semifull" 动态透明（仅首页顶部透明、下滑玻璃化；非首页均跟卡片半透明）
 			transparentMode: "semi",
 			// 导航栏毛玻璃模糊度，0 即关闭（玻璃态生效）
-			blur: 6,
+			blur: 3,
 		},
 		// 首页下滑时壁纸模糊渐变开关（从 0 渐变为 overlay.blur 的最大模糊）
 		// 关闭后该设备上全屏壁纸保持清晰（首页与非首页都不模糊），设置面板的模糊度滑块也会隐藏

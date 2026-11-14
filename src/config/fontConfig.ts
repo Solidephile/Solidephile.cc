@@ -28,14 +28,26 @@ import type { FontDefinition, FontSelectionConfig } from "@/types/fontConfig";
 // 本地开发调试的情况下，修改后需要每次重启开发服务器才能生效
 export const fontsList: FontDefinition[] = [
 	{
+		// 自托管 + 构建期子集化：日文整包 1.4 MB 太贵，改成只保留站点实际用到的字符。
+		// 字体文件来源：google/fonts 仓库 ofl/zenmarugothic（OFL-1.1，可自由自托管）。
+		// 子集化在 scripts/subset-fonts.ts 里跑，配置见下方 fontConfig.subsetFonts。
 		name: "Zen Maru Gothic",
 		cssVariable: "--font-zen-maru-gothic",
-		provider: "fontsource",
-		// Fontsource 的 Zen Maru Gothic 只有 300/400/500/700/900（没有 600），
-		// 写不存在的字重会在 enable=true 时找不到字体文件
-		weights: ["300", "400", "500", "700", "900"],
-		styles: ["normal"],
-		subsets: ["latin", "cyrillic"],
+		provider: "local",
+		options: {
+			variants: [
+				{
+					src: ["./public/assets/fonts/ZenMaruGothic-Regular.ttf"],
+					weight: "400",
+					style: "normal",
+				},
+				{
+					src: ["./public/assets/fonts/ZenMaruGothic-Bold.ttf"],
+					weight: "700",
+					style: "normal",
+				},
+			],
+		},
 		fallbacks: ["sans-serif"],
 	},
 	{
@@ -65,10 +77,10 @@ export const fontsList: FontDefinition[] = [
 			"monospace",
 		],
 	},
-	// ─── 本地字体（默认没有，按需添加）───
+	// ─── 更多本地字体 ───
 	// 使用步骤：
-	// 1. 将 TTF/OTF/WOFF2 字体文件放在 public/assets/fonts/ 目录下（该目录默认是空的）
-	// 2. 在下方数组里追加一条 provider: "local" 的配置，src 指向刚放进去的文件
+	// 1. 将 TTF/OTF/WOFF2 字体文件放在 public/assets/fonts/ 目录下
+	// 2. 在上方数组里追加一条 provider: "local" 的配置，src 指向刚放进去的文件
 	// 3. 在 fontConfig.selected 或区域字段中引用它的 cssVariable
 	// 4. 如需构建期子集化，在下方 fontConfig.subsetFonts 里补一个同名 key
 	// 注意：这里不要留“引用了不存在文件”的示例条目——那样一开 enable 构建就会
@@ -78,7 +90,7 @@ export const fontsList: FontDefinition[] = [
 // ─── 字体选择与区域覆盖 ─────────────────────────────────────
 export const fontConfig: FontSelectionConfig = {
 	// 是否启用自定义字体功能
-	enable: false,
+	enable: true,
 	// 当前选择的字体 CSS 变量名（对应上方 fonts 中的 cssVariable）
 	// 使用 "system" 表示系统字体（不加载任何自定义字体）
 	selected: ["system"],
@@ -88,7 +100,7 @@ export const fontConfig: FontSelectionConfig = {
 	// 主页横幅主标题字体
 	bannerTitleFont: "--font-zen-maru-gothic",
 	// 主页横幅副标题字体
-	bannerSubtitleFont: "--font-inter",
+	bannerSubtitleFont: "--font-zen-maru-gothic",
 	// 导航栏标题字体
 	navbarTitleFont: "",
 	// 代码块字体（用于代码高亮和等宽字体场景）
@@ -96,6 +108,11 @@ export const fontConfig: FontSelectionConfig = {
 
 	// 本地字体子集化配置（构建时由 scripts/subset-fonts.ts 处理）
 	// key 为 fonts 数组中本地字体的 cssVariable，value 为子集化选项
-	// 当前 fontsList 里没有本地字体，所以这里是空的
-	subsetFonts: {},
+	// 构建脚本会扫描 dist 里实际出现的字符，只保留这些字形（日文整包 1.4 MB → 几百 KB）
+	subsetFonts: {
+		"--font-zen-maru-gothic": {
+			// 额外包含的字符（覆盖评论、Bangumi 番名等构建时抓不到的动态内容）
+			extraChars: "♪",
+		},
+	},
 };
