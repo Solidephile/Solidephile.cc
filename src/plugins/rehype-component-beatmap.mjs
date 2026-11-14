@@ -17,7 +17,7 @@ import beatmapCardData from "../constants/beatmap-card-data.json" with {
  * 卡片必须带 no-styling：markdown.css 里 `a:not(.no-styling)` 会给正文链接在
  * hover 时加 `border-bottom: 1px dashed`，而卡片是整块的 <a>——那条边框会撑高
  * 卡片，hover 时把下面所有内容顶下去（实测 +0.8px）。
- * Firefly 的 GitHub 卡片同样靠这个类豁免。
+ * GitHub 卡片同样靠这个类豁免。
  *
  * @param {Object} properties - 指令属性
  * @param {string} properties.id - beatmapset id

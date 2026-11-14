@@ -9,6 +9,7 @@
  * 字体的 fallback 由各字体定义中的 fallbacks 字段控制（Astro Font API 处理），
  */
 import { Font } from "astro:assets";
+import type { CssVariable } from "astro:assets";
 import { fontConfig } from "@/config";
 import { collectUsedFontCssVars } from "@/utils/fontHelper";
 
@@ -17,6 +18,12 @@ import { collectUsedFontCssVars } from "@/utils/fontHelper";
 const allCssVars = fontConfig.enable
 	? collectUsedFontCssVars(fontConfig)
 	: new Set<string>();
+
+// <Font> 的 cssVariable 只接受 astro.config 里注册过的变量名。
+// 这些类型由 Astro 依据 fonts 配置生成：fontConfig.enable=false 时 fonts 为空数组，
+// 联合类型随之收窄成 never，直接传 string 会报 “Type 'any' is not assignable to type 'never'”。
+// 因此统一经 unknown 收口；运行期这里本来就是空集合，不会渲染出任何 <Font>。
+const fontVariables = Array.from(allCssVars) as unknown as CssVariable[];
 
 // 统一解析 selected 为数组（用于后续 body font-family 和 preload 判断）
 const selectedIds: string[] =
@@ -61,9 +68,9 @@ const codeFontFamily = codeFontVar
 ---
 
 <!-- Astro Font API: 自动下载、缓存并生成优化的 @font-face -->
-{Array.from(allCssVars).map((cssVar) => (
+{fontVariables.map((cssVar) => (
   <Font
-    cssVariable={cssVar as any}
+    cssVariable={cssVar}
     preload={selectedFontVars.includes(cssVar)}
   />
 ))}
