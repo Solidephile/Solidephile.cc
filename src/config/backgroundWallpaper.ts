@@ -67,7 +67,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				"♪♪♪♪♪♪♪♪♪",
 				"みんなで叶える物語",
 				"Let's play some osu!",
-				"NicoNicoNi~",
+				"NicoNicoNi〜",
 				"It was never meant to be.",
 				"いまが最高!",
 			],
