@@ -52,11 +52,14 @@ const description = "个人 osu! 数据面板";
 			显隐交给 <style> 里的规则，所以选中态只有一个来源。
 			data-active-tab 的初始值同时也是 SSR 默认值（无 JS 时展示游戏简介）。
 		-->
-		<div data-osu-tabs data-active-tab="intro">
+		<div data-osu-tabs data-active-tab="intro" class="flex flex-col gap-4">
 			<!-- 基本信息：不属于任何 tab，任何 tab 下都可见 -->
 			<OsuPanelHost client:load />
 
-			<OsuTabNav client:load />
+			<!-- tab 条单独一张卡片：否则 fullscreen 壁纸模式下按钮直接压在图上 -->
+			<div class="card-base p-1.5">
+				<OsuTabNav client:load />
+			</div>
 
 			<!--
 				MDX 面板整体套一张卡片（和文章页一样）。

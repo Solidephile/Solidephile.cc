@@ -36,11 +36,11 @@ onMount(async () => {
 </script>
 
 {#if error}
-	<div class="card-base mb-3 p-8 text-center text-neutral-500 dark:text-neutral-400">
+	<div class="card-base p-8 text-center text-neutral-500 dark:text-neutral-400">
 		数据加载失败
 	</div>
 {:else if !stats}
-	<div class="card-base mb-3">
+	<div class="card-base">
 		<LoadingState />
 	</div>
 {:else}

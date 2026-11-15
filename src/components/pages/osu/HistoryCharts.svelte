@@ -10,6 +10,7 @@
  */
 
 import { onMount } from "svelte";
+import Icon from "@/components/common/Icon.svelte";
 import LoadingState from "@/components/common/LoadingState.svelte";
 import SegmentedControl from "@/components/common/SegmentedControl.svelte";
 import type { OsuHistoryItem } from "@/types/osu";
@@ -103,38 +104,43 @@ let pptthPad = $derived(Math.max((pptthMax - pptthMin) * 0.15, 0.02));
 {:else if !loaded}
 	<LoadingState />
 {:else}
-	<div
-		class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-	>
-		<div>
-			<p class="mb-1 text-xs tracking-widest text-neutral-500 dark:text-neutral-400">HISTORY</p>
-			<h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-				数据历史曲线
-			</h3>
+	<!-- 标题栏与 9 张曲线图收在同一张大卡里，卡片外的说明文字在 fullscreen 壁纸下会糊 -->
+	<section class="card-base p-4">
+		<div
+			class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+		>
+			<div class="flex items-center gap-2.5">
+				<span class="text-2xl text-(--primary)">
+					<Icon icon="material-symbols:show-chart" />
+				</span>
+				<h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
+					数据历史曲线
+				</h3>
+			</div>
+
+			<div class="flex w-full items-center gap-3 sm:w-auto">
+				<span class="shrink-0 text-sm text-neutral-500 dark:text-neutral-400">
+					{filteredHistory.length} 条记录
+				</span>
+				<SegmentedControl
+					options={RANGE_OPTIONS}
+					value={range}
+					onChange={handleRangeChange}
+					label="时间范围"
+				/>
+			</div>
 		</div>
 
-		<div class="flex w-full items-center gap-3 sm:w-auto">
-			<span class="shrink-0 text-sm text-neutral-500 dark:text-neutral-400">
-				{filteredHistory.length} 条记录
-			</span>
-			<SegmentedControl
-				options={RANGE_OPTIONS}
-				value={range}
-				onChange={handleRangeChange}
-				label="时间范围"
-			/>
+		<div class="grid grid-cols-1 gap-4 @xl:grid-cols-2">
+			<ChartCard title="PP值" description="Performance points" unit="pp" history={filteredHistory} dataKey="pp" valueFormat="decimal" suffix=" pp" wide flat />
+			<ChartCard title="全球排名" description="Global Rank" unit="#" history={filteredHistory} dataKey="global_rank" valueFormat="integer" reverse fillBelow flat />
+			<ChartCard title="国家排名" description="Country Rank" unit="#" history={filteredHistory} dataKey="country_rank" valueFormat="integer" reverse fillBelow flat />
+			<ChartCard title="游玩次数" description="Play Count" unit="plays" history={filteredHistory} dataKey="play_count" valueFormat="integer" flat />
+			<ChartCard title="游玩时间" description="Play Time" unit="hours" history={filteredHistory} dataKey="play_time_hours" valueFormat="decimal" suffix=" h" flat />
+			<ChartCard title="总分" description="Total Score" unit="score" history={filteredHistory} dataKey="total_score" valueFormat="compact" flat />
+			<ChartCard title="总命中次数" description="Total Hits" unit="hits" history={filteredHistory} dataKey="total_hits" valueFormat="compact" flat />
+			<ChartCard title="准确率" description="Accuracy" unit="%" history={filteredHistory} dataKey="accuracy" valueFormat="decimal" suffix="%" yMin={Math.max(0, accuracyMin - 0.02)} yMax={Math.min(100, accuracyMax + 0.02)} flat />
+			<ChartCard title="PPTTH" description="PP / Total Hits" unit="pp / 10k hits" history={filteredHistory} dataKey="pptth" valueFormat="decimal" yMin={pptthMin - pptthPad} yMax={pptthMax + pptthPad} flat />
 		</div>
-	</div>
-
-	<div class="grid grid-cols-1 gap-4 @xl:grid-cols-2">
-		<ChartCard title="PP值" description="Performance points" unit="pp" history={filteredHistory} dataKey="pp" valueFormat="decimal" suffix=" pp" wide />
-		<ChartCard title="全球排名" description="Global Rank" unit="#" history={filteredHistory} dataKey="global_rank" valueFormat="integer" reverse fillBelow />
-		<ChartCard title="国家排名" description="Country Rank" unit="#" history={filteredHistory} dataKey="country_rank" valueFormat="integer" reverse fillBelow />
-		<ChartCard title="游玩次数" description="Play Count" unit="plays" history={filteredHistory} dataKey="play_count" valueFormat="integer" />
-		<ChartCard title="游玩时间" description="Play Time" unit="hours" history={filteredHistory} dataKey="play_time_hours" valueFormat="decimal" suffix=" h" />
-		<ChartCard title="总分" description="Total Score" unit="score" history={filteredHistory} dataKey="total_score" valueFormat="compact" />
-		<ChartCard title="总命中次数" description="Total Hits" unit="hits" history={filteredHistory} dataKey="total_hits" valueFormat="compact" />
-		<ChartCard title="准确率" description="Accuracy" unit="%" history={filteredHistory} dataKey="accuracy" valueFormat="decimal" suffix="%" yMin={Math.max(0, accuracyMin - 0.02)} yMax={Math.min(100, accuracyMax + 0.02)} />
-		<ChartCard title="PPTTH" description="PP / Total Hits" unit="pp / 10k hits" history={filteredHistory} dataKey="pptth" valueFormat="decimal" yMin={pptthMin - pptthPad} yMax={pptthMax + pptthPad} />
-	</div>
+	</section>
 {/if}

@@ -42,5 +42,11 @@ onMount(() => {
 
 <!-- display:contents：只作为「发布选中态」的载体，不参与布局 -->
 <div bind:this={root} class="contents">
-	<TabNav tabs={TABS} {activeTab} onTabChange={handleTabChange} layout="fill" />
+	<TabNav
+		tabs={TABS}
+		{activeTab}
+		onTabChange={handleTabChange}
+		layout="fill"
+		variant="pill"
+	/>
 </div>

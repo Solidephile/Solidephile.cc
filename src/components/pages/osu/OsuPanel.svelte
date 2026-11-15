@@ -107,9 +107,9 @@ let statusView = $derived.by(() => {
 });
 </script>
 
-<div class="mb-3">
+<div>
 	<div class="card-base relative flex flex-col gap-4 px-6 pt-6 pb-4">
-		<!-- 顶部主题色发丝线：两端渐隐到透明，所以圆角裁切看不出来 -->
+		<!-- 顶部/底部主题色发丝线：两端渐隐到透明，所以圆角裁切看不出来 -->
 		<div
 			class="pointer-events-none absolute inset-x-0 top-0 h-px opacity-50"
 			style="background: linear-gradient(to right, transparent, var(--primary), transparent);"
@@ -121,8 +121,8 @@ let statusView = $derived.by(() => {
 			aria-hidden="true"
 		></div>
 
-		<!-- 资料行：头像 + 玩家信息 -->
-		<div class="flex items-center gap-4 sm:gap-5">
+		<!-- 资料行：头像 + 名字/地区/在线状态 + 主页按钮 -->
+		<div class="flex flex-wrap items-center gap-4 sm:gap-5">
 			<!-- 头像：主题色渐变描边环 + 一圈外发光。
 			     光晕用「模糊的实心色块」而不是 box-shadow，这样它会自动跟随
 			     --primary 的色相，亮/暗两种主题下都不用各写一份 -->
@@ -144,82 +144,92 @@ let statusView = $derived.by(() => {
 				</div>
 			</div>
 
-			<div class="min-w-0">
-				<p class="text-xs tracking-widest text-neutral-500 dark:text-neutral-400">PLAYER</p>
-				<h2 class="truncate text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+			<div class="min-w-0 flex-1">
+				<h2
+					class="truncate text-2xl font-bold text-neutral-900 dark:text-neutral-100"
+				>
 					{stats.username}
 				</h2>
-				<p class="text-sm text-neutral-600 dark:text-neutral-400">
-					{stats.country}{stats.country_code ? ` · ${stats.country_code}` : ""}
-				</p>
+
+				<!-- 地区 + 在线状态同一行：窄屏下换行也不会挤掉名字 -->
+				<div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+					<p class="text-sm text-neutral-500 dark:text-neutral-400">
+						{stats.country}{stats.country_code ? ` · ${stats.country_code}` : ""}
+					</p>
+
+					<!-- 在线状态：胶囊（边框与底色跟随状态） -->
+					<span
+						class="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs {statusView.pillClass}"
+					>
+						<span
+							class="h-1.5 w-1.5 shrink-0 rounded-full {statusView.dotClass}"
+							aria-hidden="true"
+						></span>
+						{statusView.text}
+					</span>
+				</div>
 			</div>
 		</div>
 
+		<!-- 关键数据：主题色强调的内嵌小卡片（只留中文标签，去掉英文副标签） -->
 		<div class="grid grid-cols-2 gap-3 @2xl:grid-cols-4">
 			<div
 				class="rounded-xl bg-(--btn-regular-bg) p-3 inset-ring-1 inset-ring-(--primary)/10"
 			>
-				<div class="text-base font-bold text-(--btn-content)">全球排名</div>
-				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">GLOBAL RANK</div>
+				<div class="text-sm font-medium text-(--btn-content)">全球排名</div>
 				<div
 					class="mt-1 text-xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100"
-				>#{formatNumber(stats.global_rank)}</div>
+				>
+					#{formatNumber(stats.global_rank)}
+				</div>
 			</div>
 			<div
 				class="rounded-xl bg-(--btn-regular-bg) p-3 inset-ring-1 inset-ring-(--primary)/10"
 			>
-				<div class="text-base font-bold text-(--btn-content)">国家排名</div>
-				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">COUNTRY RANK</div>
+				<div class="text-sm font-medium text-(--btn-content)">国家排名</div>
 				<div
 					class="mt-1 text-xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100"
-				>#{formatNumber(stats.country_rank)}</div>
+				>
+					#{formatNumber(stats.country_rank)}
+				</div>
 			</div>
 			<div
 				class="rounded-xl bg-(--btn-regular-bg) p-3 inset-ring-1 inset-ring-(--primary)/10"
 			>
-				<div class="text-base font-bold text-(--btn-content)">PP 值</div>
-				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">PERFORMANCE</div>
+				<div class="text-sm font-medium text-(--btn-content)">PP 值</div>
 				<div
 					class="mt-1 text-xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100"
-				>{formatNumber(stats.pp, 2)} pp</div>
+				>
+					{formatNumber(stats.pp, 2)} pp
+				</div>
 			</div>
 			<div
 				class="rounded-xl bg-(--btn-regular-bg) p-3 inset-ring-1 inset-ring-(--primary)/10"
 			>
-				<div class="text-base font-bold text-(--btn-content)">游玩时间</div>
-				<div class="text-[10px] tracking-wider text-neutral-500 dark:text-neutral-400">PLAY TIME</div>
+				<div class="text-sm font-medium text-(--btn-content)">游玩时间</div>
 				<div
 					class="mt-1 text-xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100"
-				>{formatPlayTime(stats.play_time)}</div>
+				>
+					{formatPlayTime(stats.play_time)}
+				</div>
 			</div>
 		</div>
 
-		<!-- 在线状态（左） + 游戏内主页链接（右） -->
-		<div class="flex flex-wrap items-center justify-between gap-3 border-t border-(--line-divider) pt-4">
-			<!-- 在线状态：胶囊（边框与底色跟随状态） -->
-			<span
-				class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm {statusView.pillClass}"
-			>
-				<span
-					class="h-2 w-2 shrink-0 rounded-full {statusView.dotClass}"
-					aria-hidden="true"
-				></span>
-				{statusView.text}
-			</span>
+		<!-- 底部：更新说明（左） + 游戏内主页链接（右）；窄屏自动换行，不挤名字 -->
+		<div class="flex flex-wrap items-center justify-between gap-3">
+			<p class="text-xs text-neutral-500 dark:text-neutral-400">
+				{formatRelativeTime(stats.updated_at)} 前更新 · 历史数据每日更新
+			</p>
 
 			<a
 				href={OSU_PROFILE_URL}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="btn-regular rounded-lg px-3 py-1.5 gap-1.5 text-sm font-medium text-(--btn-content) active:scale-95"
+				class="btn-regular shrink-0 rounded-lg px-3 py-1.5 gap-1.5 text-sm font-medium text-(--btn-content) active:scale-95"
 			>
 				<Icon icon="material-symbols:open-in-new" class="text-base" />
 				我的 osu! 主页
 			</a>
 		</div>
-	</div>
-
-	<div class="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
-		{formatRelativeTime(stats.updated_at)} 前更新 · 历史数据每日更新
 	</div>
 </div>

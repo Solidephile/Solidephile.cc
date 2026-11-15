@@ -24,6 +24,12 @@ interface Props {
 	 * - "fill" 等分铺满容器；窄容器下图标与文字上下堆叠，宽容器下并排
 	 */
 	layout?: "scroll" | "fill";
+	/**
+	 * 外观：
+	 * - "underline"（默认）下划线式，适合直接贴在内容上方
+	 * - "pill" 药丸分段式，适合单独放进一张卡片里（例如 osu 页的 tab 条）
+	 */
+	variant?: "underline" | "pill";
 }
 
 const {
@@ -32,6 +38,7 @@ const {
 	onTabChange,
 	useHash = true,
 	layout = "scroll",
+	variant = "underline",
 }: Props = $props();
 
 const isFill = $derived(layout === "fill");
@@ -67,8 +74,40 @@ function clickTab(tabId: string) {
 }
 </script>
 
-<div class="border-b border-(--line-divider) {isFill ? 'mb-5 @container' : 'mb-3'}">
-  {#if isFill}
+<div
+  class={variant === "pill"
+    ? "w-full @container"
+    : `border-b border-(--line-divider) ${isFill ? "mb-5 @container" : "mb-3"}`}
+>
+  {#if variant === "pill"}
+    <!-- 药丸分段：外层轨道 + 选中实心块，配色与 SegmentedControl 一致 -->
+    <nav
+      class="grid gap-1"
+      style="grid-template-columns: repeat({tabs.length}, minmax(0, 1fr));"
+      aria-label="Tabs"
+    >
+      {#each tabs as tab (tab.id)}
+        <button
+          class="flex min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-sm font-medium transition-colors duration-150 @lg:flex-row @lg:gap-2 @lg:px-3 {tab.id === activeTab
+            ? 'bg-(--primary) text-white shadow-sm dark:text-black/70'
+            : 'text-(--btn-content) hover:bg-(--btn-regular-bg)'}"
+          onclick={() => clickTab(tab.id)}
+          type="button"
+          aria-current={tab.id === activeTab ? "page" : undefined}
+        >
+          {#if tab.icon}
+            <Icon icon={tab.icon} class="text-lg" />
+          {/if}
+          <span class="max-w-full truncate">{tab.name}</span>
+          {#if tab.count !== undefined}
+            <span class="bg-(--btn-regular-bg) text-(--btn-content) py-0.5 px-2 rounded-full text-xs">
+              {tab.count}
+            </span>
+          {/if}
+        </button>
+      {/each}
+    </nav>
+  {:else if isFill}
     <!-- 等分铺满：列数跟随 tabs 数量 -->
     <nav
       class="grid gap-1"

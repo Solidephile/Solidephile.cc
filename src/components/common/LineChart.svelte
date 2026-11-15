@@ -137,9 +137,48 @@ function formatValue(value: number): string {
 	return Math.round(value).toLocaleString("en-US");
 }
 
+/**
+ * 取 1/2/5 × 10^n 的「好看」步长。
+ * chart.js 在显式给了 min/max 之后，会按数据自己挑刻度，步长可能不是整数倍，
+ * 于是纵轴标签看起来疏密不均；这里自己算一个步长，再交给 ticks.stepSize。
+ */
+function niceStep(span: number, targetTicks = 4): number {
+	if (!Number.isFinite(span) || span <= 0) return 1;
+
+	const rough = span / targetTicks;
+	const magnitude = 10 ** Math.floor(Math.log10(rough));
+	const normalized = rough / magnitude;
+	const factor =
+		normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+
+	return factor * magnitude;
+}
+
+/**
+ * 把上下界向外取整到 step 的整数倍，保证刻度值是等距的整数倍。
+ * `dataSpan` 用「数据本身的量程」而不是加过留白的量程——否则留白会把
+ * 步长抬到上一档（例如 95pp 的波动被算成 50 一档，曲线就被压平了）。
+ */
+function withNiceBounds(
+	min: number,
+	max: number,
+	dataSpan: number,
+	targetTicks = 5,
+) {
+	const step = niceStep(dataSpan, targetTicks);
+	// toPrecision 收一下浮点误差（0.1 * 3 会变成 0.30000000000000004）
+	const round = (value: number) => Number(value.toPrecision(12));
+
+	return {
+		min: round(Math.floor(min / step) * step),
+		max: round(Math.ceil(max / step) * step),
+		stepSize: step,
+	};
+}
+
 function getRange() {
 	if (yMin !== undefined && yMax !== undefined) {
-		return { min: yMin, max: yMax };
+		return withNiceBounds(yMin, yMax, yMax - yMin);
 	}
 
 	const values = series
@@ -148,7 +187,7 @@ function getRange() {
 		.filter(Number.isFinite);
 
 	if (values.length === 0) {
-		return { min: 0, max: 1 };
+		return { min: 0, max: 1, stepSize: undefined };
 	}
 
 	const minValue = Math.min(...values);
@@ -158,7 +197,8 @@ function getRange() {
 		const lower = clampZero
 			? Math.max(0, minValue - minPadding)
 			: minValue - minPadding;
-		return { min: lower, max: maxValue + minPadding };
+		const upper = maxValue + minPadding;
+		return withNiceBounds(lower, upper, upper - lower);
 	}
 
 	const padding = Math.max((maxValue - minValue) * paddingRatio, minPadding);
@@ -166,7 +206,11 @@ function getRange() {
 		? Math.max(0, minValue - padding)
 		: minValue - padding;
 
-	return { min: yMin ?? lower, max: yMax ?? maxValue + padding };
+	return withNiceBounds(
+		yMin ?? lower,
+		yMax ?? maxValue + padding,
+		maxValue - minValue,
+	);
 }
 
 // canvas 用 $state：bind:this 赋值后能让下面的 $effect 重新触发，
@@ -208,6 +252,13 @@ function build(animate: boolean) {
 					pointRadius: chartLabels.length <= 20 ? 3 : 0,
 					pointHoverRadius: 5,
 					pointBackgroundColor: color,
+					// 必须显式给 hover 颜色：chart.js 的默认值是
+					// getHoverColor(options.backgroundColor)，它会用 @kurkle/color 解析颜色，
+					// 而站点的 --primary 是 oklch(...) 语法，解析失败就退化成纯黑。
+					// 线/点/填充都是把字符串直接丢给 canvas，所以只有 hover 这个点会变黑。
+					pointHoverBackgroundColor: color,
+					pointHoverBorderColor: color,
+					pointHoverBorderWidth: 0,
 					pointBorderWidth: 0,
 					tension: 0.32,
 					fill: item.fill ? fillMode : false,
@@ -270,7 +321,17 @@ function build(animate: boolean) {
 				x: {
 					grid: { display: false },
 					border: { display: false },
-					ticks: { color: c.tick, maxTicksLimit: 8, font: { size: 10 } },
+					ticks: {
+						color: c.tick,
+						maxTicksLimit: 8,
+						// 横轴标签一律水平：默认允许倾斜到 50°，窄容器里会变成一排斜字
+						maxRotation: 0,
+						minRotation: 0,
+						// 提前跳标签，给相邻刻度留出间距，而不是等挤到一起再旋转
+						autoSkip: true,
+						autoSkipPadding: 14,
+						font: { size: 10 },
+					},
 				},
 				y: {
 					reverse,
@@ -281,6 +342,8 @@ function build(animate: boolean) {
 					ticks: {
 						color: c.tick,
 						maxTicksLimit: 5,
+						// 固定步长：由 getRange() 算好的「好看步长」，刻度值才会等距
+						stepSize: range.stepSize,
 						padding: 6,
 						font: { size: 10 },
 						callback: (value) => `${formatValue(Number(value))}${suffix}`,

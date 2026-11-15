@@ -184,14 +184,6 @@ const channelItems = $derived(
 	{:else}
 		<!-- 汇总数据：累计 + 今日 -->
 		<div>
-			<div class="mb-2 flex items-center justify-between gap-3">
-				<p class="text-xs text-neutral-500 dark:text-neutral-400">
-					数据更新于 {formatTime(dashboard.updatedAt)}
-				</p>
-				<p class="text-xs text-neutral-500 dark:text-neutral-400">
-					数据来源：Umami
-				</p>
-			</div>
 			<div class="grid grid-cols-2 gap-3 2xl:grid-cols-4">
 				{#each summaryCards as card (card.label)}
 					<div class="card-base flex items-center gap-3 p-4">
@@ -250,45 +242,65 @@ const channelItems = $derived(
 					<LoadingState height={280} />
 				{/if}
 			</div>
+
+			<!-- 数据来源说明：放在趋势图下方、同一张卡里，背景为 fullscreen 壁纸时也不会糊 -->
+			<div
+				class="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400"
+			>
+				<p>数据更新于 {formatTime(dashboard.updatedAt)}</p>
+				<p>数据来源：Umami</p>
+			</div>
 		</AnalyticsPanel>
 
-		<!-- 各维度排名（固定近 30 天） -->
-		<p class="text-xs text-neutral-500 dark:text-neutral-400">
-			排名数据 · {dashboard.rangeLabel}
-		</p>
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-			<AnalyticsPanel icon="material-symbols:description" title="热门页面">
-				<BreakdownList items={dashboard.topPages} />
-			</AnalyticsPanel>
+		<!-- 各维度排名（固定近 30 天，整块做成一张大卡，标题栏说明范围） -->
+		<section class="card-base p-4">
+			<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+				<h3
+					class="flex items-center gap-2.5 text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+				>
+					<span class="text-2xl text-(--primary)">
+						<Icon icon="material-symbols:trophy" />
+					</span>
+					排名数据
+				</h3>
+				<p class="text-xs text-neutral-500 dark:text-neutral-400">
+					{dashboard.rangeLabel}
+				</p>
+			</div>
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<AnalyticsPanel icon="material-symbols:description" title="热门页面" flat>
+					<BreakdownList items={dashboard.topPages} />
+				</AnalyticsPanel>
 
-			<AnalyticsPanel icon="material-symbols:link" title="来源渠道">
-				<BreakdownList items={channelItems} />
-			</AnalyticsPanel>
+				<AnalyticsPanel icon="material-symbols:link" title="来源渠道" flat>
+					<BreakdownList items={channelItems} />
+				</AnalyticsPanel>
 
-			<AnalyticsPanel icon="material-symbols:public" title="访客地区">
-				<BreakdownList items={dashboard.countries} />
-			</AnalyticsPanel>
+				<AnalyticsPanel icon="material-symbols:public" title="访客地区" flat>
+					<BreakdownList items={dashboard.countries} />
+				</AnalyticsPanel>
 
-			<AnalyticsPanel icon="material-symbols:devices" title="设备与浏览器">
-				<div class="flex flex-col gap-4">
-					<div>
-						<p
-							class="mb-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400"
-						>
-							浏览器
-						</p>
-						<BreakdownList items={dashboard.browsers} />
+				<AnalyticsPanel icon="material-symbols:devices" title="设备与浏览器" flat>
+					<div class="flex flex-col gap-4">
+						<div>
+							<p
+								class="mb-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400"
+							>
+								浏览器
+							</p>
+							<BreakdownList items={dashboard.browsers} />
+						</div>
+						<div>
+							<p
+								class="mb-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400"
+							>
+								设备
+							</p>
+							<BreakdownList items={dashboard.devices} />
+						</div>
 					</div>
-					<div>
-						<p
-							class="mb-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400"
-						>
-							设备
-						</p>
-						<BreakdownList items={dashboard.devices} />
-					</div>
-				</div>
-			</AnalyticsPanel>
-		</div>
+				</AnalyticsPanel>
+			</div>
+		</section>
 	{/if}
 </div>

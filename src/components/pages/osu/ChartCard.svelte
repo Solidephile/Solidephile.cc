@@ -16,6 +16,8 @@ interface Props {
 	/** 排名类数据从坐标轴起点填充 */
 	fillBelow?: boolean;
 	wide?: boolean;
+	/** 放进"整块大卡"里时用扁平样式：只留细边框，避免卡片套卡片 */
+	flat?: boolean;
 	yMin?: number;
 	yMax?: number;
 }
@@ -31,6 +33,7 @@ let {
 	reverse = false,
 	fillBelow = false,
 	wide = false,
+	flat = false,
 	yMin,
 	yMax,
 }: Props = $props();
@@ -48,7 +51,11 @@ const values = $derived(history.map((item) => Number(item[dataKey])));
 </script>
 
 <article class={wide ? "@xl:col-span-2" : ""}>
-	<div class="card-base p-4">
+	<div
+		class={flat
+			? "rounded-(--radius-large) border border-(--line-divider) p-4"
+			: "card-base p-4"}
+	>
 		<div class="mb-2 flex items-center justify-between">
 			<div>
 				<h4 class="mb-0.5 text-lg font-semibold text-neutral-900 dark:text-neutral-100">

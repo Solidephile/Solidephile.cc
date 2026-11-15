@@ -3,7 +3,7 @@ title: 关于该网站
 published: 2026-09-21
 pinned: true
 description: 概括网站的基本信息
-tags: [astro, svelte, typescript, tailwind, vercel, postgresql, waline, umami]
+tags: [astro, vercel, waline, umami]
 category: 记录
 slug: about
 ---

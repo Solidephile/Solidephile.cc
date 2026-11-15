@@ -7,6 +7,8 @@
  *   避免一次渲染上百张封面图（100 张同时请求会明显卡顿）
  * - 数据由每日 Cron 抓取后存库，本接口只读数据库，不依赖 osu! 实时可用
  */
+
+import Icon from "@components/common/Icon.svelte";
 import LoadingState from "@components/common/LoadingState.svelte";
 import { onMount } from "svelte";
 import { osuConfig } from "@/config/osuConfig";
@@ -58,14 +60,17 @@ onMount(async () => {
 		暂无成绩数据（每日自动更新一次）
 	</div>
 {:else}
-	<div class="flex flex-col gap-8">
+	<div class="flex flex-col gap-4">
 		<!-- ============ 置顶成绩 ============ -->
 		{#if pinnedScores.length > 0}
-			<section>
-				<div class="mb-3 flex items-center justify-between">
-					<div>
-						<p class="mb-1 text-xs tracking-widest text-neutral-500 dark:text-neutral-400">PINNED</p>
-						<h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">置顶成绩</h3>
+			<!-- 标题栏与成绩列表收在同一张大卡里，卡片外的小字在 fullscreen 壁纸下会糊 -->
+			<section class="card-base p-4">
+				<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+					<div class="flex items-center gap-2.5">
+						<span class="text-2xl text-(--primary)">
+							<Icon icon="material-symbols:star-rounded" />
+						</span>
+						<h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">置顶成绩</h3>
 					</div>
 					<span class="text-sm text-neutral-500 dark:text-neutral-400">
 						{pinnedScores.length} 条
@@ -82,11 +87,13 @@ onMount(async () => {
 
 		<!-- ============ 最好成绩 ============ -->
 		{#if bestScores.length > 0}
-			<section>
-				<div class="mb-3 flex items-center justify-between">
-					<div>
-						<p class="mb-1 text-xs tracking-widest text-neutral-500 dark:text-neutral-400">BEST</p>
-						<h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">最好成绩</h3>
+			<section class="card-base p-4">
+				<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+					<div class="flex items-center gap-2.5">
+						<span class="text-2xl text-(--primary)">
+							<Icon icon="material-symbols:trophy" />
+						</span>
+						<h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">最好成绩</h3>
 					</div>
 					<span class="text-sm text-neutral-500 dark:text-neutral-400">
 						已显示 {visibleBest.length} / {bestScores.length} 条

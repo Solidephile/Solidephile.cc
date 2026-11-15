@@ -8,13 +8,22 @@ interface Props {
 	title: string;
 	/** 右侧可选内容（例如时段筛选控件） */
 	trailing?: Snippet;
+	/**
+	 * 放进"整块大卡"里时用扁平样式：只留细边框，避免卡片套卡片。
+	 * 不传则维持独立的 card-base 卡片外观。
+	 */
+	flat?: boolean;
 	children: Snippet;
 }
 
-let { icon, title, trailing, children }: Props = $props();
+let { icon, title, trailing, flat = false, children }: Props = $props();
 </script>
 
-<section class="card-base p-4">
+<section
+	class={flat
+		? "rounded-(--radius-large) border border-(--line-divider) p-4"
+		: "card-base p-4"}
+>
 	<div
 		class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
 	>
