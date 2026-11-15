@@ -78,22 +78,41 @@ const MODE_ICONS = {
 		],
 		["circle", { cx: 12, cy: 12, r: 6, fill: "currentColor" }],
 	],
-	// 太鼓：鼓身（胶囊）+ 中心音符
+	// 太鼓：外圈 + 内圈 + 一条穿过圆心的竖向实线（把内圈分成两个半圆）
+	// 三处线宽一致（2），所以整枚图标的笔画粗细是统一的
 	taiko: [
 		[
-			"rect",
+			"circle",
 			{
-				x: 2,
-				y: 7,
-				width: 20,
-				height: 10,
-				rx: 5,
+				cx: 12,
+				cy: 12,
+				r: 9,
 				fill: "none",
 				stroke: "currentColor",
 				"stroke-width": 2,
 			},
 		],
-		["circle", { cx: 12, cy: 12, r: 2.8, fill: "currentColor" }],
+		[
+			"circle",
+			{
+				cx: 12,
+				cy: 12,
+				r: 5.2,
+				fill: "none",
+				stroke: "currentColor",
+				"stroke-width": 2,
+			},
+		],
+		[
+			"path",
+			{
+				// 竖向直径：从内圈外缘到外缘（12 ± 6.2），刚好把内圈连同它的描边一起切开
+				d: "M12 5.8V18.2",
+				fill: "none",
+				stroke: "currentColor",
+				"stroke-width": 2,
+			},
+		],
 	],
 	// 接水果：水果 + 接盘
 	catch: [

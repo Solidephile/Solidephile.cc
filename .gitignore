@@ -37,6 +37,7 @@ yarn.lock
 
 # vibe coding
 AGENTS.md
+HANDOVER.md
 
 cache/
 package/
