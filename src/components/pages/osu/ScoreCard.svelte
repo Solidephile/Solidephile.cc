@@ -132,26 +132,20 @@ const TONE_STYLES: Record<ModTone, { class: string; style: string }> = {
 	rel="noopener noreferrer"
 	bind:this={cardEl}
 >
-	<!-- 铺面封面：整卡背景；按视口加载 / 离开视口后卸载 -->
+	<!-- 铺面封面：整卡背景；按视口加载 / 离开视口后卸载。
+	     渐隐不再另铺一层半透明遮罩，而是做成封面自己的 alpha（见文件末尾的 <style>）：
+	     卡片圆角是抗锯齿裁切的，同一个裁剪下叠两层绘制时，上面那层的半透明边缘会让
+	     下面那层漏出约 25%（f·(1-f)），于是圆角内侧出现一圈 1px 的「细缝」，
+	     漏出来的正是封面的颜色。渐隐并进封面 alpha 之后，圆角处只会漏出卡片底色。 -->
 	{#if score.cover && coverInView}
 		<img
 			src={score.cover}
 			alt=""
 			aria-hidden="true"
 			decoding="async"
-			class="pointer-events-none absolute inset-0 h-full w-full object-cover"
+			class="score-cover pointer-events-none absolute inset-0 h-full w-full object-cover [--cover-visible:45%] dark:[--cover-visible:40%]"
 		/>
 	{/if}
-
-	<!-- 遮罩：两段式渐隐（平台浓度对齐 Expert+ 的 0.72 量级）
-	     0–40% 保持平台浓度（--scrim-plateau）→ 左侧封面压暗但可见，不会越往右越淡
-	     40–75% 才渐隐到卡片底色 → 右侧文字落在纯色底上
-	     亮/暗分开：亮色模式下遮罩是白色的，会把封面洗成灰白、整张卡「发淡」，
-	     所以亮色的平台浓度降到 55%，暗色保持 60% 不动 -->
-	<div
-		class="pointer-events-none absolute inset-0 [--scrim-plateau:55%] dark:[--scrim-plateau:60%]"
-		style="background: linear-gradient(to right, color-mix(in oklab, var(--card-bg) var(--scrim-plateau), transparent) 0%, color-mix(in oklab, var(--card-bg) var(--scrim-plateau), transparent) 40%, var(--card-bg) 75%, var(--card-bg) 100%);"
-	></div>
 
 	<!-- 可点击反馈：只叠一层很淡的中性明暗，不换色（避免同亮度异彩度的问题） -->
 	<div
@@ -267,3 +261,28 @@ const TONE_STYLES: Record<ModTone, { class: string; style: string }> = {
 		{/if}
 	</div>
 {/snippet}
+
+<style>
+	/* 封面渐隐：两段式（平台浓度对齐 Expert+ 的 0.72 量级）
+	   0–40% 保持平台浓度（--cover-visible）→ 左侧封面压住但可见，不会越往右越淡
+	   40–75% 渐隐到 0 → 右侧文字落在纯色卡片底上
+	   亮/暗分开：亮色下卡片底是白的，压得太狠会把封面洗成灰白、整张卡「发淡」，
+	   所以亮色的平台浓度降到 45%，暗色 40%（= 原遮罩浓度 55% / 60% 的补数）。
+	   -webkit- 前缀给旧版 Safari。 */
+	.score-cover {
+		-webkit-mask-image: linear-gradient(
+			to right,
+			rgb(0 0 0 / var(--cover-visible)) 0%,
+			rgb(0 0 0 / var(--cover-visible)) 40%,
+			transparent 75%,
+			transparent 100%
+		);
+		mask-image: linear-gradient(
+			to right,
+			rgb(0 0 0 / var(--cover-visible)) 0%,
+			rgb(0 0 0 / var(--cover-visible)) 40%,
+			transparent 75%,
+			transparent 100%
+		);
+	}
+</style>

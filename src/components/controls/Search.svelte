@@ -187,8 +187,10 @@ $: if (initialized && (keywordMobile || keywordMobile === "")) {
       bg-black/4 hover:bg-black/6 focus-within:bg-black/6
       dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
 ">
+    <!-- 图标跟随导航栏菜单文字的颜色（.btn-plain 的 black/75 · white/75），
+         不再用 30% 的 "占位灰"——那样在导航栏里几乎看不见 -->
     <Icon icon="material-symbols:search"
-          class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
+          class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/75 dark:text-white/75"></Icon>
     <input id="search-input-desktop" placeholder="{i18n(I18nKey.search)}" bind:value={keywordDesktop}
            aria-controls="search-panel" data-floating-panel-no-expanded
            on:focus={handleDesktopFocus}

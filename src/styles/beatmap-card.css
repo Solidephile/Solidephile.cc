@@ -34,16 +34,22 @@
 	transform: scale(0.995);
 }
 
-/* ---- 封面与遮罩 ----
+/* ---- 封面与渐隐 ----
    卡片本身刻意不设 overflow:hidden，否则难度浮层溢不出去；
-   圆角裁切交给封面 / 遮罩各自继承 border-radius 来实现。
+   圆角裁切交给封面自己继承 border-radius 来实现。
+
+   渐隐（原本是上面再叠一层 .bm-scrim 半透明遮罩）改成封面自己的 alpha：
+   圆角是抗锯齿裁切的，同一个裁剪下叠两层绘制时，上面那层的半透明边缘会让下面
+   那层漏出约 25%（f·(1-f)），在圆角内侧留一圈 1px 的彩色「细缝」——漏出来的就是
+   封面的颜色带。渐隐并进封面 alpha 之后，圆角处漏出的只剩卡片底色，缝就看不见了。
 
    封面推近靠 .bm-cover::before 而不是直接缩放 .bm-cover：
    元素缩放自己剪不掉自己（不设 overflow 就没裁切，设了又会连伪元素一起裁），
    所以让 .bm-cover 只当裁剪框（overflow:hidden + 继承圆角），
    真正带背景的是里面那层伪元素，缩放它即可。
    background-image 是插件写在 .bm-cover 上的内联样式，伪元素用
-   background-image: inherit 取到同一个值，父层自己那份被完整盖住，看不出重影 */
+   background-image: inherit 取到同一个值，父层自己那份被完整盖住，看不出重影。
+   渐隐挂在 .bm-cover 上而不是 ::before，所以 hover 推近时渐隐本身不动。 */
 .card-beatmap .bm-cover {
 	position: absolute;
 	inset: 0;
@@ -53,6 +59,18 @@
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: cover;
+	-webkit-mask-image: linear-gradient(
+		to right,
+		rgb(0 0 0 / var(--bm-cover-a)) 0%,
+		rgb(0 0 0 / var(--bm-cover-b)) 52%,
+		rgb(0 0 0 / var(--bm-cover-c)) 100%
+	);
+	mask-image: linear-gradient(
+		to right,
+		rgb(0 0 0 / var(--bm-cover-a)) 0%,
+		rgb(0 0 0 / var(--bm-cover-b)) 52%,
+		rgb(0 0 0 / var(--bm-cover-c)) 100%
+	);
 }
 
 .card-beatmap .bm-cover::before {
@@ -70,32 +88,22 @@
 	transform: scale(1.045);
 }
 
-/* 遮罩浓度分主题：亮色下纯白遮罩会把封面洗成灰白、整张卡「发淡」，
-   所以比暗色低一档，让封面更透出来一些 */
+/* 渐隐浓度分主题：亮色下纯白遮罩会把封面洗成灰白、整张卡「发淡」，
+   所以比暗色低一档，让封面更透出来一些。
+
+   数值是「封面的可见度」（左侧平台 / 52% 处 / 右端）：
+   即原遮罩浓度的补数——亮色 76%/60%/34% → 24%/40%/66%，暗色 88%/74%/46% → 12%/26%/54%。
+   左实右透：左侧压住封面保证文字可读，右侧留出封面本身 */
 :root {
-	--bm-scrim-a: 76%;
-	--bm-scrim-b: 60%;
-	--bm-scrim-c: 34%;
+	--bm-cover-a: 24%;
+	--bm-cover-b: 40%;
+	--bm-cover-c: 66%;
 }
 
 :root.dark {
-	--bm-scrim-a: 88%;
-	--bm-scrim-b: 74%;
-	--bm-scrim-c: 46%;
-}
-
-/* 左实右透：左侧压住封面保证文字可读，右侧留出封面本身 */
-.card-beatmap .bm-scrim {
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	border-radius: inherit;
-	background: linear-gradient(
-		to right,
-		color-mix(in oklab, var(--card-bg) var(--bm-scrim-a), transparent) 0%,
-		color-mix(in oklab, var(--card-bg) var(--bm-scrim-b), transparent) 52%,
-		color-mix(in oklab, var(--card-bg) var(--bm-scrim-c), transparent) 100%
-	);
+	--bm-cover-a: 12%;
+	--bm-cover-b: 26%;
+	--bm-cover-c: 54%;
 }
 
 /* 卡片竖直方向的尺寸一律用整数 px。

@@ -306,15 +306,14 @@ export function BeatmapCardComponent(properties, children) {
 			rel: "noopener noreferrer",
 		},
 		[
-			// 封面与遮罩各自成层，卡片本身不设 overflow:hidden，
-			// 这样难度浮层才能溢出到卡片下方而不裁切
+			// 封面独占一层（渐隐做进了它的 alpha，见 beatmap-card.css），
+			// 卡片本身不设 overflow:hidden，这样难度浮层才能溢出到卡片下方而不裁切
 			data.cover
 				? h("div", {
 						class: "bm-cover",
 						style: `background-image:url("${data.cover}");`,
 					})
 				: null,
-			h("div", { class: "bm-scrim" }),
 			h("div", { class: "bm-body" }, [
 				h("div", { class: "bm-head" }, [
 					h("div", { class: "bm-titles" }, [
