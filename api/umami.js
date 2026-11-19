@@ -2,16 +2,17 @@
 //
 // 三个入口：
 //   GET /api/umami                             → { pv, uv }       侧边栏"站点统计"用
-//                                                  pv = 全部时间累计访问量
-//                                                  uv = 近 30 天独立访客
+//                                                  pv = 全部时间累计浏览
+//                                                  uv = 全部时间累计访客
 //   GET /api/umami?view=dashboard              → 累计/今日汇总 + 各维度排名（排名固定近 30 天）
 //   GET /api/umami?view=series&range=30d       → 只给趋势时序，range: 7d | 30d | 90d
 //
 // 为什么汇总与排名固定 30 天、趋势单独可切换：切范围时只需重取趋势，不必整页重新请求。
 //
-// 为什么侧栏的 UV 用 30 天：Umami 的"访客"是按会话哈希去重的，哈希里带了
-// 「每月轮换一次的 salt」，跨月同一个人会被算成不同访客，所以累计 UV 会虚高。
-// 30 天窗口与 salt 周期吻合，更接近真实人数。（PV 是纯累计，没有这个问题。）
+// 口径说明：侧栏与 /analytics 统一使用「全部时间」。
+// 注意 Umami 的"访客"是按会话哈希去重的，哈希里带了一个 salt（默认每月轮换），
+// 轮换会让同一个人跨月被算成不同访客，因此累计 UV 会偏高；
+// 若在 Umami 侧把 SALT_ROTATION 设为固定值（v3.5.0+），这份累计数就会稳定且真实。
 //
 // 需要的环境变量（配置在主站 Vercel 项目里）：
 //   UMAMI_URL         自建 Umami 实例地址，例如 https://analytics.solidephile.cc
@@ -29,8 +30,6 @@ const TIMEZONE = process.env.UMAMI_TIMEZONE || "Asia/Shanghai";
 // 表示"全部时间"：用一个足够早的时间点即可（Umami 用毫秒时间戳）
 const ALL_TIME_START = Date.UTC(2000, 0, 1);
 
-// 侧栏独立访客的统计窗口（天）
-const UV_RANGE_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // 看板「汇总 + 排名」的固定窗口
@@ -160,21 +159,16 @@ function toSeries(result) {
 	};
 }
 
-/** 侧栏入口：{ pv, uv } */
+/** 侧栏入口：{ pv, uv }（均为全部时间，与 /analytics 的「累计浏览 / 累计访客」一致） */
 async function handleSummary(res) {
 	const endAt = Date.now();
-	const uvStartAt = endAt - UV_RANGE_DAYS * DAY_MS;
-
-	const [allTime, recent] = await Promise.all([
-		umamiGetJson(statsPath(ALL_TIME_START, endAt)),
-		umamiGetJson(statsPath(uvStartAt, endAt)),
-	]);
+	const allTime = await umamiGetJson(statsPath(ALL_TIME_START, endAt));
 
 	res.setHeader("Cache-Control", CACHE_HEADER);
 
 	return res.status(200).json({
 		pv: Number(allTime?.pageviews ?? 0),
-		uv: Number(recent?.visitors ?? 0),
+		uv: Number(allTime?.visitors ?? 0),
 	});
 }
 

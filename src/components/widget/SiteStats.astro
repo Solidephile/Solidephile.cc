@@ -73,7 +73,7 @@ const todayText = i18n(I18nKey.today);
 const stats = [
 	{
 		icon: "material-symbols:visibility-outline",
-		label: "总访问量",
+		label: "累计浏览",
 		value: 0,
 		placeholder: "—",
 		dynamic: true,
@@ -81,7 +81,7 @@ const stats = [
 	},
 	{
 		icon: "material-symbols:group-outline",
-		label: "独立访客",
+		label: "累计访客",
 		value: 0,
 		placeholder: "—",
 		dynamic: true,
@@ -194,7 +194,7 @@ const stats = [
     }
   }
 
-  // 访问量 / 独立访客：从自建 Umami 的代理接口读取（Umami 凭据只在服务端）
+  // 累计浏览 / 累计访客：从自建 Umami 的代理接口读取（Umami 凭据只在服务端）
   function setStatText(id, value) {
     if (value === undefined || value === null) return;
     document.querySelectorAll('[data-stat-id="' + id + '"]').forEach(function (el) {

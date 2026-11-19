@@ -46,13 +46,24 @@ const RANGE_OPTIONS = [
 	{ id: "90d", name: "90 天" },
 ];
 
-// Umami 的渠道名是英文（direct / search / ...），展示时转成中文
+// Umami 的渠道值（v3.x）：direct / referral / organicSearch / paidSearch / organicSocial …
+// 查表前统一转小写，所以这里的键都是小写。
 const CHANNEL_LABELS: Record<string, string> = {
 	direct: "直接访问",
+	referral: "外部链接",
+	organicsearch: "自然搜索",
+	paidsearch: "付费搜索",
+	organicsocial: "自然社交",
+	paidsocial: "付费社交",
+	organicvideo: "自然视频",
+	paidvideo: "付费视频",
+	email: "邮件",
+	sms: "短信",
+	display: "展示广告",
+	affiliate: "联盟推广",
+	// 兼容旧版 / 简化取值
 	search: "搜索引擎",
 	social: "社交媒体",
-	referral: "外部链接",
-	email: "邮件",
 	paid: "付费推广",
 	organic: "自然流量",
 };
