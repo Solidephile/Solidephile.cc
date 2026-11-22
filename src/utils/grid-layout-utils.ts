@@ -62,6 +62,12 @@ export function updateMainGridCols(): void {
 			isPostPage ? "data-has-right-on-post" : "data-has-right-on-non-post",
 		),
 		noSidebarContentWidth: Number.isFinite(capNum) ? capNum : undefined,
+		// 本页是否显式不要侧栏：读 #content-wrapper —— 它在 swup 容器内，切页时会换成
+		// 新页面自己的值；放在容器外的 #main-grid 上会跨页残留（曾经导致音乐页之后所有页面都没侧栏）
+		hideSidebar:
+			document
+				.getElementById("content-wrapper")
+				?.getAttribute("data-hide-sidebar") === "true",
 	});
 
 	const serialized = gridColumnVarsToStyle(vars);

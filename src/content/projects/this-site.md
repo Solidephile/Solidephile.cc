@@ -19,4 +19,6 @@ link:
 
 ## 🌟 概述
 
-该网站基于Astro框架开发，部署在Vercel上，后端数据库采用Neon Postgresql。
+该网站基于FireFly模板，使用Astro框架开发，部署在Vercel上，后端数据库采用Neon Postgresql。
+
+评论系统采用Waline，站点统计采用Umami，大文件存储采用Cloudflare R2服务。

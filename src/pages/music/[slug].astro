@@ -1,0 +1,156 @@
+---
+import { getCollection, render } from "astro:content";
+import Markdown from "@components/common/Markdown.astro";
+import { Icon } from "astro-icon/components";
+import MusicStage from "@/components/features/music/MusicStage.svelte";
+import { siteConfig } from "@/config";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import type { MusicTrack } from "@/types/music";
+import { parseLrc } from "@/utils/lrc";
+import "@/styles/pages/common.css";
+
+// 页面开关：音乐页整体关掉时，单曲页也一起 404
+if (!siteConfig.pages.music) {
+	return Astro.redirect("/404/");
+}
+
+export async function getStaticPaths() {
+	const entries = await getCollection("music", (entry) => !entry.data.draft);
+
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+/**
+ * 歌词是同目录同名的 .lrc：构建期读原文，运行时不发请求
+ * （放 lrc 而不是 frontmatter，是为了能直接粘贴/替换整份歌词文件）
+ */
+const lrcFiles = import.meta.glob("/src/content/music/*.lrc", {
+	query: "?raw",
+	import: "default",
+	eager: true,
+}) as Record<string, string>;
+
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+
+const lrcRaw = lrcFiles[`/src/content/music/${entry.id}.lrc`] ?? "";
+const lyrics = parseLrc(lrcRaw);
+
+/** 交给播放器的曲目；单曲页现在只有一首，之后作品页/剧情页各自传自己的队列 */
+const track: MusicTrack = {
+	title: data.title,
+	artist: data.artist,
+	audio: data.audio,
+	cover: data.cover,
+	duration: data.duration,
+	bpm: data.bpm,
+	offset: data.offset,
+	slug: entry.id,
+	// 歌词原文给管理器（导航栏播放器要），解析也在页面侧做
+	lrc: lrcRaw,
+};
+
+/** 元数据行只到日粒度，避免时区把「同一天」显示成前一天 */
+const published = data.published.toISOString().slice(0, 10);
+
+/**
+ * `credits` 写成 "作词：畑亜貴" 这样的字符串。
+ * 有冒号（半角/全角都算）就拆成标签 + 值排成两列，没有就整行跨列显示。
+ */
+const credits = data.credits.map((credit) => {
+	const at = credit.search(/[：:]/);
+
+	return at > 0
+		? { label: credit.slice(0, at).trim(), value: credit.slice(at + 1).trim() }
+		: { label: "", value: credit.trim() };
+});
+---
+
+<MainGridLayout
+	title={data.title}
+	description={`${data.artist} · ${data.title}`}
+	hideSidebar
+>
+	<div class="page-shell mx-auto flex w-full max-w-[1200px] flex-col gap-4">
+		<!-- 播放器舞台：封面 + 控制条 + 歌词（标题/艺术家在舞台里，不再单独做页头卡） -->
+		<MusicStage
+			client:load
+			track={track}
+			lyrics={lyrics}
+			{published}
+			tags={data.tags}
+			accent={data.theme?.accent ?? ""}
+			spectrum={data.theme?.spectrum}
+			kiai={data.kiai}
+		/>
+
+		<!-- 介绍 + 制作信息：正文占主栏，信息表贴右侧，避免整卡只有两行正文显得空 -->
+		<div class="card-base p-5 sm:p-7">
+			<div class="mb-4 flex items-center gap-2">
+				<Icon
+					is:inline
+					name="material-symbols:info-outline-rounded"
+					class="text-2xl text-(--primary)"
+					aria-hidden="true"
+				/>
+				<h2 class="text-lg font-bold text-90">关于这首歌</h2>
+			</div>
+
+			<div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,17rem)]">
+				<div class="min-w-0">
+					<Markdown class="mt-0">
+						<Content />
+					</Markdown>
+				</div>
+
+				<aside class="min-w-0 lg:border-l lg:border-(--line-divider) lg:pl-6">
+					{
+						credits.length > 0 && (
+							<dl class="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-3 gap-y-2 text-base">
+								{credits.map(({ label, value }) =>
+									label ? (
+										<>
+											<dt class="text-(--content-meta)">{label}</dt>
+											<dd class="text-90">{value}</dd>
+										</>
+									) : (
+										<dd class="col-span-2 text-90">{value}</dd>
+									),
+								)}
+							</dl>
+						)
+					}
+
+					<dl class="mt-4 grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-3 gap-y-2 border-t border-(--line-divider) pt-4 text-base">
+						<dt class="text-(--content-meta)">发行</dt>
+						<dd class="text-90">{published}</dd>
+						{
+							data.category && (
+								<>
+									<dt class="text-(--content-meta)">分类</dt>
+									<dd class="text-90">{data.category}</dd>
+								</>
+							)
+						}
+					</dl>
+
+					{
+						data.tags.length > 0 && (
+							<ul class="mt-3 flex flex-wrap gap-1.5">
+								{data.tags.map((tag) => (
+									<li class="rounded-full bg-(--btn-regular-bg) px-2.5 py-1 text-base text-(--btn-content)">
+										{tag}
+									</li>
+								))}
+							</ul>
+						)
+					}
+				</aside>
+			</div>
+		</div>
+	</div>
+</MainGridLayout>

@@ -2,6 +2,7 @@
 import { musicPlayerConfig } from "@/config/musicConfig";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
+import { LYRIC_LEAD_MS } from "@/utils/lrc";
 
 // MusicPlayer 的视图控制脚本只需要发一份：页面上可能同时有导航栏面板和侧栏
 // 两个 widget，脚本内容除 widgetId 外完全一致。这里统一发一次，由脚本自己
@@ -14,6 +15,8 @@ const config = musicPlayerConfig;
 
 const viewConfigStr = JSON.stringify({
 	showLyrics: config.showLyrics ?? true,
+	// 和单曲页共用同一个歌词提前量，别在 inline 脚本里另写数字
+	lyricLeadMs: LYRIC_LEAD_MS,
 	i18n: {
 		noPlaying: i18n(I18nKey.musicNoPlaying),
 		lyrics: i18n(I18nKey.musicLyrics),
@@ -105,11 +108,6 @@ const viewConfigStr = JSON.stringify({
             iconRepeat: widget.querySelector('.icon-repeat'),
             iconRepeatOne: widget.querySelector('.icon-repeat-one'),
             iconShuffle: widget.querySelector('.icon-shuffle'),
-            btnMute: widget.querySelector('.btn-mute'),
-            iconVolHigh: widget.querySelector('.icon-vol-high'),
-            iconVolMute: widget.querySelector('.icon-vol-mute'),
-            volContainer: widget.querySelector('.vol-container'),
-            volBar: widget.querySelector('.vol-bar'),
             btnLrc: widget.querySelector('.btn-lrc-toggle'),
             iconLrcOn: widget.querySelector('.icon-lrc-on'),
             iconLrcOff: widget.querySelector('.icon-lrc-off'),
@@ -122,7 +120,7 @@ const viewConfigStr = JSON.stringify({
         };
 
         // Verify critical elements
-        var _critical = [ui.btnPlay, ui.btnRepeat, ui.btnMute, ui.volContainer,
+        var _critical = [ui.btnPlay, ui.btnRepeat,
             ui.btnDrawer, ui.btnLrc, ui.lrcDrawer, ui.lrcContainer,
             ui.progressContainer, ui.btnNext, ui.btnPrev, ui.loading,
             ui.cover, ui.title, ui.artist, ui.playlistContainer, ui.itemTemplate];
@@ -133,7 +131,11 @@ const viewConfigStr = JSON.stringify({
         var OVERSCAN = 8;
         var local = {
             isUserScrolling: false,
+            /** 正在拖进度条：此刻别让 fm:time 把预览位置拽回去 */
+            isSeeking: false,
             scrollTimeout: null,
+            /** 控制器解析好的结构化歌词（{ t, text, translation, color, spans }） */
+            lyrics: [],
             currentLrcIndex: -1,
             vs: {
                 playlist: [],
@@ -193,7 +195,7 @@ const viewConfigStr = JSON.stringify({
         function updateModeUI(playMode) {
             var primaryColor = 'text-(--primary)';
             if (playMode === 0) {
-                ui.btnRepeat.className = 'p-2 active:scale-95 transition-colors text-neutral-300 dark:text-neutral-600 hover:text-(--primary)';
+                ui.btnRepeat.className = 'p-2 active:scale-95 transition-colors text-(--content-meta) hover:text-(--primary)';
                 ui.iconRepeat.classList.remove('hidden');
                 ui.iconRepeatOne.classList.add('hidden');
                 ui.iconShuffle.classList.add('hidden');
@@ -210,17 +212,15 @@ const viewConfigStr = JSON.stringify({
             }
         }
 
-        function updateVolumeUI(volume, isMuted) {
-            var pct = isMuted ? 0 : volume * 100;
-            ui.volBar.style.width = pct + '%';
-            ui.volContainer.setAttribute('aria-valuenow', Math.round(pct).toString());
-            if (isMuted || volume === 0) {
-                ui.iconVolHigh.classList.add('hidden');
-                ui.iconVolMute.classList.remove('hidden');
-            } else {
-                ui.iconVolHigh.classList.remove('hidden');
-                ui.iconVolMute.classList.add('hidden');
-            }
+        /**
+         * 上一首 / 下一首：队列里只剩一首时禁用。
+         * 引擎的 playNext 是取模绕回，只有一首时点下去就是「重播同一首」，
+         * 看起来像按钮坏了；单曲页那边一直是这个规则，这里对齐。
+         */
+        function updateSkipUI(count) {
+            var single = !(count > 1);
+            ui.btnPrev.disabled = single;
+            ui.btnNext.disabled = single;
         }
 
         function updateTrackUI(track) {
@@ -255,8 +255,6 @@ const viewConfigStr = JSON.stringify({
         }
 
         // ── Virtual scroll helpers (absolute-position based) ──────
-        var PRIMARY_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#6366f1';
-
         function vsApplyActiveStyle(el, isActive) {
             var overlay = el.querySelector('.item-active-overlay');
             var title = el.querySelector('.item-title');
@@ -268,7 +266,9 @@ const viewConfigStr = JSON.stringify({
                 el.setAttribute('aria-current', 'true');
                 overlay.classList.remove('hidden');
                 overlay.classList.add('flex');
-                title.style.color = PRIMARY_COLOR;
+                // 用 CSS 变量本身，不要在这里 getComputedStyle 取一次颜色存成字符串：
+                // --primary 跟着 --hue（拖色相）和明暗主题变，取出来的值会定格在脚本启动那一刻。
+                title.style.color = 'var(--primary)';
                 if (isPlaying) {
                     eqBars.classList.remove('hidden');
                     eqBars.classList.add('flex');
@@ -423,7 +423,12 @@ const viewConfigStr = JSON.stringify({
             }
         }
 
+        /**
+         * 渲染结构化歌词（解析在页面控制器里做，见 player.svelte.ts）。
+         * 每行 = 原文（保留 {c:} 的行内颜色）+ 可选的翻译小字；点一行跳到那一句。
+         */
         function renderLyricsUI(lyrics, status) {
+            local.lyrics = Array.isArray(lyrics) ? lyrics : [];
             local.currentLrcIndex = -1;
             ui.lrcContainer.innerHTML = '';
             if (status === 'loading') {
@@ -434,22 +439,92 @@ const viewConfigStr = JSON.stringify({
                 ui.lrcContainer.innerHTML = '<div class="text-neutral-400 text-sm py-10">' + cfg.i18n.failedLyrics + '</div>';
                 return;
             }
-            if (!lyrics || lyrics.length === 0) {
+            if (local.lyrics.length === 0) {
                 ui.lrcContainer.innerHTML = '<div class="text-neutral-400 text-sm py-10" role="option">' + cfg.i18n.noLyrics + '</div>';
                 return;
             }
-            lyrics.forEach(function (line, index) {
-                var lineEl = document.createElement('div');
-                lineEl.className = 'lrc-line transition-all duration-300 text-sm text-neutral-400 py-1 cursor-pointer hover:text-(--primary)';
-                lineEl.innerText = line.text;
-                lineEl.dataset.index = index;
-                lineEl.setAttribute('role', 'option');
-                lineEl.setAttribute('aria-label', line.text);
-                lineEl.onclick = function () {
-                    mgr.seekToTime(line.time);
-                };
-                ui.lrcContainer.appendChild(lineEl);
+
+            local.lyrics.forEach(function (line, index) {
+                var row = document.createElement('div');
+                row.className = 'lrc-line transition-all duration-300 text-sm text-neutral-400 py-1 cursor-pointer hover:text-(--primary)';
+                row.dataset.index = index;
+                row.setAttribute('role', 'option');
+                row.setAttribute('aria-label', line.translation ? line.text + ' · ' + line.translation : line.text);
+                if (line.color) row.dataset.lineColor = line.color;
+
+                var text = document.createElement('span');
+                text.className = 'lrc-text block';
+                var spans = line.spans && line.spans.length ? line.spans : [{ text: line.text, color: '' }];
+                spans.forEach(function (span) {
+                    var part = document.createElement('span');
+                    part.textContent = span.text;
+                    if (span.color) part.style.color = span.color;
+                    text.appendChild(part);
+                });
+                row.appendChild(text);
+
+                if (line.translation) {
+                    var tr = document.createElement('span');
+                    tr.className = 'lrc-tr block text-[0.8em] leading-snug opacity-80';
+                    tr.textContent = line.translation;
+                    row.appendChild(tr);
+                }
+
+                row.onclick = function () { mgr.seekToTime(line.t); };
+                ui.lrcContainer.appendChild(row);
             });
+        }
+
+        /**
+         * 当前时间落在第几行（和 src/utils/lrc.ts 的 findActiveIndex 同义）。
+         * 这里补上和单曲页相同的歌词提前量：没有它，高亮会比单曲页晚 300ms，
+         * 再叠加 timeupdate 约 4Hz 的粒度（那部分才是没有 rAF 的硬限制）。
+         */
+        function activeIndexAt(time) {
+            var lines = local.lyrics;
+            var t = time + (cfg.lyricLeadMs || 0) / 1000;
+            var found = -1;
+            for (var i = 0; i < lines.length; i++) {
+                if (lines[i].t <= t) found = i;
+                else break;
+            }
+            return found;
+        }
+
+        // ── 歌词滚动的补间 ───────────────────────────────────────
+        // 和单曲页 src/utils/scroll-tween.ts 是同一套参数与缓动。
+        // 这个脚本必须保持 is:inline（swup 换页时会重跑），没法 import，
+        // 所以这里是等价实现 —— 改那边记得同步这里。
+        var LRC_SCROLL_MIN_MS = 420;
+        var LRC_SCROLL_MAX_MS = 900;
+        var LRC_SCROLL_MS_PER_PX = 0.6;
+        var lrcScrollFrames = new WeakMap();
+
+        function animateLrcScroll(container, top) {
+            var previous = lrcScrollFrames.get(container);
+            if (previous) cancelAnimationFrame(previous);
+
+            var from = container.scrollTop;
+            var delta = top - from;
+            if (Math.abs(delta) < 1) return;
+
+            var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var duration = reduced
+                ? 0
+                : Math.min(LRC_SCROLL_MAX_MS, LRC_SCROLL_MIN_MS + Math.abs(delta) * LRC_SCROLL_MS_PER_PX);
+
+            if (duration === 0) { container.scrollTop = top; return; }
+
+            var start = performance.now();
+            function step(now) {
+                var t = Math.min(1, (now - start) / duration);
+                // easeInOutCubic：起步和收尾都软，中段才快
+                var eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                container.scrollTop = from + delta * eased;
+                if (t < 1) lrcScrollFrames.set(container, requestAnimationFrame(step));
+                else lrcScrollFrames.delete(container);
+            }
+            lrcScrollFrames.set(container, requestAnimationFrame(step));
         }
 
         function updateLrcHighlight(index) {
@@ -458,13 +533,20 @@ const viewConfigStr = JSON.stringify({
 
             var lines = ui.lrcContainer.querySelectorAll('.lrc-line');
             lines.forEach(function (line, i) {
-                if (i === index) {
-                    line.classList.add('text-(--primary)', 'font-bold', 'text-base');
-                    line.classList.remove('text-neutral-400', 'text-sm');
-                } else {
-                    line.classList.remove('text-(--primary)', 'font-bold', 'text-base');
-                    line.classList.add('text-neutral-400', 'text-sm');
-                }
+                var active = i === index;
+                var distance = Math.min(Math.abs(i - index), 5);
+
+                line.classList.toggle('text-(--primary)', active);
+                line.classList.toggle('font-bold', active);
+                line.classList.toggle('text-base', active);
+                line.classList.toggle('text-neutral-400', !active);
+                line.classList.toggle('text-sm', !active);
+                // 非当前行按距离淡出（和单曲页一致）；当前行保持不透明
+                line.style.opacity = active ? '1' : String(Math.max(0.25, 1 - distance * 0.15));
+
+                // 行内 {c:} 颜色只作用于非当前行：当前行统一用强调色
+                var text = line.querySelector('.lrc-text');
+                if (text) text.style.color = active ? '' : (line.dataset.lineColor || '');
             });
 
             // Auto-scroll unless user is scrolling
@@ -475,7 +557,7 @@ const viewConfigStr = JSON.stringify({
                     var lineOffset = line.offsetTop;
                     var lineHeight = line.offsetHeight;
                     var targetScroll = lineOffset - (containerHeight / 2) + (lineHeight / 2);
-                    ui.lrcContainer.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                    animateLrcScroll(ui.lrcContainer, targetScroll);
                 }
             }
         }
@@ -497,7 +579,7 @@ const viewConfigStr = JSON.stringify({
             if (s.track) updateTrackUI(s.track);
             updatePlayStateUI(s.isPlaying);
             updateModeUI(s.playMode);
-            updateVolumeUI(s.volume, s.isMuted);
+            updateSkipUI(s.playlist.length);
 
             // Progress
             if (s.duration > 0) {
@@ -509,8 +591,8 @@ const viewConfigStr = JSON.stringify({
             }
 
             // Lyrics
-            renderLyricsUI(s.lyrics, s.lyrics.length > 0 ? 'loaded' : 'none');
-            if (s.currentLrcIndex >= 0) updateLrcHighlight(s.currentLrcIndex);
+            renderLyricsUI(s.lyrics, s.lyrics.length > 0 ? 'loaded' : (s.lrcStatus || 'none'));
+            updateLrcHighlight(activeIndexAt(s.currentTime));
 
             // Cover image: if already set, show it
             if (s.track && s.track.pic && ui.cover.src && ui.cover.complete && ui.cover.naturalWidth > 0) {
@@ -531,10 +613,10 @@ const viewConfigStr = JSON.stringify({
         on('fm:init', function (e) {
             var d = e.detail;
             setLoading(false);
+            updateSkipUI(d.playlist.length);
             if (d.playlist.length > 0) {
                 renderPlaylist(d.playlist, 0);
                 updateModeUI(d.playMode);
-                updateVolumeUI(d.volume, d.isMuted);
             } else {
                 ui.title.innerText = cfg.i18n.noSongs;
             }
@@ -552,15 +634,15 @@ const viewConfigStr = JSON.stringify({
 
         on('fm:time', function (e) {
             var d = e.detail;
-            ui.progressBar.style.width = d.progress + '%';
-            ui.progressThumb.style.left = d.progress + '%';
-            ui.progressContainer.setAttribute('aria-valuenow', Math.round(d.progress).toString());
+            // 拖动中不要覆盖预览：进度条由 previewSeek 管，这里只更新时间文字
+            if (!local.isSeeking) {
+                ui.progressBar.style.width = d.progress + '%';
+                ui.progressThumb.style.left = d.progress + '%';
+                ui.progressContainer.setAttribute('aria-valuenow', Math.round(d.progress).toString());
+            }
             ui.currentTime.innerText = d.currentTimeStr;
             ui.totalTime.innerText = d.durationStr;
-        });
-
-        on('fm:volume', function (e) {
-            updateVolumeUI(e.detail.volume, e.detail.isMuted);
+            updateLrcHighlight(activeIndexAt(d.currentTime));
         });
 
         on('fm:mode', function (e) {
@@ -569,10 +651,8 @@ const viewConfigStr = JSON.stringify({
 
         on('fm:lyrics', function (e) {
             renderLyricsUI(e.detail.lyrics, e.detail.status);
-        });
-
-        on('fm:lrc-index', function (e) {
-            updateLrcHighlight(e.detail.index);
+            // 渲染完立刻对一次位置，不用等下一次 timeupdate
+            updateLrcHighlight(activeIndexAt(mgr.getState().currentTime));
         });
 
         on('fm:error', function (e) {
@@ -584,21 +664,53 @@ const viewConfigStr = JSON.stringify({
         ui.btnNext.addEventListener('click', function () { mgr.playNext(); });
         ui.btnPrev.addEventListener('click', function () { mgr.playPrev(); });
         ui.btnRepeat.addEventListener('click', function () { mgr.cyclePlayMode(); });
-        ui.btnMute.addEventListener('click', function () { mgr.toggleMute(); });
 
-        ui.volContainer.addEventListener('click', function (e) {
-            var rect = ui.volContainer.getBoundingClientRect();
-            var x = e.clientX - rect.left;
-            var val = Math.max(0, Math.min(1, x / rect.width));
-            mgr.setVolume(val);
-        });
-
-        ui.progressContainer.addEventListener('click', function (e) {
+        // 进度条：点一下定位，按住还能拖（和单曲页的播放条一致）。
+        // 拖动期间只改视觉、松手才真的 seek：否则每移动一像素就是一个 Range 请求，
+        // 而且 fm:time 会把预览位置又拽回去。
+        function seekPercentFromEvent(e) {
             var rect = ui.progressContainer.getBoundingClientRect();
-            var clickX = e.clientX - rect.left;
-            var percent = Math.min(Math.max(clickX / rect.width, 0), 1);
-            mgr.seek(percent);
+            var x = e.clientX - rect.left;
+            return Math.min(Math.max(x / rect.width, 0), 1);
+        }
+
+        function previewSeek(percent) {
+            var pct = percent * 100;
+            ui.progressBar.style.width = pct + '%';
+            ui.progressThumb.style.left = pct + '%';
+            ui.progressContainer.setAttribute('aria-valuenow', Math.round(pct).toString());
+        }
+
+        function endSeek(e) {
+            if (!local.isSeeking) return;
+            local.isSeeking = false;
+            try { ui.progressContainer.releasePointerCapture(e.pointerId); } catch (err) {}
+            // 恢复过渡：正常播放时 fm:time 每 ~250ms 跳一次，靠它抹平
+            ui.progressBar.style.transition = '';
+            mgr.seek(seekPercentFromEvent(e));
+        }
+
+        ui.progressContainer.addEventListener('pointerdown', function (e) {
+            local.isSeeking = true;
+            // 拖动期间关掉 width 过渡：过渡会让填充永远慢拇指一拍（每帧重新开始计时），
+            // 看起来就是「拖到哪儿了，填充过一会儿才跟上」
+            ui.progressBar.style.transition = 'none';
+            // 指针移出元素后仍然要收到 move/up（触屏尤其需要），所以用指针捕获
+            try { ui.progressContainer.setPointerCapture(e.pointerId); } catch (err) {}
+            previewSeek(seekPercentFromEvent(e));
+            e.preventDefault();
         });
+
+        ui.progressContainer.addEventListener('pointermove', function (e) {
+            if (!local.isSeeking) return;
+            previewSeek(seekPercentFromEvent(e));
+        });
+
+        ui.progressContainer.addEventListener('pointerup', endSeek);
+        ui.progressContainer.addEventListener('pointercancel', endSeek);
+        // 兜底：指针捕获万一没生效（移出元素后松手），也必须在 window 上收尾，
+        // 否则 isSeeking 会一直为 true、fm:time 再也不更新进度条
+        window.addEventListener('pointerup', endSeek);
 
         // ── Drawer logic (local state) ───────────────────────────
         ui.btnLrc.addEventListener('click', function () {
@@ -677,14 +789,15 @@ const viewConfigStr = JSON.stringify({
                 local.isUserScrolling = false;
                 // Snap back to current lyric
                 var s = mgr.getState();
-                if (s.currentLrcIndex >= 0) {
-                    var line = ui.lrcContainer.querySelector('.lrc-line[data-index="' + s.currentLrcIndex + '"]');
+                var index = activeIndexAt(s.currentTime);
+                if (index >= 0) {
+                    var line = ui.lrcContainer.querySelector('.lrc-line[data-index="' + index + '"]');
                     if (line) {
                         var containerHeight = ui.lrcContainer.clientHeight;
                         var lineOffset = line.offsetTop;
                         var lineHeight = line.offsetHeight;
                         var targetScroll = lineOffset - (containerHeight / 2) + (lineHeight / 2);
-                        ui.lrcContainer.scrollTo({ top: targetScroll, behavior: 'auto' });
+                        animateLrcScroll(ui.lrcContainer, targetScroll);
                     }
                 }
             }, 3000);

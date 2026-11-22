@@ -21,6 +21,10 @@
  * 宽度会随侧栏开关变化，用 sm:/md: 这类断点会排错。
  *
  * 配置见 src/config/homeCardsConfig.ts
+ *
+ * 图标必须写 `is:inline`：astro-icon 只给「该图标名的第一次渲染且非 inline」输出
+ * `<symbol>`，其余渲染只留 `<use>`。导航栏/移动端菜单用 inline 渲染同一批图标，
+ * 所以这里若用非 inline，卡片图标就会指向一个不存在的 symbol（空白）。
  */
 import { Icon } from "astro-icon/components";
 import { homeFeatureConfig } from "@/config/homeCardsConfig";
@@ -43,6 +47,12 @@ const show = homeFeatureConfig.enable && cards.length > 0;
  * 总之不会再用卡片底色那种高饱和渐变当占位。
  */
 function lqipStyle(url: string): string {
+	// public/ 下的本地图（以 / 开头）：`pnpm lqips` 会给它生成 `public:<相对路径>` 条目，
+	// 这里按 public 规则查表，不用（也不该）跑 `pnpm home-covers` —— 那个脚本只抓外部 URL
+	if (url.startsWith("/")) {
+		return getLqipProps(url, undefined, true).style;
+	}
+
 	const compact = (homeCardLqips as Record<string, string>)[url];
 	if (compact?.length === 18) {
 		const stops = [0, 6, 12].map((i) => `#${compact.slice(i, i + 6)}`);
@@ -92,7 +102,7 @@ function lqipStyle(url: string): string {
             </span>
 
             <span class="hf-icon" aria-hidden="true">
-              <Icon name={card.icon} />
+              <Icon is:inline name={card.icon} />
             </span>
 
             <span class="hf-body">
@@ -102,7 +112,7 @@ function lqipStyle(url: string): string {
               </span>
 
               <span class="hf-arrow" aria-hidden="true">
-                <Icon name="material-symbols:arrow-forward-rounded" />
+                <Icon is:inline name="material-symbols:arrow-forward-rounded" />
               </span>
             </span>
           </a>

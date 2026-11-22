@@ -65,6 +65,12 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 			// 相册
 			LinkPresets.Gallery,
 
+			// 音乐
+			LinkPresets.Music,
+
+			// osu!
+			LinkPresets.Osu,
+
 			// 书签导航
 			LinkPresets.Booknav,
 
@@ -79,9 +85,6 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 			// MyAnimeList
 			LinkPresets.MAL,
-
-			// osu!
-			LinkPresets.Osu,
 		],
 	});
 
@@ -239,6 +242,12 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		url: "/osu/",
 		icon: "simple-icons:osu",
 		pageKey: "osu",
+	},
+	Music: {
+		name: "音乐",
+		url: "/music/",
+		icon: "material-symbols:music-note-rounded",
+		pageKey: "music",
 	},
 	Analytics: {
 		name: "站点统计",

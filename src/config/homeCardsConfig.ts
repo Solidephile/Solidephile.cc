@@ -56,6 +56,14 @@ export const homeFeatureConfig: HomeFeatureConfig = {
 	description: "来看看这些地方吧！",
 	cards: [
 		{
+			title: "音乐",
+			description: "那些心之旋律……",
+			href: "/music/",
+			icon: "material-symbols:music-note-rounded",
+			image: "/assets/home/music-bg.jpg",
+			span: 2,
+		},
+		{
 			title: "osu! ",
 			description: "关于我和 osu! 的一切都在这里",
 			href: "/osu/",
@@ -65,7 +73,7 @@ export const homeFeatureConfig: HomeFeatureConfig = {
 		},
 		{
 			title: "Bangumi",
-			description: "我的Bangumi信息",
+			description: "我的 Bangumi 信息",
 			href: "/bangumi/",
 			icon: "material-symbols:movie",
 			image: "https://assets.ppy.sh/contests/282/winners/girls%20kissing.png",
@@ -73,7 +81,7 @@ export const homeFeatureConfig: HomeFeatureConfig = {
 		},
 		{
 			title: "站点统计",
-			description: "看看有多少人来过这里QAQ",
+			description: "看看有多少人来过这里 QAQ",
 			href: "/analytics/",
 			icon: "material-symbols:analytics",
 			image:

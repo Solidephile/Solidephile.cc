@@ -33,6 +33,8 @@ const pages = resolvePageToggles({
 	vndb: false,
 	// MyAnimeList页面开关
 	mal: false,
+	// 音乐页面开关（索引页 + 单曲页）
+	music: true,
 	// osu! 数据页开关
 	osu: true,
 

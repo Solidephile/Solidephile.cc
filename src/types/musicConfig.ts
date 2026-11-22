@@ -1,8 +1,5 @@
 // 音乐播放器配置
 export type MusicPlayerConfig = {
-	// 使用方式：'meting' 或 'local'
-	mode?: "meting" | "local"; // "meting" 使用 Meting API，"local" 使用本地音乐列表
-
 	// 默认音量 (0-1)
 	volume?: number;
 
@@ -37,16 +34,5 @@ export type MusicPlayerConfig = {
 
 		// 备用 API 配置（当主 API 失败时使用）
 		fallbackApis?: string[];
-	};
-
-	// 本地音乐配置（当 mode 为 'local' 时使用）
-	local?: {
-		playlist?: Array<{
-			name: string; // 歌曲名称
-			artist: string; // 艺术家
-			url: string; // 音乐文件路径（相对于 public 目录）
-			cover?: string; // 封面图片路径（相对于 public 目录）
-			lrc?: string; // 歌词内容，支持 LRC 格式
-		}>;
 	};
 };

@@ -98,6 +98,8 @@ export interface GridColumnsInput {
 	hasRightWidgets: boolean;
 	/** 无侧栏列时内容栏占包裹层总宽的比例（0–1），不设置或 ≥1 则铺满 */
 	noSidebarContentWidth?: number;
+	/** 本页显式不要侧栏（如音乐单曲页）；与「文章页隐藏」区分：此时内容栏直接铺满 */
+	hideSidebar?: boolean;
 }
 
 /** #main-grid 的列几何，由 gridColumnVarsToStyle 序列化 */
@@ -128,9 +130,11 @@ function trackSegments(left: boolean, right: boolean): string {
  * 侧栏包裹层是 display:contents，真正的 grid item 是内层元素，按 DOM 顺序自动放置即可。
  */
 export function computeGridColumns(input: GridColumnsInput): GridColumnVars {
-	// 整站禁用，或文章页整体隐藏侧栏
+	// 整站禁用、本页显式不要侧栏，或文章页整体隐藏侧栏
 	const sidebarActive =
-		input.enabled && !(input.isPostPage && input.hideSidebarOnPostPage);
+		input.enabled &&
+		!input.hideSidebar &&
+		!(input.isPostPage && input.hideSidebarOnPostPage);
 
 	const leftIn =
 		sidebarActive && input.hasLeftWidgets && input.position !== "right";
@@ -149,7 +153,8 @@ export function computeGridColumns(input: GridColumnsInput): GridColumnVars {
 
 	// 侧栏已启用但本断点无侧栏列 → 内容栏按比例收窄；比例钳到 [0,1]，1 即不收窄
 	// 闸门用 enabled 而非 sidebarActive：enable: false 时仍铺满。md 与 xl 需各自判定
-	const raw = input.noSidebarContentWidth;
+	// 显式 hideSidebar 的页面（音乐单曲页这类）直接铺满，不走阅读列的收窄比例
+	const raw = input.hideSidebar ? 1 : input.noSidebarContentWidth;
 	const ratio =
 		raw == null || !Number.isFinite(raw) ? 1 : Math.min(1, Math.max(0, raw));
 	const ratioMd = input.enabled && !mdLeft && !mdRight ? ratio : 1;

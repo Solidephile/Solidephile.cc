@@ -45,15 +45,22 @@ declare global {
 				} | null;
 				isPlaying: boolean;
 				playMode: number;
-				volume: number;
-				isMuted: boolean;
 				currentTime: number;
 				duration: number;
 				progress: number;
 				currentTimeStr: string;
 				durationStr: string;
-				lyrics: Array<{ time: number; text: string }>;
-				currentLrcIndex: number;
+				/** 结构化歌词（页面控制器解析后回写），字段与 src/utils/lrc.ts 的 LyricLine 一致 */
+				lyrics: Array<{
+					t: number;
+					text: string;
+					translation: string;
+					color: string;
+					spans: Array<{ text: string; t: number | null; color: string }>;
+				}>;
+				/** 当前曲目的原始 LRC 文本 / 加载状态（loading / loaded / failed / none） */
+				lrcRaw: string;
+				lrcStatus: string;
 				initialized: boolean;
 				error: string | null;
 				config: Record<string, unknown>;
@@ -62,12 +69,19 @@ declare global {
 			playNext: () => void;
 			playPrev: () => void;
 			cyclePlayMode: () => void;
-			setVolume: (val: number) => void;
-			toggleMute: () => void;
 			seek: (percent: number) => void;
 			seekToTime: (time: number) => void;
 			playTrackByIndex: (index: number) => void;
 			loadTrack: (index: number, autoPlay: boolean) => void;
+			setLyrics: (
+				lines: Array<{
+					t: number;
+					text: string;
+					translation: string;
+					color: string;
+					spans: Array<{ text: string; t: number | null; color: string }>;
+				}>,
+			) => void;
 		};
 		/** 樱花特效管理器,Worker 模式与主线程回退模式均实现该接口 */
 		sakuraManager?: SakuraManagerLike;

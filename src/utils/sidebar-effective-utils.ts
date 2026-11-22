@@ -7,6 +7,8 @@ import {
 
 export interface EffectiveSidebarContext {
 	isPostPage: boolean;
+	/** 本页显式不要侧栏（音乐单曲页等） */
+	hideSidebar?: boolean;
 }
 
 export interface EffectiveSidebarState {
@@ -27,7 +29,7 @@ export interface EffectiveSidebarState {
 export function getEffectiveSidebarState(
 	ctx: EffectiveSidebarContext,
 ): EffectiveSidebarState {
-	const { isPostPage } = ctx;
+	const { isPostPage, hideSidebar = false } = ctx;
 
 	const sidebarConfig = getResponsiveSidebarConfig();
 
@@ -47,6 +49,7 @@ export function getEffectiveSidebarState(
 			? sidebarConfig.hasRightWidgetsOnPost
 			: sidebarConfig.hasRightWidgetsOnNonPost,
 		noSidebarContentWidth: sidebarLayoutConfig.noSidebarContentWidth,
+		hideSidebar,
 	});
 
 	return {

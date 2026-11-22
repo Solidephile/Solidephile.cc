@@ -1,0 +1,49 @@
+---
+import MusicIndex from "@components/pages/music/MusicIndex.svelte";
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "@/config";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import type { MusicListEntry } from "@/types/music";
+import { getLocalMusicTracks } from "@/utils/music-list";
+import "@/styles/pages/common.css";
+
+// 页面开关：关掉时导航项也会自动隐藏（nav-menu-utils 读同一个 key）
+if (!siteConfig.pages.music) {
+	return Astro.redirect("/404/");
+}
+
+/** 顺序与播放队列一致（frontmatter 的 order 手动排序） */
+const tracks = await getLocalMusicTracks();
+
+const list: MusicListEntry[] = tracks.map((track) => ({
+	track,
+	year: track.published.slice(0, 4),
+	category: track.category,
+	tags: track.tags,
+}));
+
+const title = i18n(I18nKey.music);
+const description = "包括本地歌曲与个人网易云歌单";
+---
+
+<MainGridLayout title={title} description={description}>
+	<div class="page-shell">
+		<div class="card-base z-10 mb-4 w-full px-9 py-6">
+			<div class="page-heading">
+				<div class="page-icon" aria-hidden="true">
+					<Icon is:inline name="material-symbols:music-note-rounded" />
+				</div>
+				<div>
+					<h2>{title}</h2>
+					<p>{description}</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="card-base p-5 sm:p-7">
+			<MusicIndex client:load entries={list} />
+		</div>
+	</div>
+</MainGridLayout>

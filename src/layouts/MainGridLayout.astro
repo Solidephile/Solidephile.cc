@@ -47,6 +47,8 @@ interface Props {
 		minutes?: number;
 	};
 	heading?: string;
+	/** 本页不要侧栏（音乐单曲页这类单栏页）；内容栏同时铺满 */
+	hideSidebar?: boolean;
 }
 
 const backgroundImages = getBackgroundImages();
@@ -66,6 +68,7 @@ const {
 	encrypted = false,
 	bannerPostMeta,
 	heading,
+	hideSidebar = false,
 } = Astro.props;
 
 const isHomePageCheck = isHomePage(Astro.url.pathname);
@@ -79,7 +82,7 @@ const banner = getBannerVisibilityState({
 	title,
 	bannerPostMeta,
 });
-const sidebar = getEffectiveSidebarState({ isPostPage });
+const sidebar = getEffectiveSidebarState({ isPostPage, hideSidebar });
 
 const { hasWallpaper } = banner;
 const {
@@ -136,13 +139,17 @@ const {
                 >
                 {/* 为每个页面提供一个隐藏的h1标题，用于SEO和可访问性 */}
                 <h1 class="sr-only">{heading || title}</h1>
-                <div id="content-wrapper" class="onload-animation transition-leaving">
+                {/* data-hide-sidebar 必须放在 swup 容器内：这是「本页」的属性，
+                    挂在容器外的 #main-grid 上会跨页残留（切到别的页面侧栏还是没了）。
+                    grid-layout-utils 在 page:view 时从这里读 */}
+                <div id="content-wrapper" class="onload-animation transition-leaving" data-hide-sidebar={hideSidebar ? "true" : "false"}>
                     <slot></slot>
                 </div>
             </main>
 
-                {/* 移动端底部组件：<768px 时 #main-grid 是 display:block，必须排在页脚之前 */}
-                {sidebarLayoutConfig.mobileBottomComponents && sidebarLayoutConfig.mobileBottomComponents.length > 0 && (
+                {/* 移动端底部组件：<768px 时 #main-grid 是 display:block，必须排在页脚之前。
+                    显式隐藏侧栏的页面（音乐单曲页）连这块一起不要 */}
+                {!hideSidebar && sidebarLayoutConfig.mobileBottomComponents && sidebarLayoutConfig.mobileBottomComponents.length > 0 && (
                     <div id="mobile-bottom-sidebar" class="block md:hidden mt-4">
                         <SideBar side="bottom" headings={headings} encrypted={encrypted}></SideBar>
                     </div>

@@ -8,8 +8,8 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	// 是否在侧边栏显示音乐播放器组件
 	showInSidebar: true,
 
-	// 使用方式："meting" 使用 Meting API，"local" 使用本地音乐列表
-	mode: "meting",
+	// 曲目来源没有开关：本地 collection 优先，一首都没有时才回退到下面的网易云歌单
+	// （决定点在 MusicManager 的 init，不在这里）。
 
 	// 默认音量 (0-1)
 	volume: 0.7,
@@ -37,23 +37,6 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 		fallbackApis: [
 			"https://api.injahow.cn/meting/?server=:server&type=:type&id=:id",
 			"https://api.moeyao.cn/meting/?server=:server&type=:type&id=:id",
-		],
-	},
-
-	// 本地音乐配置（当 mode 为 'local' 时使用）
-	// 1. 支持传入歌词文件的路径
-	// lrc: "/assets/music/lrc/xxx.lrc",
-	// 2. 或者直接填入歌词字符串内容
-	// lrc: "[00:00.00]歌词内容...",
-	local: {
-		playlist: [
-			{
-				name: "xxx",
-				artist: "xxx",
-				url: "/assets/music/xxx.mp3",
-				cover: "/assets/music/cover/xxx.webp",
-				lrc: "",
-			},
 		],
 	},
 };
