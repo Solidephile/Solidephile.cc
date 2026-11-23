@@ -93,6 +93,7 @@ const viewConfigStr = JSON.stringify({
             loading: widget.querySelector('.music-loading'),
             cover: widget.querySelector('.music-cover'),
             title: widget.querySelector('.music-title'),
+            titleViewport: widget.querySelector('.music-title-viewport'),
             artist: widget.querySelector('.music-artist'),
             progressBar: widget.querySelector('.progress-bar'),
             progressThumb: widget.querySelector('.progress-thumb'),
@@ -134,6 +135,15 @@ const viewConfigStr = JSON.stringify({
             /** 正在拖进度条：此刻别让 fm:time 把预览位置拽回去 */
             isSeeking: false,
             scrollTimeout: null,
+            /** 标题轮播：定时器 / 当前文字 / 上次量到的宽度 / 隐藏时的重试次数 */
+            titleTimer: 0,
+            titleFadeTimer: 0,
+            fadeRaf: 0,
+            titleText: '',
+            titleWidth: 0,
+            titleRetries: 0,
+            resizeTimer: 0,
+            destroyed: false,
             /** 控制器解析好的结构化歌词（{ t, text, translation, color, spans }） */
             lyrics: [],
             currentLrcIndex: -1,
@@ -223,9 +233,168 @@ const viewConfigStr = JSON.stringify({
             ui.btnNext.disabled = single;
         }
 
+        // ── 标题轮播（长歌名） ───────────────────────────────────
+        // 省略号静止 → 开始左滚（左淡出从 0 长到 16px，跟着文字一起展开）→
+        // 字滚完、空白经过左边缘时左淡出收掉（切换落在空白上，看不见）→
+        // 无缝停在歌名开头 → 停一下 → 左淡出再从 0 长出、继续滚。
+        // 参数都集中在这里。
+        var TITLE_PAUSE_MS = 2000;         // 初始 / 循环点的静止时长
+        var TITLE_SPEED = 30;              // px/s
+        var TITLE_GAP_RATIO = 1 / 3;       // 尾部空白 = 标题区可见宽度 × 1/3
+
+        /** 渐变宽度以 CSS 里的 --mt-fade 为准，脚本只负责让左侧从 0 长到它 */
+        function titleFadeWidth() {
+            var n = parseFloat(getComputedStyle(ui.titleViewport).getPropertyValue('--mt-fade'));
+            return isNaN(n) ? 16 : n;
+        }
+
+        function stopTitleMarquee() {
+            if (local.titleTimer) {
+                clearTimeout(local.titleTimer);
+                local.titleTimer = 0;
+            }
+            if (local.titleFadeTimer) {
+                clearTimeout(local.titleFadeTimer);
+                local.titleFadeTimer = 0;
+            }
+            if (local.fadeRaf) {
+                cancelAnimationFrame(local.fadeRaf);
+                local.fadeRaf = 0;
+            }
+            if (!ui.titleViewport) return;
+            ui.titleViewport.classList.remove('is-marquee');
+            ui.titleViewport.style.removeProperty('--mt-fade-l');
+            var track = ui.title.querySelector('.mt-track');
+            if (track) track.remove();
+        }
+
+        /**
+         * 左侧淡出从 0 长到一个渐变宽。宽度取「左边缘已经切掉的文字量」：
+         * 滚动刚开始时切掉 0px（不该有淡出），随文字左移按 30px/s 长到上限，
+         * 所以视觉上是文字自己滑进渐变里，而不是渐变突然出现。
+         */
+        function growLeftFade() {
+            var vp = ui.titleViewport;
+            var max = titleFadeWidth();
+            if (local.fadeRaf) cancelAnimationFrame(local.fadeRaf);
+            vp.style.setProperty('--mt-fade-l', '0px');
+            if (!window.requestAnimationFrame) {
+                vp.style.setProperty('--mt-fade-l', max + 'px');
+                return;
+            }
+            var t0 = performance.now();
+            function step(now) {
+                if (local.destroyed) return;
+                // rAF 的时间戳可能比调用时的 performance.now() 早一点，别把宽度算成负数
+                var cut = Math.max(0, ((now - t0) / 1000) * TITLE_SPEED);
+                var fade = cut < max ? cut : max;
+                vp.style.setProperty('--mt-fade-l', fade.toFixed(2) + 'px');
+                local.fadeRaf = fade < max ? requestAnimationFrame(step) : 0;
+            }
+            local.fadeRaf = requestAnimationFrame(step);
+        }
+
+        /** 空白贴左：左边缘没有可淡出的字了，直接收掉（这一步看不见） */
+        function hideLeftFade() {
+            if (local.fadeRaf) {
+                cancelAnimationFrame(local.fadeRaf);
+                local.fadeRaf = 0;
+            }
+            ui.titleViewport.style.setProperty('--mt-fade-l', '0px');
+        }
+
+        /** 标题的唯一写入口：先恢复省略号状态，再按需排一次轮播 */
+        function setTitleText(text) {
+            stopTitleMarquee();
+            local.titleText = text;
+            local.titleRetries = 0;
+            ui.title.innerText = text;
+            if (!ui.titleViewport) return;
+            local.titleWidth = ui.titleViewport.clientWidth;
+            local.titleTimer = setTimeout(startTitleMarquee, TITLE_PAUSE_MS);
+        }
+
+        function startTitleMarquee() {
+            local.titleTimer = 0;
+            if (local.destroyed || !local.titleText || !ui.titleViewport) return;
+
+            var width = ui.titleViewport.clientWidth;
+            // 隐藏的 widget（display:none）量不到宽度：稍后重试，别当场放弃
+            if (width === 0) {
+                if (local.titleRetries++ < 20) {
+                    local.titleTimer = setTimeout(startTitleMarquee, 500);
+                }
+                return;
+            }
+            // 系统开了「减少动态效果」就退回省略号，不滚
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            // 放得下就没有轮播的必要
+            if (ui.title.scrollWidth <= width + 1) return;
+
+            var textWidth = ui.title.scrollWidth;
+            var gap = Math.round(width * TITLE_GAP_RATIO);
+
+            var track = document.createElement('span');
+            track.className = 'mt-track';
+            for (var i = 0; i < 2; i++) {
+                var seg = document.createElement('span');
+                seg.className = 'mt-seg';
+                seg.textContent = local.titleText;
+                // 第二份只是为了让循环无缝，读屏别读两遍
+                if (i > 0) seg.setAttribute('aria-hidden', 'true');
+                var space = document.createElement('span');
+                space.className = 'mt-gap';
+                space.style.width = gap + 'px';
+                track.appendChild(seg);
+                track.appendChild(space);
+            }
+
+            ui.title.textContent = '';
+            ui.title.appendChild(track);
+            local.titleWidth = width;
+            ui.titleViewport.classList.add('is-marquee');
+
+            // 滚动距离 = 一份文字 + 一段空白；轨道宽度正好是它的 2 倍，
+            // 所以 translateX(-50%) 恰好停在「下一份文字的开头贴左」的位置。
+            // fadeAt：字全部越过左边缘的时刻（此时左边缘只剩空白，收起左淡出看不见）
+            scrollTitleLoop(
+                track,
+                (textWidth / TITLE_SPEED) * 1000,
+                (textWidth + gap) / TITLE_SPEED,
+            );
+        }
+
+        function scrollTitleLoop(track, fadeAt, duration) {
+            // 空白经过左边缘：左淡出到这里就收起
+            if (local.titleFadeTimer) clearTimeout(local.titleFadeTimer);
+            local.titleFadeTimer = setTimeout(function () {
+                if (local.destroyed) return;
+                hideLeftFade();
+            }, fadeAt);
+
+            // 用 CSS transition 推 transform：静止时零 rAF 开销，滚动本身也走合成层
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0)';
+            void track.offsetWidth; // 强制回流，否则下一次 transition 不会生效
+            track.style.transition = 'transform ' + duration.toFixed(2) + 's linear';
+            track.style.transform = 'translateX(-50%)';
+
+            // 每次从起点开始滚，左淡出都从 0 重新展开
+            growLeftFade();
+
+            local.titleTimer = setTimeout(function () {
+                if (local.destroyed) return;
+                // 到循环点：停一下再复位（左淡出此刻已经收掉了）
+                local.titleTimer = setTimeout(function () {
+                    if (local.destroyed) return;
+                    scrollTitleLoop(track, fadeAt, duration);
+                }, TITLE_PAUSE_MS);
+            }, duration * 1000 + 80);
+        }
+
         function updateTrackUI(track) {
             if (!track) return;
-            ui.title.innerText = track.name;
+            setTitleText(track.name);
             ui.title.title = track.name;
             ui.artist.innerText = track.artist;
             ui.artist.title = track.artist;
@@ -571,7 +740,7 @@ const viewConfigStr = JSON.stringify({
             setLoading(false);
 
             if (s.playlist.length === 0) {
-                ui.title.innerText = s.error || cfg.i18n.noSongs;
+                setTitleText(s.error || cfg.i18n.noSongs);
                 return;
             }
 
@@ -618,7 +787,7 @@ const viewConfigStr = JSON.stringify({
                 renderPlaylist(d.playlist, 0);
                 updateModeUI(d.playMode);
             } else {
-                ui.title.innerText = cfg.i18n.noSongs;
+                setTitleText(cfg.i18n.noSongs);
             }
         });
 
@@ -656,8 +825,26 @@ const viewConfigStr = JSON.stringify({
         });
 
         on('fm:error', function (e) {
-            ui.title.innerText = e.detail.message || cfg.i18n.error;
+            setTitleText(e.detail.message || cfg.i18n.error);
         });
+
+        // 窗口宽度变了，标题可用宽度也跟着变：重新量一次（防抖，免得拖拽时反复重启）
+        on('resize', function () {
+            if (local.resizeTimer) clearTimeout(local.resizeTimer);
+            local.resizeTimer = setTimeout(function () {
+                if (local.destroyed || !local.titleText) return;
+                if (ui.titleViewport.clientWidth === local.titleWidth) return;
+                setTitleText(local.titleText);
+            }, 200);
+        });
+
+        // 字体换入后文字宽度会变：重排一次。多数时候这发生在初始停顿内，看不出来
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(function () {
+                if (local.destroyed || !local.titleText) return;
+                setTitleText(local.titleText);
+            });
+        }
 
         // ── Button click delegates ───────────────────────────────
         ui.btnPlay.addEventListener('click', function () { mgr.togglePlay(); });
@@ -832,6 +1019,11 @@ const viewConfigStr = JSON.stringify({
                         });
                         observer.disconnect();
                         clearTimeout(local.scrollTimeout);
+                        local.destroyed = true;
+                        if (local.titleTimer) clearTimeout(local.titleTimer);
+                        if (local.titleFadeTimer) clearTimeout(local.titleFadeTimer);
+                        if (local.fadeRaf) cancelAnimationFrame(local.fadeRaf);
+                        if (local.resizeTimer) clearTimeout(local.resizeTimer);
                         return;
                     }
                 }

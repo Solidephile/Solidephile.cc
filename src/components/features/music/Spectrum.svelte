@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount } from "svelte";
+import { onMount, untrack } from "svelte";
 import { toCanvasColor } from "@/utils/color-utils";
 import {
 	contextLatency,
@@ -43,12 +43,17 @@ let {
 	reflect?: number;
 } = $props();
 
-/** 竖条数量：配置值只收敛一次，运行中不响应变化 */
-const count = Math.max(8, Math.min(96, Math.round(bars)));
-const barHeight = Math.max(8, height);
-const reflectHeight = Math.max(
-	0,
-	barHeight * Math.min(1.5, Math.max(0, reflect)),
+/**
+ * 竖条数量 / 画布几何：只取挂载时的配置值。
+ *
+ * `levels` / `peaks` 是按 `count` 预分配的定长数组，运行中改 props 也不会重建，
+ * 所以"只读一次"才是正确语义。用 `untrack` 把这个意图写明，同时消掉 Svelte 的
+ * `state_referenced_locally` 警告（它提醒的是"普通读只捕获当下值，之后不跟随"）。
+ */
+const count = untrack(() => Math.max(8, Math.min(96, Math.round(bars))));
+const barHeight = untrack(() => Math.max(8, height));
+const reflectHeight = untrack(() =>
+	Math.max(0, barHeight * Math.min(1.5, Math.max(0, reflect))),
 );
 const totalHeight = barHeight + reflectHeight;
 

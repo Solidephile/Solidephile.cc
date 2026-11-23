@@ -32,7 +32,7 @@ const widgetId =
     <!-- Info Section -->
     <div class="flex-1 min-w-0 flex flex-col overflow-hidden">
         <div class="flex items-center justify-between overflow-hidden gap-2">
-            <div class="flex-1 min-w-0 overflow-hidden relative">
+            <div class="music-title-viewport flex-1 min-w-0 overflow-hidden relative">
                 <h3 class="music-title font-bold text-base text-neutral-800 dark:text-neutral-100 leading-tight truncate">
                     {i18n(I18nKey.music)}
                 </h3>
@@ -149,5 +149,29 @@ const widgetId =
         content: "";
         position: absolute;
         inset: -6px 0;
+    }
+
+    /* ── 长歌名轮播 ─────────────────────────────────────────
+       轨道与段落是 MusicPlayerView 的脚本动态创建的，不在本组件模板里，
+       所以必须用 :global（Astro 的作用域类只打在编译期存在的元素上）。 */
+    :global(.mt-track) {
+        display: inline-flex;
+        white-space: nowrap;
+        will-change: transform;
+    }
+    :global(.mt-seg),
+    :global(.mt-gap) {
+        flex: none;
+    }
+
+    /* 轮播期间两端淡出：mask 让文字自己淡掉、透出底层，
+       不用猜卡片 / 导航栏的底色（半透明 + 模糊时叠色会猜错）。
+       左侧宽度由脚本用 --mt-fade-l 从 0 逐渐长到 --mt-fade（跟着文字一起展开）。 */
+    .music-title-viewport {
+        --mt-fade: 16px;
+    }
+    .music-title-viewport.is-marquee {
+        -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--mt-fade-l, var(--mt-fade)), #000 calc(100% - var(--mt-fade)), transparent);
+        mask-image: linear-gradient(to right, transparent, #000 var(--mt-fade-l, var(--mt-fade)), #000 calc(100% - var(--mt-fade)), transparent);
     }
 </style>

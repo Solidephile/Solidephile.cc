@@ -27,6 +27,16 @@ function isCurrent(entry: MusicListEntry): boolean {
 	return current !== "" && current === entry.track.audio;
 }
 
+/** 本地行的元数据：artist · 年份 · 时长 · BPM（分类单独做成行尾胶囊） */
+function metaText(entry: MusicListEntry): string {
+	const parts = [entry.track.artist];
+	if (entry.year) parts.push(entry.year);
+	if (entry.track.duration > 0)
+		parts.push(formatDuration(entry.track.duration));
+	if (entry.track.bpm != null) parts.push(`${entry.track.bpm} BPM`);
+	return parts.join(" · ");
+}
+
 async function loadMeting(): Promise<void> {
 	if (metingStatus === "loading" || metingStatus === "ready") return;
 
@@ -93,8 +103,8 @@ function playMetingRow(entry: MusicListEntry, index: number): void {
 
 		<p class="hint">
 			{mode === "local"
-				? "本地曲目为完整版，有单曲页面"
-				: "网易云VIP歌曲只有试听，无单曲页面"}
+				? "完整音源 · 独立单曲页"
+				: "在线试听 · 无单曲页"}
 		</p>
 	</div>
 
@@ -114,30 +124,24 @@ function playMetingRow(entry: MusicListEntry, index: number): void {
 
 						<div class="body">
 							{#if entry.track.slug}
-								<a class="title text-90" href={`/music/${entry.track.slug}/`}>{entry.track.title}</a>
+								<a class="title text-90" href={`/music/${entry.track.slug}/`}>
+									<span class="title-text">{entry.track.title}</span>
+									<!-- 箭头在链接内部：点标题或点箭头都进单曲页。文字放进
+									     .title-text 里负责截断，箭头不参与收缩 -->
+									<svg class="title-arrow" viewBox="0 0 16 16" aria-hidden="true">
+										<path d="M6 3l5 5-5 5" />
+									</svg>
+								</a>
 							{:else}
 								<span class="title text-90">{entry.track.title}</span>
 							{/if}
 
 							<p class="meta">
-								<span>{entry.track.artist}</span>
-								{#if entry.year}<span>{entry.year}</span>{/if}
-								{#if entry.track.duration > 0}
-									<span>{formatDuration(entry.track.duration)}</span>
+								{metaText(entry)}
+								{#if entry.category}
+									<span class="meta-tag">{entry.category}</span>
 								{/if}
-								{#if entry.track.bpm != null}
-									<span>{entry.track.bpm} BPM</span>
-								{/if}
-								{#if entry.category}<span>{entry.category}</span>{/if}
 							</p>
-
-							{#if entry.tags && entry.tags.length > 0}
-								<ul class="tags">
-									{#each entry.tags.slice(0, 3) as tag (tag)}
-										<li>{tag}</li>
-									{/each}
-								</ul>
-							{/if}
 						</div>
 
 						{#if active && player.playing}
@@ -274,8 +278,18 @@ function playMetingRow(entry: MusicListEntry, index: number): void {
 		transition: background-color 160ms ease;
 	}
 
-	.row + .row {
-		border-top: 1px solid var(--line-divider);
+	/* 分割线用伪元素画成直线：给 .row 直接加 border-top 的话，1px 边框会沿着
+	   圆角往下拐，行与行之间会露出一小段弧（左上 / 右上角），深色下也看得见。
+	   长度取高亮圆角卡片顶边的直线段：两端各让出一个圆角半径 */
+	.row + .row::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: var(--radius-large);
+		right: var(--radius-large);
+		height: 1px;
+		background-color: var(--line-divider);
+		pointer-events: none;
 	}
 
 	/* 两档主题色底色：hover = 很淡的一层，当前曲目 = 再浓一档。
@@ -329,14 +343,16 @@ function playMetingRow(entry: MusicListEntry, index: number): void {
 		outline-offset: -2px;
 	}
 
-	/* 正在播放：右侧的跳动频谱（和导航栏播放器列表里那套动画一致） */
+	/* 正在播放：右侧的跳动频谱（和导航栏播放器列表里那套动画一致）。
+	   右端留白和分割线对齐：行的右 padding 0.25rem + 这里的 0.75rem = 1rem，
+	   等于 --radius-large，所以图标正好落在高亮圆角卡片的直线段右端 */
 	.eq {
 		display: flex;
 		flex-shrink: 0;
 		align-items: flex-end;
 		gap: 2px;
 		height: 0.85rem;
-		margin-right: 0.15rem;
+		margin-right: 0.75rem;
 		color: var(--primary);
 	}
 
@@ -396,37 +412,87 @@ function playMetingRow(entry: MusicListEntry, index: number): void {
 	a.title {
 		position: relative;
 		z-index: 2;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
 	}
 
-	/* 只有可点的标题（本地曲目的链接）给 hover 反馈 */
-	a.title:hover {
+	/* 截断交给内层文字：长标题只掐文字，右侧箭头始终留在原地 */
+	a.title .title-text {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	/* 「进入单曲页」的提示箭头：默认用比标题（black/90）稍浅的深灰，
+	   保持「提示」的强度而不是正文；hover / 键盘 focus 到标题时变主题色
+	   并右移 2px，指向「前进」 */
+	a.title .title-arrow {
+		flex-shrink: 0;
+		width: 0.875rem;
+		height: 0.875rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.75;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		color: rgba(0, 0, 0, 0.8);
+		transition:
+			color 150ms ease,
+			transform 150ms ease;
+	}
+
+	/* 深色模式对称处理：压暗的白，比标题的 white/90 退一档 */
+	:global(.dark) a.title .title-arrow {
+		color: rgba(255, 255, 255, 0.72);
+	}
+
+	a.title:hover,
+	a.title:focus-visible {
 		color: var(--primary);
 	}
 
+	a.title:hover .title-arrow,
+	a.title:focus-visible .title-arrow {
+		color: var(--primary);
+		transform: translateX(2px);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		a.title .title-arrow {
+			transition: color 150ms ease;
+		}
+
+		a.title:hover .title-arrow,
+		a.title:focus-visible .title-arrow {
+			transform: none;
+		}
+	}
+
+	/* 元数据一行：artist · 年份 · 时长 · BPM，行尾跟分类胶囊。
+	   不排成 flex，让文字自然换行（窄屏宁可两行也不丢信息） */
 	.meta {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.35rem 0.75rem;
 		margin: 0;
 		color: var(--content-meta);
 		font-size: 0.75rem;
+		line-height: 1.5;
 	}
 
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.3rem;
-		margin: 0.1rem 0 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.tags li {
+	/* 分类胶囊：行尾的「归属」标记，沿用原来标签那套淡主题色底。
+	   对齐用默认的 vertical-align: baseline —— inline-flex 的基线取自第一个
+	   flex 项，这样胶囊里的文字和元数据文字落在同一条基线上；用 middle
+	   （按盒子中线对齐）时胶囊盒会比文字低 1px 左右，看起来像没对齐 */
+	.meta-tag {
+		display: inline-flex;
+		align-items: center;
+		margin-left: 0.35rem;
 		padding: 0.05rem 0.45rem;
 		border-radius: 999px;
 		background: color-mix(in oklab, var(--primary) 12%, transparent);
 		color: var(--content-meta);
 		font-size: 0.6875rem;
+		line-height: 1.35;
 	}
 
 	.empty {
