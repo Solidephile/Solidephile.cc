@@ -109,7 +109,10 @@ const widgetId =
                  scrollTop 赋值，会和 MusicPlayerView.astro 里的 rAF 补间打架（每一帧自己
                  再被平滑一次，动画就废了）。滚动动画由脚本负责。 -->
             <div class="lrc-container h-48 overflow-y-auto custom-scrollbar flex flex-col items-center gap-2 p-4 py-24 text-center relative" role="listbox" aria-label={i18n(I18nKey.musicLyrics)}>
-                <div class="text-neutral-400 text-sm py-10" role="option">{i18n(I18nKey.musicNoLyrics)}</div>
+                <!-- 初始占位：与 StateMessage 的 inline 档 / MusicPlayerView 的 lyricStateMarkup 同一套 class -->
+                <div class="flex w-full flex-col items-center justify-center text-center py-8">
+                    <p class="m-0 font-semibold text-black/80 dark:text-white/80 text-sm">{i18n(I18nKey.musicNoLyrics)}</p>
+                </div>
             </div>
         </div>
     </div>

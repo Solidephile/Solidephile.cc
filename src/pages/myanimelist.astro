@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import MalGrid from "@/components/pages/mal/MalGrid.svelte";
 import { siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
@@ -170,30 +171,19 @@ const activeCategory = categories[0]?.id || "anime";
 
         {!isConfigured ? (
           /* 未配置提示 */
-          <div class="text-center py-16">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-              <Icon is:inline name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
-            </div>
-            <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
-              {i18n(I18nKey.malNotConfigured)}
-            </h2>
-            <p class="text-black/60 dark:text-white/60 mb-4 max-w-md mx-auto">
-              {i18n(I18nKey.malNotConfiguredDesc)}
-            </p>
-          </div>
+          <StateMessage
+            icon="material-symbols:settings"
+            title={i18n(I18nKey.malNotConfigured)}
+            description={i18n(I18nKey.malNotConfiguredDesc)}
+          />
         ) : fetchFailed ? (
           /* 获取失败提示 */
-          <div class="text-center py-16">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-              <Icon is:inline name="material-symbols:error-outline" class="text-[2rem] text-red-500" />
-            </div>
-            <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
-              {i18n(I18nKey.malFetchError)}
-            </h2>
-            <p class="text-black/60 dark:text-white/60 mb-4 max-w-md mx-auto">
-              {i18n(I18nKey.malFetchErrorDesc)}
-            </p>
-          </div>
+          <StateMessage
+            variant="error"
+            icon="material-symbols:error-outline"
+            title={i18n(I18nKey.malFetchError)}
+            description={i18n(I18nKey.malFetchErrorDesc)}
+          />
         ) : categories.length > 0 ? (
           /* 分类网格（Svelte 交互组件） */
           <MalGrid
@@ -206,17 +196,11 @@ const activeCategory = categories[0]?.id || "anime";
           />
         ) : (
           /* 空列表提示 */
-          <div class="text-center py-16">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-              <Icon is:inline name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
-            </div>
-            <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
-              {isConfigured ? i18n(I18nKey.malEmpty) : i18n(I18nKey.malNotConfigured)}
-            </h2>
-            <p class="text-black/60 dark:text-white/60 mb-4 max-w-md mx-auto">
-              {isConfigured ? i18n(I18nKey.malEmptyReason) : i18n(I18nKey.malNotConfiguredDesc)}
-            </p>
-          </div>
+          <StateMessage
+            icon="material-symbols:settings"
+            title={isConfigured ? i18n(I18nKey.malEmpty) : i18n(I18nKey.malNotConfigured)}
+            description={isConfigured ? i18n(I18nKey.malEmptyReason) : i18n(I18nKey.malNotConfiguredDesc)}
+          />
         )}
       </div>
     </div>

@@ -1,6 +1,8 @@
 <script lang="ts">
 import { onMount, tick } from "svelte";
 import ClientPagination from "@/components/common/ClientPagination.svelte";
+import LoadingState from "@/components/common/LoadingState.svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import { formatTimezoneOffset } from "@/utils/date-utils";
 import { fetchMemos } from "@/utils/memos-adapter";
 import { registerDynamicGallery } from "./dynamic-gallery";
@@ -327,13 +329,21 @@ onMount(() => {
 </script>
 
 {#if loading}
-	<div class="page-loading card-base" role="status">
-		<span class="page-loading-spinner" aria-hidden="true"></span>
-		<p>{loadingText}</p>
+	<div class="card-base">
+		<LoadingState text={loadingText} />
 	</div>
-{:else if failed || entries.length === 0}
-	<div class="page-empty card-base">
-		<p>{emptyText}</p>
+{:else if failed}
+	<div class="card-base">
+		<StateMessage
+			variant="error"
+			icon="material-symbols:error-outline"
+			title="动态加载失败"
+			description="请稍后刷新页面重试"
+		/>
+	</div>
+{:else if entries.length === 0}
+	<div class="card-base">
+		<StateMessage icon="material-symbols:today" title={emptyText} />
 	</div>
 {:else if filtered.length === 0}
 	<div class="page-no-results card-base">

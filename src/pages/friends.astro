@@ -3,6 +3,7 @@ import { getEntry, render } from "astro:content";
 import Comment from "@components/comment/index.astro";
 import Markdown from "@components/common/Markdown.astro";
 import { Icon } from "astro-icon/components";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import {
 	commentConfig,
 	friendsPageConfig,
@@ -102,9 +103,11 @@ const description =
       <div class="friends-grid my-4">
         {
           items.length === 0 && (
-            <div class="col-span-full flex flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
-              <Icon is:inline name="material-symbols:group-off-outline" class="text-4xl mb-3" />
-              <div class="text-sm">{i18n(I18nKey.friendsEmpty)}</div>
+            <div class="col-span-full">
+              <StateMessage
+                icon="material-symbols:group-off-outline"
+                title={i18n(I18nKey.friendsEmpty)}
+              />
             </div>
           )
         }
@@ -167,9 +170,12 @@ const description =
       </div>
 
       {/* 搜索无结果提示 */}
-      <div class="friends-empty hidden flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
-        <Icon is:inline name="material-symbols:search-off-rounded" class="text-4xl mb-3" />
-        <div class="text-sm">{i18n(I18nKey.searchNoResults)}</div>
+      <div class="friends-empty hidden">
+        <StateMessage
+          size="compact"
+          icon="material-symbols:search-off-rounded"
+          title={i18n(I18nKey.searchNoResults)}
+        />
       </div>
     </div>
   </div>

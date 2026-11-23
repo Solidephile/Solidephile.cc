@@ -98,9 +98,9 @@ const remoteReferrerPolicy =
 		</div>
 	)}
 
-	<!-- 错误提示 -->
-	<div class="error-message absolute inset-0 items-center justify-center z-20 hidden pointer-events-none">
-		<span class="text-white text-sm px-3 py-1 rounded-sm bg-black/50">Image API Error</span>
+	<!-- 错误提示：远程封面全部失败时显示（本地图不触发） -->
+	<div class="error-message absolute inset-0 items-center justify-center z-20 hidden pointer-events-none" role="status" aria-live="polite">
+		<span class="text-white text-sm px-3 py-1 rounded-sm bg-black/50">图片加载失败</span>
 	</div>
 
 	<!-- 本地图片 -->

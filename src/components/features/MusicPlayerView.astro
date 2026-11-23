@@ -593,6 +593,18 @@ const viewConfigStr = JSON.stringify({
         }
 
         /**
+         * 歌词抽屉的「加载中 / 失败 / 无歌词」占位。
+         * 与 StateMessage 的 inline 档保持同一套 class —— 这个脚本是 is:inline、
+         * import 不到 Svelte 组件，只能手写同样的结构（改样式时两边一起改，
+         * 见 HANDOVER §4.9）。
+         */
+        function lyricStateMarkup(title) {
+            return '<div class="flex w-full flex-col items-center justify-center text-center py-8">' +
+                '<p class="m-0 font-semibold text-black/80 dark:text-white/80 text-sm">' + title + '</p>' +
+                '</div>';
+        }
+
+        /**
          * 渲染结构化歌词（解析在页面控制器里做，见 player.svelte.ts）。
          * 每行 = 原文（保留 {c:} 的行内颜色）+ 可选的翻译小字；点一行跳到那一句。
          */
@@ -601,15 +613,15 @@ const viewConfigStr = JSON.stringify({
             local.currentLrcIndex = -1;
             ui.lrcContainer.innerHTML = '';
             if (status === 'loading') {
-                ui.lrcContainer.innerHTML = '<div class="text-neutral-400 text-sm py-10">' + cfg.i18n.loadingLyrics + '</div>';
+                ui.lrcContainer.innerHTML = lyricStateMarkup(cfg.i18n.loadingLyrics);
                 return;
             }
             if (status === 'failed') {
-                ui.lrcContainer.innerHTML = '<div class="text-neutral-400 text-sm py-10">' + cfg.i18n.failedLyrics + '</div>';
+                ui.lrcContainer.innerHTML = lyricStateMarkup(cfg.i18n.failedLyrics);
                 return;
             }
             if (local.lyrics.length === 0) {
-                ui.lrcContainer.innerHTML = '<div class="text-neutral-400 text-sm py-10" role="option">' + cfg.i18n.noLyrics + '</div>';
+                ui.lrcContainer.innerHTML = lyricStateMarkup(cfg.i18n.noLyrics);
                 return;
             }
 

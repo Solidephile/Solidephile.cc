@@ -1,6 +1,7 @@
 <script lang="ts">
 import ClientPagination from "@components/common/ClientPagination.svelte";
 import { untrack } from "svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import TabNav from "@/components/common/TabNav.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -183,12 +184,11 @@ function closeDetail() {
 			{/each}
 		</div>
 	{:else}
-		<div class="py-16 text-center">
-			<svg class="mx-auto h-12 w-12 text-neutral-300 dark:text-neutral-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-			</svg>
-			<p class="text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeNoResults)}</p>
-		</div>
+		<StateMessage
+			size="compact"
+			icon="material-symbols:search-off-rounded"
+			title={i18n(I18nKey.animeNoResults)}
+		/>
 	{/if}
 
 	<!-- 分页 -->

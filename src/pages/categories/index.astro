@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
@@ -57,12 +58,11 @@ const totalPosts = categories.reduce((sum, cat) => sum + cat.count, 0);
     <!-- 空状态 -->
     {
         categories.length === 0 && (
-            <div class="card-base px-8 py-12 text-center">
-                <Icon is:inline
-                    name="material-symbols:folder-off"
-                    class="text-5xl text-30 mx-auto mb-4"
+            <div class="card-base">
+                <StateMessage
+                    icon="material-symbols:folder-off"
+                    title={i18n(I18nKey.noData)}
                 />
-                <p class="text-30">{i18n(I18nKey.noData)}</p>
             </div>
         )
     }

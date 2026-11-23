@@ -1,4 +1,6 @@
 <script lang="ts">
+import StateMessage from "@/components/common/StateMessage.svelte";
+
 interface Item {
 	name: string;
 	value: number;
@@ -25,9 +27,7 @@ function formatNumber(value: number): string {
 </script>
 
 {#if items.length === 0}
-	<p class="py-8 text-center text-sm text-neutral-400 dark:text-neutral-500">
-		{emptyText}
-	</p>
+	<StateMessage size="inline" title={emptyText} />
 {:else}
 	<ul class="flex flex-col gap-1">
 		{#each items as item (item.name)}

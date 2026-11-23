@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import GridSkeleton from "@/components/common/GridSkeleton.svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import TabNav from "@/components/common/TabNav.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -58,6 +59,8 @@ $effect(() => {
 });
 let errorTitle = $state("");
 let errorDesc = $state("");
+/** 同一次「失败」要区分取数失败和空数据：两者共用 error 流程，但视觉不同 */
+let errorVariant = $state<"error" | "empty">("error");
 let updateTimestamp = $state("");
 
 // 动态模式的数据
@@ -152,6 +155,7 @@ async function loadDynamicData() {
 			console.error(`[Bangumi] Failed to fetch ${catKey} data:`, e);
 			fetchLoading = false;
 			error = true;
+			errorVariant = "error";
 			errorTitle = i18n(I18nKey.bangumiFetchError);
 			errorDesc = i18n(I18nKey.bangumiFetchErrorDesc);
 			return;
@@ -161,6 +165,7 @@ async function loadDynamicData() {
 	if (newTabs.length === 0 || newTabs.every((t) => t.count === 0)) {
 		fetchLoading = false;
 		error = true;
+		errorVariant = "empty";
 		errorTitle = i18n(I18nKey.bangumiNoData);
 		errorDesc = i18n(I18nKey.bangumiNoDataDescription);
 		return;
@@ -202,13 +207,12 @@ onMount(async () => {
 {#if isDynamic && loading}
   <GridSkeleton />
 {:else if isDynamic && error}
-  <div class="text-center py-16">
-    <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-      <span class="text-[2rem] text-red-500">⚠</span>
-    </div>
-    <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">{errorTitle}</h2>
-    <p class="text-black/60 dark:text-white/60 mb-4 max-w-md mx-auto">{errorDesc}</p>
-  </div>
+  <StateMessage
+    variant={errorVariant}
+    icon={errorVariant === "empty" ? "material-symbols:movie-filter" : "material-symbols:error-outline"}
+    title={errorTitle}
+    description={errorDesc}
+  />
 {:else if tabs.length > 0}
   <TabNav {tabs} {activeTab} onTabChange={handleTabChange} />
 

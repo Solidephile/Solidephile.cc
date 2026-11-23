@@ -8,7 +8,7 @@ export const ja: Translation = {
 	[Key.search]: "検索",
 	[Key.searchNoResults]: "結果が見つかりません。",
 	[Key.searchTypeSomething]: "検索キーワードを入力してください。",
-	[Key.searchLoading]: "検索中...",
+	[Key.searchLoading]: "検索中…",
 	[Key.searchSummary]: "摘要",
 	[Key.searchContent]: "内容",
 	[Key.searchViewMore]: "さらに結果を表示 ({count} 件)",
@@ -37,7 +37,7 @@ export const ja: Translation = {
 	[Key.moreDynamics]: "もっと見る",
 	[Key.dynamicDescription]: "日々の短い思いや出来事を記録します。",
 	[Key.dynamicEmpty]: "まだ投稿がありません",
-	[Key.dynamicSearch]: "投稿を検索...",
+	[Key.dynamicSearch]: "投稿を検索…",
 	[Key.dynamicNoResults]: "一致する投稿がありません",
 	[Key.dynamicLoading]: "投稿を読み込んでいます",
 	[Key.dynamicAllYears]: "すべての年",
@@ -59,7 +59,7 @@ export const ja: Translation = {
 	[Key.musicNext]: "次の曲",
 	[Key.musicPlaylist]: "プレイリスト",
 	[Key.musicNoLyrics]: "歌詞なし",
-	[Key.musicLoadingLyrics]: "歌詞を読み込み中...",
+	[Key.musicLoadingLyrics]: "歌詞を読み込み中…",
 	[Key.musicFailedLyrics]: "歌詞の読み込みに失敗しました",
 	[Key.musicNoSongs]: "曲なし",
 	[Key.musicError]: "プレーヤーエラー",
@@ -83,11 +83,11 @@ export const ja: Translation = {
 	[Key.friends]: "友達",
 	[Key.friendsDescription]:
 		"ここは私の友達です、お互いに訪問して交流することを歓迎します",
-	[Key.searchFriends]: "友達を検索...",
+	[Key.searchFriends]: "友達を検索…",
 	[Key.friendsEmpty]: "まだ友達がいません",
 	[Key.booknav]: "ブックマーク集",
 	[Key.booknavDescription]: "便利なサイトをカテゴリ別に集めました",
-	[Key.searchBooknav]: "ブックマークを検索...",
+	[Key.searchBooknav]: "ブックマークを検索…",
 	[Key.booknavEmpty]: "ブックマークがありません",
 
 	// プロジェクト展示ページ
@@ -238,7 +238,7 @@ export const ja: Translation = {
 	// 追番 - 共通コンポーネント
 	[Key.animeTotal]: "合計",
 	[Key.animeAverageRating]: "平均評価",
-	[Key.animeSearch]: "アニメを検索...",
+	[Key.animeSearch]: "アニメを検索…",
 	[Key.animeAllTypes]: "すべて",
 	[Key.animeTV]: "TV アニメ",
 	[Key.animeMovie]: "映画",
@@ -355,7 +355,7 @@ export const ja: Translation = {
 
 	// ページビュー統計
 	[Key.pageViews]: "閲覧数",
-	[Key.pageViewsLoading]: "読み込み中...",
+	[Key.pageViewsLoading]: "読み込み中…",
 	[Key.pageViewsError]: "統計利用不可",
 
 	// ピン留め
@@ -491,7 +491,7 @@ export const ja: Translation = {
 	[Key.advertisement]: "広告",
 
 	[Key.shareArticle]: "共有",
-	[Key.generatingPoster]: "ポスター生成中...",
+	[Key.generatingPoster]: "ポスター生成中…",
 	[Key.copied]: "コピーしました",
 	[Key.copyLink]: "リンクをコピー",
 	[Key.savePoster]: "ポスターを保存",
@@ -511,7 +511,7 @@ export const ja: Translation = {
 	[Key.galleryNoAlbums]: "アルバムがありません",
 	[Key.galleryBackToAlbums]: "アルバム一覧に戻る",
 	[Key.galleryEnterAlbum]: "アルバムを見る",
-	[Key.searchAlbums]: "アルバムを検索...",
+	[Key.searchAlbums]: "アルバムを検索…",
 
 	// パスワード保護
 	[Key.passwordProtected]: "パスワード保護",

@@ -7,8 +7,8 @@ export const en: Translation = {
 	[Key.archive]: "Archive",
 	[Key.search]: "Search",
 	[Key.searchNoResults]: "No results found.",
-	[Key.searchTypeSomething]: "Type something to search...",
-	[Key.searchLoading]: "Searching...",
+	[Key.searchTypeSomething]: "Type something to search…",
+	[Key.searchLoading]: "Searching…",
 	[Key.searchSummary]: "Summary",
 	[Key.searchContent]: "Content",
 	[Key.searchViewMore]: "View more results ({count} more)",
@@ -37,7 +37,7 @@ export const en: Translation = {
 	[Key.moreDynamics]: "More moments",
 	[Key.dynamicDescription]: "Short thoughts and everyday moments.",
 	[Key.dynamicEmpty]: "No moments have been posted yet",
-	[Key.dynamicSearch]: "Search moments...",
+	[Key.dynamicSearch]: "Search moments…",
 	[Key.dynamicNoResults]: "No matching moments found",
 	[Key.dynamicLoading]: "Loading moments",
 	[Key.dynamicAllYears]: "All years",
@@ -59,7 +59,7 @@ export const en: Translation = {
 	[Key.musicNext]: "Next",
 	[Key.musicPlaylist]: "Playlist",
 	[Key.musicNoLyrics]: "No lyrics available",
-	[Key.musicLoadingLyrics]: "Loading lyrics...",
+	[Key.musicLoadingLyrics]: "Loading lyrics…",
 	[Key.musicFailedLyrics]: "Failed to load lyrics",
 	[Key.musicNoSongs]: "No songs",
 	[Key.musicError]: "Player Error",
@@ -83,12 +83,12 @@ export const en: Translation = {
 	[Key.friends]: "Friends",
 	[Key.friendsDescription]:
 		"Here are my friends, welcome to visit and communicate with each other",
-	[Key.searchFriends]: "Search friends...",
+	[Key.searchFriends]: "Search friends…",
 	[Key.friendsEmpty]: "No friends yet.",
 	[Key.booknav]: "Bookmark Nav",
 	[Key.booknavDescription]:
 		"A curated collection of useful sites, organized by category.",
-	[Key.searchBooknav]: "Search bookmarks...",
+	[Key.searchBooknav]: "Search bookmarks…",
 	[Key.booknavEmpty]: "No bookmarks yet.",
 
 	// Project showcase
@@ -239,7 +239,7 @@ export const en: Translation = {
 	// Anime Tracking - Shared components
 	[Key.animeTotal]: "Total",
 	[Key.animeAverageRating]: "Avg Rating",
-	[Key.animeSearch]: "Search anime...",
+	[Key.animeSearch]: "Search anime…",
 	[Key.animeAllTypes]: "All",
 	[Key.animeTV]: "TV Anime",
 	[Key.animeMovie]: "Movie",
@@ -358,7 +358,7 @@ export const en: Translation = {
 
 	// Page Views Statistics
 	[Key.pageViews]: "Views",
-	[Key.pageViewsLoading]: "Loading...",
+	[Key.pageViewsLoading]: "Loading…",
 	[Key.pageViewsError]: "Stats unavailable",
 
 	// Pinned
@@ -494,7 +494,7 @@ export const en: Translation = {
 	[Key.advertisement]: "Advertisement",
 
 	[Key.shareArticle]: "Share",
-	[Key.generatingPoster]: "Generating Poster...",
+	[Key.generatingPoster]: "Generating Poster…",
 	[Key.copied]: "Copied",
 	[Key.copyLink]: "Copy Link",
 	[Key.savePoster]: "Save Poster",
@@ -514,7 +514,7 @@ export const en: Translation = {
 	[Key.galleryNoAlbums]: "No albums yet",
 	[Key.galleryBackToAlbums]: "Back to albums",
 	[Key.galleryEnterAlbum]: "Enter album",
-	[Key.searchAlbums]: "Search albums...",
+	[Key.searchAlbums]: "Search albums…",
 
 	// Password Protection
 	[Key.passwordProtected]: "Password Protected",

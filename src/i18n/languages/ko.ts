@@ -7,8 +7,8 @@ export const ko: Translation = {
 	[Key.archive]: "아카이브",
 	[Key.search]: "검색",
 	[Key.searchNoResults]: "검색 결과가 없습니다.",
-	[Key.searchTypeSomething]: "검색어를 입력하세요...",
-	[Key.searchLoading]: "검색 중...",
+	[Key.searchTypeSomething]: "검색어를 입력하세요…",
+	[Key.searchLoading]: "검색 중…",
 	[Key.searchSummary]: "요약",
 	[Key.searchContent]: "내용",
 	[Key.searchViewMore]: "더 많은 결과 보기 ({count}개 더)",
@@ -37,7 +37,7 @@ export const ko: Translation = {
 	[Key.moreDynamics]: "더 많은 일상",
 	[Key.dynamicDescription]: "짧은 생각과 일상을 기록합니다.",
 	[Key.dynamicEmpty]: "아직 게시된 일상이 없습니다",
-	[Key.dynamicSearch]: "일상 검색...",
+	[Key.dynamicSearch]: "일상 검색…",
 	[Key.dynamicNoResults]: "일치하는 일상이 없습니다",
 	[Key.dynamicLoading]: "일상을 불러오는 중",
 	[Key.dynamicAllYears]: "모든 연도",
@@ -59,7 +59,7 @@ export const ko: Translation = {
 	[Key.musicNext]: "다음 곡",
 	[Key.musicPlaylist]: "재생목록",
 	[Key.musicNoLyrics]: "가사 없음",
-	[Key.musicLoadingLyrics]: "가사 불러오는 중...",
+	[Key.musicLoadingLyrics]: "가사 불러오는 중…",
 	[Key.musicFailedLyrics]: "가사를 불러오지 못했습니다",
 	[Key.musicNoSongs]: "곡 없음",
 	[Key.musicError]: "플레이어 오류",
@@ -83,11 +83,11 @@ export const ko: Translation = {
 	[Key.friends]: "친구",
 	[Key.friendsDescription]:
 		"여기는 제 친구들입니다. 방문하여 서로 교류해 보세요",
-	[Key.searchFriends]: "친구 검색...",
+	[Key.searchFriends]: "친구 검색…",
 	[Key.friendsEmpty]: "아직 친구가 없습니다.",
 	[Key.booknav]: "북마크 모음",
 	[Key.booknavDescription]: "유용한 사이트를 카테고리별로 모았습니다.",
-	[Key.searchBooknav]: "북마크 검색...",
+	[Key.searchBooknav]: "북마크 검색…",
 	[Key.booknavEmpty]: "북마크가 없습니다.",
 
 	// 프로젝트 쇼케이스
@@ -238,7 +238,7 @@ export const ko: Translation = {
 	// Anime Tracking - Shared components
 	[Key.animeTotal]: "총계",
 	[Key.animeAverageRating]: "평균 평점",
-	[Key.animeSearch]: "애니메이션 검색...",
+	[Key.animeSearch]: "애니메이션 검색…",
 	[Key.animeAllTypes]: "전체",
 	[Key.animeTV]: "TV 애니메이션",
 	[Key.animeMovie]: "극장판",
@@ -356,7 +356,7 @@ export const ko: Translation = {
 
 	// Page Views Statistics
 	[Key.pageViews]: "조회수",
-	[Key.pageViewsLoading]: "불러오는 중...",
+	[Key.pageViewsLoading]: "불러오는 중…",
 	[Key.pageViewsError]: "통계를 불러올 수 없습니다",
 
 	// Pinned
@@ -491,7 +491,7 @@ export const ko: Translation = {
 	[Key.advertisement]: "광고",
 
 	[Key.shareArticle]: "공유",
-	[Key.generatingPoster]: "포스터 생성 중...",
+	[Key.generatingPoster]: "포스터 생성 중…",
 	[Key.copied]: "복사됨",
 	[Key.copyLink]: "링크 복사",
 	[Key.savePoster]: "포스터 저장",
@@ -511,7 +511,7 @@ export const ko: Translation = {
 	[Key.galleryNoAlbums]: "아직 앨범이 없습니다",
 	[Key.galleryBackToAlbums]: "앨범으로 돌아가기",
 	[Key.galleryEnterAlbum]: "앨범 보기",
-	[Key.searchAlbums]: "앨범 검색...",
+	[Key.searchAlbums]: "앨범 검색…",
 
 	// Password Protection
 	[Key.passwordProtected]: "비밀번호로 보호됨",

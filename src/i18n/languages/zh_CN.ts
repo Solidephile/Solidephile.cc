@@ -8,7 +8,7 @@ export const zh_CN: Translation = {
 	[Key.search]: "搜索",
 	[Key.searchNoResults]: "找不到相关结果。",
 	[Key.searchTypeSomething]: "请输入搜索关键词。",
-	[Key.searchLoading]: "正在搜索...",
+	[Key.searchLoading]: "正在搜索…",
 	[Key.searchSummary]: "摘要",
 	[Key.searchContent]: "内容",
 	[Key.searchViewMore]: "查看更多结果 ({count} 个更多)",
@@ -37,7 +37,7 @@ export const zh_CN: Translation = {
 	[Key.moreDynamics]: "更多动态",
 	[Key.dynamicDescription]: "随手记下此刻的想法与日常。",
 	[Key.dynamicEmpty]: "还没有发布动态",
-	[Key.dynamicSearch]: "搜索动态...",
+	[Key.dynamicSearch]: "搜索动态…",
 	[Key.dynamicNoResults]: "没有找到匹配的动态",
 	[Key.dynamicLoading]: "正在加载动态",
 	[Key.dynamicAllYears]: "全部年份",
@@ -59,7 +59,7 @@ export const zh_CN: Translation = {
 	[Key.musicNext]: "下一首",
 	[Key.musicPlaylist]: "列表",
 	[Key.musicNoLyrics]: "暂无歌词",
-	[Key.musicLoadingLyrics]: "正在加载歌词...",
+	[Key.musicLoadingLyrics]: "正在加载歌词…",
 	[Key.musicFailedLyrics]: "歌词加载失败",
 	[Key.musicNoSongs]: "暂无歌曲",
 	[Key.musicError]: "播放器错误",
@@ -82,11 +82,11 @@ export const zh_CN: Translation = {
 		"您还未在配置文件中启用评论系统，启用后访客才可在此留言",
 	[Key.friends]: "友链",
 	[Key.friendsDescription]: "这里是我的朋友们，欢迎互相访问交流",
-	[Key.searchFriends]: "搜索友链...",
+	[Key.searchFriends]: "搜索友链…",
 	[Key.friendsEmpty]: "暂无友情链接",
 	[Key.booknav]: "书签导航",
 	[Key.booknavDescription]: "收藏一些好用的网站，按分类整理",
-	[Key.searchBooknav]: "搜索书签...",
+	[Key.searchBooknav]: "搜索书签…",
 	[Key.booknavEmpty]: "暂无书签",
 
 	// 项目展示页
@@ -234,7 +234,7 @@ export const zh_CN: Translation = {
 	// 追番 - 公共组件
 	[Key.animeTotal]: "总追番",
 	[Key.animeAverageRating]: "平均评分",
-	[Key.animeSearch]: "搜索番剧...",
+	[Key.animeSearch]: "搜索番剧…",
 	[Key.animeAllTypes]: "全部",
 	[Key.animeTV]: "TV 动画",
 	[Key.animeMovie]: "电影",
@@ -348,7 +348,7 @@ export const zh_CN: Translation = {
 
 	// 访问量统计
 	[Key.pageViews]: "浏览量",
-	[Key.pageViewsLoading]: "加载中...",
+	[Key.pageViewsLoading]: "加载中…",
 	[Key.pageViewsError]: "统计不可用",
 
 	// 置顶
@@ -483,7 +483,7 @@ export const zh_CN: Translation = {
 	[Key.advertisement]: "广告",
 
 	[Key.shareArticle]: "分享",
-	[Key.generatingPoster]: "海报生成中...",
+	[Key.generatingPoster]: "海报生成中…",
 	[Key.copied]: "已复制",
 	[Key.copyLink]: "复制链接",
 	[Key.savePoster]: "保存海报",
@@ -503,7 +503,7 @@ export const zh_CN: Translation = {
 	[Key.galleryNoAlbums]: "暂无相册",
 	[Key.galleryBackToAlbums]: "返回相册列表",
 	[Key.galleryEnterAlbum]: "进入相册",
-	[Key.searchAlbums]: "搜索相簿...",
+	[Key.searchAlbums]: "搜索相簿…",
 
 	// 密码保护
 	[Key.passwordProtected]: "密码保护",

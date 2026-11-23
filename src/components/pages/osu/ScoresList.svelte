@@ -10,6 +10,7 @@
 
 import Icon from "@components/common/Icon.svelte";
 import LoadingState from "@components/common/LoadingState.svelte";
+import StateMessage from "@components/common/StateMessage.svelte";
 import { onMount } from "svelte";
 import { osuConfig } from "@/config/osuConfig";
 import type { OsuScoresData } from "@/types/osu";
@@ -50,14 +51,25 @@ onMount(async () => {
 </script>
 
 {#if error}
-	<div class="card-base p-8 text-center text-neutral-500 dark:text-neutral-400">
-		{error}
+	<div class="card-base">
+		<StateMessage
+			variant="error"
+			icon="material-symbols:error-outline"
+			title={error}
+			description="请稍后刷新页面重试"
+		/>
 	</div>
 {:else if !data}
-	<LoadingState />
+	<div class="card-base">
+		<LoadingState />
+	</div>
 {:else if pinnedScores.length === 0 && bestScores.length === 0}
-	<div class="card-base p-8 text-center text-neutral-500 dark:text-neutral-400">
-		暂无成绩数据（每日自动更新一次）
+	<div class="card-base">
+		<StateMessage
+			icon="material-symbols:trophy"
+			title="暂无成绩数据"
+			description="成绩由每日任务自动更新一次"
+		/>
 	</div>
 {:else}
 	<div class="flex flex-col gap-4">

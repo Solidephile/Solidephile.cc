@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import ProjectCard from "@/components/pages/projects/ProjectCard.astro";
 import { siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
@@ -113,16 +114,21 @@ const statusFilters = PROJECT_STATUS_KEYS.map((key) => {
 				))}
 			</div>
 		) : (
-			<div class="card-base flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
-				<Icon is:inline name="material-symbols:rocket-launch" class="text-6xl mb-4 opacity-50" />
-				<p class="text-lg">{i18n(I18nKey.projectEmpty)}</p>
+			<div class="card-base">
+				<StateMessage
+					icon="material-symbols:rocket-launch"
+					title={i18n(I18nKey.projectEmpty)}
+				/>
 			</div>
 		)}
 
 		<!-- 筛选无结果空态 -->
-		<div class="projects-empty hidden flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
-			<Icon is:inline name="material-symbols:search-off-rounded" class="text-4xl mb-3" />
-			<div class="text-sm">{i18n(I18nKey.searchNoResults)}</div>
+		<div class="projects-empty hidden">
+			<StateMessage
+				size="compact"
+				icon="material-symbols:search-off-rounded"
+				title={i18n(I18nKey.searchNoResults)}
+			/>
 		</div>
 	</section>
 

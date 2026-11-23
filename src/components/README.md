@@ -78,6 +78,8 @@
 - `FilterControls.svelte` - 筛选控制组件（胶囊筛选按钮，bangumi/vndb/mal 共用）
 - `TabNav.svelte` - 标签导航组件（支持 URL hash 深链，bangumi/vndb/mal/bilibili 共用）
 - `GridSkeleton.svelte` - 媒体网格加载骨架
+- `LoadingState.svelte` - 统一加载态（SVG 转圈 + 文案；`compact` 给侧栏这种小容器）
+- `StateMessage.svelte` - 统一空状态 / 失败状态（三档尺寸 default / compact / inline；失败态红色圆标、不提供重试）
 
 ### 🧩 widget/ - 小部件
 

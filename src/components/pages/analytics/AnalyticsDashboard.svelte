@@ -4,6 +4,7 @@ import Icon from "@/components/common/Icon.svelte";
 import LineChart from "@/components/common/LineChart.svelte";
 import LoadingState from "@/components/common/LoadingState.svelte";
 import SegmentedControl from "@/components/common/SegmentedControl.svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import AnalyticsPanel from "./AnalyticsPanel.svelte";
 import BreakdownList from "./BreakdownList.svelte";
 
@@ -183,13 +184,16 @@ const channelItems = $derived(
 
 <div class="flex flex-col gap-4">
 	{#if dashboardError}
-		<div
-			class="card-base p-10 text-center text-sm text-neutral-500 dark:text-neutral-400"
-		>
-			{dashboardError}
+		<div class="card-base">
+			<StateMessage
+				variant="error"
+				icon="material-symbols:error-outline"
+				title="站点统计加载失败"
+				description="请稍后刷新页面重试"
+			/>
 		</div>
 	{:else if !dashboard}
-		<div class="card-base p-6">
+		<div class="card-base">
 			<LoadingState />
 		</div>
 	{:else}
@@ -235,11 +239,12 @@ const channelItems = $derived(
 					: ''}"
 			>
 				{#if seriesError}
-					<p
-						class="py-16 text-center text-sm text-neutral-500 dark:text-neutral-400"
-					>
-						{seriesError}
-					</p>
+					<StateMessage
+						variant="error"
+						icon="material-symbols:error-outline"
+						title="趋势数据加载失败"
+						description="请稍后刷新页面重试"
+					/>
 				{:else if series}
 					<LineChart
 						labels={series.series.labels}

@@ -5,25 +5,29 @@
  * 不依赖离线图标集。全站（osu / analytics 等）统一用它，避免各处文案与样式不一致。
  */
 interface Props {
-	/** 文案，默认「加载中…」 */
+	/** 文案，默认「加载中…」；传空字符串就只留转圈 */
 	text?: string;
 	/** 固定高度（px）；不传则用上下内边距撑开 */
 	height?: number;
+	/** 紧凑版：侧栏这种小容器（小转圈、py-3） */
+	compact?: boolean;
 }
 
-let { text = "加载中…", height }: Props = $props();
+let { text = "加载中…", height, compact = false }: Props = $props();
 </script>
 
 <div
-	class="flex w-full flex-col items-center justify-center gap-2 {height
+	class="flex w-full flex-col items-center justify-center {height
 		? ''
-		: 'py-16'}"
+		: compact
+			? 'gap-1.5 py-3'
+			: 'gap-2 py-16'}"
 	style={height ? `height: ${height}px;` : undefined}
 	role="status"
 	aria-live="polite"
 >
 	<svg
-		class="size-5 animate-spin text-(--primary)"
+		class="motion-safe:animate-spin text-(--primary) {compact ? 'size-4' : 'size-5'}"
 		viewBox="0 0 24 24"
 		fill="none"
 		aria-hidden="true"
@@ -43,5 +47,13 @@ let { text = "加载中…", height }: Props = $props();
 			stroke-linecap="round"
 		/>
 	</svg>
-	<p class="m-0 text-sm text-neutral-500 dark:text-neutral-400">{text}</p>
+	{#if text}
+		<p
+			class="m-0 text-neutral-500 dark:text-neutral-400 {compact
+				? 'text-xs'
+				: 'text-sm'}"
+		>
+			{text}
+		</p>
+	{/if}
 </div>

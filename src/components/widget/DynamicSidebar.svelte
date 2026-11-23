@@ -6,6 +6,8 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { onMount } from "svelte";
+import LoadingState from "@/components/common/LoadingState.svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import { formatDynamicDate } from "@/utils/date-utils";
 import { fetchWithDedup } from "@/utils/fetch-dedup";
 import { fetchMemos } from "@/utils/memos-adapter";
@@ -91,16 +93,20 @@ function formatDate(timestamp: number): string {
 
 <div class="flex flex-col gap-1.5">
 	{#if loading}
-		<div class="flex justify-center p-3">
-			<svg class="size-5 animate-spin text-(--primary)" viewBox="0 0 24 24" fill="none">
-				<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/>
-				<path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-			</svg>
-		</div>
-	{:else if error || entries.length === 0}
-		<p class="m-0 p-3 text-center text-sm text-neutral-500">
-			{i18n(I18nKey.dynamicEmpty)}
-		</p>
+		<LoadingState compact text="" />
+	{:else if error}
+		<StateMessage
+			size="compact"
+			variant="error"
+			icon="material-symbols:error-outline"
+			title="动态加载失败"
+		/>
+	{:else if entries.length === 0}
+		<StateMessage
+			size="compact"
+			icon="material-symbols:today"
+			title={i18n(I18nKey.dynamicEmpty)}
+		/>
 	{:else}
 		{#each entries as entry (entry.id)}
 			{@const text = getPlainText(entry.html)}

@@ -1,6 +1,7 @@
 ---
 import Comment from "@components/comment/index.astro";
 import { Icon } from "astro-icon/components";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import { commentConfig, siteConfig, sponsorConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -178,9 +179,10 @@ function getQrLqipProps(qrCode: string) {
             ))}
           </div>
         ) : (
-          <div class="text-center py-12 text-neutral-500 dark:text-neutral-500">
-            <p>{i18n(I18nKey.sponsorEmpty)}</p>
-          </div>
+          <StateMessage
+            icon="material-symbols:favorite"
+            title={i18n(I18nKey.sponsorEmpty)}
+          />
         )}
       </div>
     </div>

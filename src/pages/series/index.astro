@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
@@ -87,9 +88,11 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
                 }
             </div>
         ) : (
-            <div class="card-base px-8 py-12 text-center">
-                <Icon is:inline name="material-symbols:layers" class="text-5xl text-30 mx-auto mb-4" />
-                <p class="text-30">{i18n(I18nKey.noSeries)}</p>
+            <div class="card-base">
+                <StateMessage
+                    icon="material-symbols:layers"
+                    title={i18n(I18nKey.noSeries)}
+                />
             </div>
         )
     }

@@ -11,6 +11,7 @@ import {
 	Tooltip,
 } from "chart.js";
 import { onDestroy, onMount } from "svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 
 Chart.register(
 	LineController,
@@ -409,10 +410,8 @@ onDestroy(() => {
 <div class="relative w-full" style={`height: ${height}px;`}>
 	<canvas bind:this={canvas}></canvas>
 	{#if series.every((item) => item.data.length === 0)}
-		<div
-			class="absolute inset-0 flex items-center justify-center text-sm text-neutral-400 dark:text-neutral-500"
-		>
-			暂无数据
+		<div class="absolute inset-0 flex items-center justify-center">
+			<StateMessage size="inline" title="暂无数据" />
 		</div>
 	{/if}
 </div>

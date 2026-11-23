@@ -1,5 +1,6 @@
 <script lang="ts">
 import { flushSync, onDestroy, onMount } from "svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import {
 	findActiveIndex,
 	LYRIC_LEAD_MS,
@@ -194,7 +195,9 @@ $effect(() => {
 	</div>
 
 	{#if lines.length === 0}
-		<p class="empty">暂无歌词</p>
+		<div class="flex w-full flex-1 items-center justify-center">
+			<StateMessage size="inline" title="暂无歌词" />
+		</div>
 	{:else}
 		<div class="scroller" bind:this={box} aria-label="歌词" role="group">
 			<div class="list" style:--lyric-gutter={`${gutter}px`}>
@@ -422,12 +425,5 @@ $effect(() => {
 		width: 1px;
 		height: 0.9rem;
 		background: color-mix(in oklab, var(--music-ink) 14%, transparent);
-	}
-
-	.empty {
-		margin: auto;
-		padding: 2rem;
-		color: var(--content-meta);
-		font-size: 0.9rem;
 	}
 </style>

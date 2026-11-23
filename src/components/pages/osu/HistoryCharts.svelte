@@ -13,6 +13,7 @@ import { onMount } from "svelte";
 import Icon from "@/components/common/Icon.svelte";
 import LoadingState from "@/components/common/LoadingState.svelte";
 import SegmentedControl from "@/components/common/SegmentedControl.svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import type { OsuHistoryItem } from "@/types/osu";
 
 import ChartCard from "./ChartCard.svelte";
@@ -98,11 +99,18 @@ let pptthPad = $derived(Math.max((pptthMax - pptthMin) * 0.15, 0.02));
 </script>
 
 {#if error}
-	<div class="card-base p-8 text-center text-neutral-500 dark:text-neutral-400">
-		历史数据加载失败
+	<div class="card-base">
+		<StateMessage
+			variant="error"
+			icon="material-symbols:error-outline"
+			title="历史数据加载失败"
+			description="请稍后刷新页面重试"
+		/>
 	</div>
 {:else if !loaded}
-	<LoadingState />
+	<div class="card-base">
+		<LoadingState />
+	</div>
 {:else}
 	<!-- 标题栏与 9 张曲线图收在同一张大卡里，卡片外的说明文字在 fullscreen 壁纸下会糊 -->
 	<section class="card-base p-4">

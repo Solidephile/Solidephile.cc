@@ -7,8 +7,8 @@ export const ru: Translation = {
 	[Key.archive]: "Архив",
 	[Key.search]: "Поиск",
 	[Key.searchNoResults]: "Результаты не найдены.",
-	[Key.searchTypeSomething]: "Введите ключевое слово для поиска...",
-	[Key.searchLoading]: "Поиск...",
+	[Key.searchTypeSomething]: "Введите ключевое слово для поиска…",
+	[Key.searchLoading]: "Поиск…",
 	[Key.searchSummary]: "Резюме",
 	[Key.searchContent]: "Содержание",
 	[Key.searchViewMore]: "Показать еще ({count} шт)",
@@ -37,7 +37,7 @@ export const ru: Translation = {
 	[Key.moreDynamics]: "Больше публикаций",
 	[Key.dynamicDescription]: "Короткие мысли и моменты повседневной жизни.",
 	[Key.dynamicEmpty]: "Пока нет публикаций",
-	[Key.dynamicSearch]: "Поиск публикаций...",
+	[Key.dynamicSearch]: "Поиск публикаций…",
 	[Key.dynamicNoResults]: "Подходящие публикации не найдены",
 	[Key.dynamicLoading]: "Загрузка публикаций",
 	[Key.dynamicAllYears]: "Все годы",
@@ -59,7 +59,7 @@ export const ru: Translation = {
 	[Key.musicNext]: "Следующий трек",
 	[Key.musicPlaylist]: "Плейлист",
 	[Key.musicNoLyrics]: "Текст песни отсутствует",
-	[Key.musicLoadingLyrics]: "Загрузка текста песни...",
+	[Key.musicLoadingLyrics]: "Загрузка текста песни…",
 	[Key.musicFailedLyrics]: "Ошибка загрузки текста песни",
 	[Key.musicNoSongs]: "Нет песен",
 	[Key.musicError]: "Ошибка плеера",
@@ -83,12 +83,12 @@ export const ru: Translation = {
 	[Key.friends]: "Ссылки",
 	[Key.friendsDescription]:
 		"Вот мои друзья, добро пожаловать посетить и общаться друг с другом",
-	[Key.searchFriends]: "Поиск друзей...",
+	[Key.searchFriends]: "Поиск друзей…",
 	[Key.friendsEmpty]: "Друзей пока нет.",
 	[Key.booknav]: "Каталог закладок",
 	[Key.booknavDescription]:
 		"Подборка полезных сайтов, сгруппированных по категориям.",
-	[Key.searchBooknav]: "Поиск закладок...",
+	[Key.searchBooknav]: "Поиск закладок…",
 	[Key.booknavEmpty]: "Закладок пока нет.",
 
 	// Витрина проектов
@@ -239,7 +239,7 @@ export const ru: Translation = {
 	// Отслеживание аниме - общие компоненты
 	[Key.animeTotal]: "Всего",
 	[Key.animeAverageRating]: "Средний рейтинг",
-	[Key.animeSearch]: "Поиск аниме...",
+	[Key.animeSearch]: "Поиск аниме…",
 	[Key.animeAllTypes]: "Все",
 	[Key.animeTV]: "TV Аниме",
 	[Key.animeMovie]: "Фильм",
@@ -359,7 +359,7 @@ export const ru: Translation = {
 
 	// Статистика просмотров
 	[Key.pageViews]: "Просмотры",
-	[Key.pageViewsLoading]: "Загрузка...",
+	[Key.pageViewsLoading]: "Загрузка…",
 	[Key.pageViewsError]: "Статистика недоступна",
 
 	// Закреплено
@@ -495,7 +495,7 @@ export const ru: Translation = {
 	[Key.advertisement]: "Реклама",
 
 	[Key.shareArticle]: "Поделиться",
-	[Key.generatingPoster]: "Создание постера...",
+	[Key.generatingPoster]: "Создание постера…",
 	[Key.copied]: "Скопировано",
 	[Key.copyLink]: "Копировать ссылку",
 	[Key.savePoster]: "Сохранить постер",
@@ -515,7 +515,7 @@ export const ru: Translation = {
 	[Key.galleryNoAlbums]: "Пока нет альбомов",
 	[Key.galleryBackToAlbums]: "Вернуться к альбомам",
 	[Key.galleryEnterAlbum]: "Открыть альбом",
-	[Key.searchAlbums]: "Поиск альбомов...",
+	[Key.searchAlbums]: "Поиск альбомов…",
 
 	// Защита паролем
 	[Key.passwordProtected]: "Защищено паролем",

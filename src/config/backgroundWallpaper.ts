@@ -26,8 +26,8 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	 *
 	 * 支持配置多张图片（数组），每次刷新页面随机显示一张：
 	 * desktop: [
-	 * "assets/images/DesktopWallpaper/d1.avif",
-	 * "assets/images/DesktopWallpaper/d2.avif",
+	 *   "assets/images/DesktopWallpaper/d1.avif",
+	 *   "assets/images/DesktopWallpaper/d2.avif",
 	 * ],
 	 *
 	 * mobile:[
@@ -38,7 +38,11 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	src: {
 		// 桌面背景图片（支持单张或多张随机）
 		// desktop: "assets/images/DesktopWallpaper/d1.avif",
-		desktop: ["assets/images/DesktopWallpaper/1.jpg"],
+		desktop: [
+			"assets/images/DesktopWallpaper/1.jpg",
+			"assets/images/DesktopWallpaper/2.jpg",
+			"assets/images/DesktopWallpaper/3.jpg",
+		],
 		// 移动背景图片（支持单张或多张随机）
 		// mobile: "assets/images/MobileWallpaper/m1.avif",
 		mobile: ["assets/images/MobileWallpaper/1.jpg"],
@@ -67,6 +71,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				"♪♪♪♪♪♪♪♪♪",
 				"みんなで叶える物語",
 				"Let's play some osu!",
+				"叶え！私たちの夢——",
 				"NicoNicoNi〜",
 				"It was never meant to be.",
 				"いまが最高!",
@@ -94,9 +99,9 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		// 壁纸轮播配置，横幅壁纸和全屏壁纸共享，仅在配置多张图片时生效
 		carousel: {
 			// 是否启用壁纸轮播；关闭时保持每次刷新随机显示一张
-			enable: false,
+			enable: true,
 			// 轮播切换间隔（毫秒）
-			interval: 5000,
+			interval: 7000,
 			// 过渡效果: 'fade' 渐变 | 'zoom' 缩放 | 'slide' 滑动 | 'kenburns' 旋转木马
 			transitionEffect: "zoom",
 		},

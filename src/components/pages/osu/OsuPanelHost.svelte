@@ -8,6 +8,7 @@
 
 import { onMount } from "svelte";
 import LoadingState from "@/components/common/LoadingState.svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import type { OsuStats, OsuStatus } from "@/types/osu";
 
 import OsuPanel from "./OsuPanel.svelte";
@@ -36,8 +37,13 @@ onMount(async () => {
 </script>
 
 {#if error}
-	<div class="card-base p-8 text-center text-neutral-500 dark:text-neutral-400">
-		数据加载失败
+	<div class="card-base">
+		<StateMessage
+			variant="error"
+			icon="material-symbols:error-outline"
+			title="基本信息加载失败"
+			description="请稍后刷新页面重试"
+		/>
 	</div>
 {:else if !stats}
 	<div class="card-base">

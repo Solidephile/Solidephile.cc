@@ -1,5 +1,5 @@
 ---
-import { Icon } from "astro-icon/components";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
@@ -48,12 +48,11 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
     <!-- 空状态 -->
     {
         tags.length === 0 && (
-            <div class="card-base px-8 py-12 text-center">
-                <Icon is:inline
-                    name="material-symbols:tag-rounded"
-                    class="text-5xl text-30 mx-auto mb-4"
+            <div class="card-base">
+                <StateMessage
+                    icon="material-symbols:tag-rounded"
+                    title={i18n(I18nKey.noData)}
                 />
-                <p class="text-30">{i18n(I18nKey.noData)}</p>
             </div>
         )
     }

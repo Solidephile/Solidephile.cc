@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import GridSkeleton from "@/components/common/GridSkeleton.svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import TabNav from "@/components/common/TabNav.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -49,6 +50,8 @@ let fetchLoading = $state(false);
 let error = $state(false);
 let errorTitle = $state("");
 let errorDesc = $state("");
+/** 区分「取数失败」和「空数据」：两者共用 error 流程，但视觉不同 */
+let errorVariant = $state<"error" | "empty">("error");
 let dynamicTabs = $state<VndbTab[]>([]);
 let dynamicData = $state<Record<string, VndbUlistEntry[]>>({});
 
@@ -101,6 +104,7 @@ async function loadDynamicData() {
 		if (allItems.length === 0) {
 			fetchLoading = false;
 			error = true;
+			errorVariant = "empty";
 			errorTitle = i18n(I18nKey.vndbNoData);
 			errorDesc = i18n(I18nKey.vndbNoDataDescription);
 			return;
@@ -116,6 +120,7 @@ async function loadDynamicData() {
 		console.error("[VNDB] Failed to fetch data:", e);
 		fetchLoading = false;
 		error = true;
+		errorVariant = "error";
 		errorTitle = i18n(I18nKey.vndbFetchError);
 		errorDesc = i18n(I18nKey.vndbFetchErrorDesc);
 	}
@@ -131,13 +136,12 @@ onMount(async () => {
 {#if isDynamic && fetchLoading}
   <GridSkeleton />
 {:else if isDynamic && error}
-  <div class="text-center py-16">
-    <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
-      <span class="text-[2rem] text-red-500">&#9888;</span>
-    </div>
-    <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">{errorTitle}</h2>
-    <p class="text-black/60 dark:text-white/60 mb-4 max-w-md mx-auto">{errorDesc}</p>
-  </div>
+  <StateMessage
+    variant={errorVariant}
+    icon={errorVariant === "empty" ? "material-symbols:visibility" : "material-symbols:error-outline"}
+    title={errorTitle}
+    description={errorDesc}
+  />
 {:else if tabs.length > 0}
   <TabNav {tabs} {activeTab} onTabChange={handleTabChange} />
 

@@ -1,5 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import LoadingState from "@/components/common/LoadingState.svelte";
+import StateMessage from "@/components/common/StateMessage.svelte";
 import { player } from "@/components/features/music/player.svelte";
 import type { MusicListEntry } from "@/types/music";
 import { formatDuration } from "@/utils/time-utils";
@@ -48,11 +50,6 @@ async function loadMeting(): Promise<void> {
 	} catch {
 		metingStatus = "error";
 	}
-}
-
-function retryMeting(): void {
-	metingStatus = "idle";
-	void loadMeting();
 }
 
 function selectMode(next: Mode): void {
@@ -110,7 +107,10 @@ function playMetingRow(entry: MusicListEntry, index: number): void {
 
 	{#if mode === "local"}
 		{#if entries.length === 0}
-			<p class="empty">还没有收录歌曲。</p>
+			<StateMessage
+				icon="material-symbols:play-circle"
+				title="还没有收录歌曲"
+			/>
 		{:else}
 			<ul class="list">
 				{#each entries as entry (entry.track.slug ?? entry.track.audio)}
@@ -167,11 +167,14 @@ function playMetingRow(entry: MusicListEntry, index: number): void {
 			</ul>
 		{/if}
 	{:else if metingStatus === "error"}
-		<p class="empty">
-			歌单加载失败，<button type="button" class="link" onclick={retryMeting}>重试</button>
-		</p>
+		<StateMessage
+			variant="error"
+			icon="material-symbols:error-outline"
+			title="歌单加载失败"
+			description="请稍后刷新页面重试"
+		/>
 	{:else if metingStatus !== "ready"}
-		<p class="empty">正在加载歌单…</p>
+		<LoadingState text="正在加载歌单…" />
 	{:else}
 		<ul class="list">
 			{#each metingEntries as entry, index (entry.track.audio)}
@@ -493,22 +496,5 @@ function playMetingRow(entry: MusicListEntry, index: number): void {
 		color: var(--content-meta);
 		font-size: 0.6875rem;
 		line-height: 1.35;
-	}
-
-	.empty {
-		margin: 0;
-		padding: 1.5rem 0;
-		color: var(--content-meta);
-		font-size: 0.875rem;
-	}
-
-	.link {
-		padding: 0;
-		border: 0;
-		background: none;
-		color: var(--primary);
-		font: inherit;
-		cursor: pointer;
-		text-decoration: underline;
 	}
 </style>
