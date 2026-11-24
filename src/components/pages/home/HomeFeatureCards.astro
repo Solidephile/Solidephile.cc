@@ -43,8 +43,7 @@ const show = homeFeatureConfig.enable && cards.length > 0;
  * 卡片封面是外部 URL，而 generate-lqips.ts 只扫本地 src/ / public/ 下的图片，
  * 所以这份 LQIP 由 scripts/generate-home-card-lqips.ts 单独抓取生成
  * （格式和 lqips.json 完全一致，只是 key 是完整 URL）。
- * 抓不到就退回 getLqipProps 对外部图片的默认值（主题中性色），
- * 总之不会再用卡片底色那种高饱和渐变当占位。
+ * 抓不到就退回 getLqipProps 对外部图片的默认值（主题中性色）
  */
 function lqipStyle(url: string): string {
 	// public/ 下的本地图（以 / 开头）：`pnpm lqips` 会给它生成 `public:<相对路径>` 条目，

@@ -13,7 +13,7 @@
 // 注意 Umami 的"访客"是按会话哈希去重的，哈希里带了一个 salt（默认每月轮换），
 // 轮换会让同一个人跨月被算成不同访客，因此累计 UV 会偏高；
 // 若在 Umami 侧把 SALT_ROTATION 设为固定值（v3.5.0+），UV 累计数则是真实的。
-// 固定 SALT 目前已设，但 Umami 版本更新前可能的重复 UV 依旧在数据中。 
+// 固定 SALT 目前已设，但 Umami 版本更新前可能的重复 UV 依旧在数据中。
 //
 // 需要的环境变量（配置在主站 Vercel 项目里）：
 //   UMAMI_URL         自建 Umami 实例地址，例如 https://analytics.solidephile.cc

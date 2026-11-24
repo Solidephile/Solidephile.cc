@@ -2,11 +2,13 @@
 
 ## 功能说明
 
-此功能为博客添加了一个可配置的 Spine 动画看板娘，可以显示在页面的角落位置。
+此功能为博客添加了一个可配置的 Spine 动画看板娘，可以显示在页面的角落位置。Live2D 看板娘是另一套实现，配置在同一个文件的 `live2dWidgetConfig` 里（见 `src/config/pioConfig.ts`）。
+
+> 目录现状：`public/pio/models/` 与 `public/pio/static/` 目前是空目录，Spine / Live2D 两个开关默认都关闭。构建脚本 `scripts/prune-pio-assets.ts` 会在关闭时把 `dist/pio` 整个删掉，所以关闭状态下这里放资源也不会被发布。
 
 ## 配置选项
 
-在 `src/config.ts` 文件中的 `spineModelConfig` 对象包含以下配置选项：
+在 `src/config/pioConfig.ts` 里配置（`spineModelConfig` / `live2dWidgetConfig`），下面的对象只是示意，字段以该文件为准：
 
 ```typescript
 export const spineModelConfig: SpineModelConfig = {
@@ -71,7 +73,7 @@ export const spineModelConfig: SpineModelConfig = {
 
 1. **准备 Spine 文件**：将必要的文件按照上述结构放置在 `public/pio/` 目录中
 
-2. **修改配置**：在 `src/config.ts` 中将 `spineModelConfig.enable` 设置为 `true`
+2. **修改配置**：在 `src/config/pioConfig.ts` 中将 `spineModelConfig.enable` 设置为 `true`
 
 3. **自定义设置**：根据您的需求调整其他配置选项
 
