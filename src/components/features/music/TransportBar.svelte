@@ -20,7 +20,7 @@ let { crossOrigin = false }: { crossOrigin?: boolean } = $props();
 /**
  * 播放模式的图标与文案。
  * 图标走离线图标集（material-symbols 的 repeat / repeat-one / shuffle 已加进
- * icons-data.json），和旧 widget 那个 repeat 按钮是同一套字形。
+ * icons-data.json），和旧 widget 的 repeat 按钮是同一套字形。
  */
 const MODE_META: Record<PlayMode, { label: string; icon: string }> = {
 	list: { label: "列表循环", icon: "material-symbols:repeat-rounded" },

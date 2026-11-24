@@ -123,7 +123,7 @@ async function getFaviconAsLogo(): Promise<{
 	});
 	const rasters = areas.filter((c) => c.raster);
 	rasters.sort((a, b) => b.w * b.h - a.w * a.h);
-	// 优先取最大 raster；若无 raster（纯 .ico/.svg），则取面积最大的那个
+	// 优先取最大 raster；若无 raster（纯 .ico/.svg），则取面积最大的
 	const favicon =
 		rasters[0]?.f ||
 		[...areas].sort((a, b) => b.w * b.h - a.w * a.h)[0]?.f ||

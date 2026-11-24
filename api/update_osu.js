@@ -73,8 +73,7 @@ function normalizeMods(mods) {
 	return acronyms;
 }
 
-// 只保留前端要显示的字段：原样转发一条约 3~4KB，裁剪后约 200 字节
-// （100 条：300KB+ → 20KB 左右）
+// 只保留前端要显示的字段
 function trimScore(score) {
 	if (!score) return null;
 
@@ -107,13 +106,13 @@ async function osuFetch(token, url) {
 	return response;
 }
 
-// 最好成绩（按 pp 排序）。官方文档里 limit 上限为 100
+// 最好成绩（按 pp 排序）。官方文档里成绩条数 limit 为 100
 //
-// 这个端点有两个踩过的坑：
+// 两个注意点：
 //   1. mode 是「查询参数」而不是路径段
 //      —— 写成 /users/@x/osu/scores/best 会 404 {"error":"Invalid url or incorrect request method."}
-//   2. 它要求用「数字用户 ID」
-//      —— 写成 @用户名 会 404 {"error":null}（只有 /users/{user} 那个端点接受 @用户名）
+//   2. 要求用「数字用户 ID」
+//      —— 写成 @用户名 会 404 {"error":null}（只有 /users/{user} 端点接受 @用户名）
 async function fetchBestScores(token, userId, limit) {
 	const userKey = userId ?? `@${encodeURIComponent(username)}`;
 
@@ -138,7 +137,7 @@ async function fetchBestScores(token, userId, limit) {
 
 // 按 score id 取单个成绩。
 // score id 有两种格式：新版全局 id（/scores/{id}）与旧版按模式 id（/scores/osu/{id}），
-// 先试新版，404 再回退旧版，这样配置里直接填网址中的数字即可。
+// 先试新版，若 404 再回退旧版，配置中直接填网址中的数字即可。
 async function fetchScoreById(token, scoreId) {
 	let response = await osuFetch(
 		token,
@@ -161,7 +160,7 @@ async function fetchScoreById(token, scoreId) {
 	const score = await response.json();
 
 	// Get Score 返回的结构不一定自带 beatmapset，
-	// 缺了就补一次 /beatmaps/{id}（在定时任务里跑，不影响访客）
+	// 缺失就补一次 /beatmaps/{id}（在定时任务里进行，不影响访客）
 	const beatmapId = score?.beatmap
 		? typeof score.beatmap === "object"
 			? score.beatmap.id
@@ -428,7 +427,7 @@ export default async function handler(req, res) {
 		const todayUTC8 = getUTC8Date(new Date());
 
 		// 先把 updated_at 统一成 timestamptz、再换算到 UTC+8 的日期来比较。
-		// 原因：AT TIME ZONE 在 timestamp 与 timestamptz 两种列类型下语义相反——
+		// 原因：AT TIME ZONE 在 timestamp 与 timestamptz 两种列类型下语义相反
 		//   timestamp  AT TIME ZONE 'Asia/Shanghai' → 把「裸时间」当成上海时间
 		//   timestamptz AT TIME ZONE 'Asia/Shanghai' → 换算成上海「墙上时间」
 		// 原来的写法在列类型不匹配时会算错区间，导致同一个 UTC+8 自然日重复写入。

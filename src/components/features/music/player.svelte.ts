@@ -320,7 +320,7 @@ export const player = {
 		connect();
 	},
 
-	/** 全站那个 `<audio>`（频谱 / 调试面板要用） */
+	/** 全站的 `<audio>`（频谱 / 调试面板要用） */
 	get element(): HTMLAudioElement | null {
 		return element;
 	},

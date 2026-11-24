@@ -12,7 +12,8 @@
 // 口径说明：侧栏与 /analytics 统一使用「全部时间」。
 // 注意 Umami 的"访客"是按会话哈希去重的，哈希里带了一个 salt（默认每月轮换），
 // 轮换会让同一个人跨月被算成不同访客，因此累计 UV 会偏高；
-// 若在 Umami 侧把 SALT_ROTATION 设为固定值（v3.5.0+），这份累计数就会稳定且真实。
+// 若在 Umami 侧把 SALT_ROTATION 设为固定值（v3.5.0+），UV 累计数则是真实的。
+// 固定 SALT 目前已设，但 Umami 版本更新前可能的重复 UV 依旧在数据中。 
 //
 // 需要的环境变量（配置在主站 Vercel 项目里）：
 //   UMAMI_URL         自建 Umami 实例地址，例如 https://analytics.solidephile.cc
@@ -43,7 +44,7 @@ const RANGES = {
 };
 const DEFAULT_RANGE = "30d";
 
-// 统一的 CDN 缓存策略：省 Umami 的 API 调用，数字也不会太旧
+// 统一的 CDN 缓存策略：节省 Umami 的 API 调用，数据也不会太旧
 const CACHE_HEADER =
 	"public, max-age=60, s-maxage=300, stale-while-revalidate=600";
 
@@ -79,7 +80,7 @@ async function getToken() {
 	return cachedToken;
 }
 
-/** 带失效重试的 GET：token 过期时清缓存重登一次 */
+// 带失效重试的 GET：token 过期时清缓存重登一次
 async function umamiGetJson(path) {
 	const request = async () =>
 		fetch(`${UMAMI_URL}${path}`, {
@@ -114,7 +115,7 @@ const metricsPath = (type, limit, startAt, endAt) =>
 	`/api/websites/${WEBSITE_ID}/metrics?type=${type}&limit=${limit}` +
 	`&startAt=${startAt}&endAt=${endAt}&timezone=${encodeURIComponent(TIMEZONE)}`;
 
-/** 把 Umami 的 { x, y } 行规整成 { name, value }；空值给个兜底显示名 */
+// 把 Umami 的 { x, y } 行规整成 { name, value }；空值设置兜底显示名
 function toRows(result, emptyLabel) {
 	if (!Array.isArray(result)) return [];
 
@@ -128,7 +129,7 @@ function toRows(result, emptyLabel) {
 		.filter((row) => row.value > 0);
 }
 
-/** 时间轴标签：兼容 "2026-02-01" / ISO 字符串 / 毫秒时间戳 */
+// 时间轴标签：兼容 "2026-02-01" / ISO 字符串 / 毫秒时间戳
 function toDayLabel(value) {
 	if (typeof value === "number") {
 		const d = new Date(value);
@@ -145,7 +146,7 @@ function toDayLabel(value) {
 	return text;
 }
 
-/** 把 pageviews 接口的返回规整成 { labels, pageviews, sessions } */
+// 把 pageviews 接口的返回转成 { labels, pageviews, sessions }
 function toSeries(result) {
 	const pageviewPoints = Array.isArray(result?.pageviews)
 		? result.pageviews
@@ -159,7 +160,7 @@ function toSeries(result) {
 	};
 }
 
-/** 侧栏入口：{ pv, uv }（均为全部时间，与 /analytics 的「累计浏览 / 累计访客」一致） */
+// 侧栏入口：{ pv, uv }（均为全部时间，与 /analytics 的「累计浏览 / 累计访客」一致）
 async function handleSummary(res) {
 	const endAt = Date.now();
 	const allTime = await umamiGetJson(statsPath(ALL_TIME_START, endAt));
@@ -214,13 +215,13 @@ function startOfToday(timeZone) {
 	return Date.parse(`${dateText}T00:00:00Z`) - offsetMs;
 }
 
-/** 看板入口：汇总（累计 + 今日）+ 各维度排名（固定 30 天） */
+// 看板入口：汇总（累计 + 今日）+ 各维度排名（固定 30 天）
 async function handleDashboard(res) {
 	const endAt = Date.now();
 	const startAt = endAt - DASHBOARD_DAYS * DAY_MS;
 	const todayStartAt = startOfToday(TIMEZONE);
 
-	// 每项独立 catch：某个维度失败时其余照常显示，不整页报错
+	// 每项独立 catch：某个维度失败时其余仍然显示，不整页报错
 	const safe = (promise) => promise.catch(() => null);
 
 	const [allTime, today, topPages, channels, countries, browsers, devices] =
@@ -259,7 +260,7 @@ async function handleDashboard(res) {
 	});
 }
 
-/** 趋势入口：只返回时序数据，range 可切换 */
+// 趋势入口：只返回时序数据，range 可切换
 async function handleSeries(query, res) {
 	const requested = String(query?.range || DEFAULT_RANGE);
 	const rangeKey = Object.hasOwn(RANGES, requested) ? requested : DEFAULT_RANGE;
@@ -290,7 +291,7 @@ export default async function handler(req, res) {
 	}
 
 	try {
-		// 先把 token 准备好，避免并发请求各自登录一次
+		// 先准备 token，避免并发请求各自登录一次
 		await getToken();
 
 		const view = String(req.query?.view || "summary");

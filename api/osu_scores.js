@@ -1,7 +1,7 @@
 // osu! 成绩接口：返回「置顶成绩」与「最好成绩」
 //
 // 数据来源：数据库（osu_current 的 best_scores / pinned_scores 两个 jsonb 列），
-// 由每日 Cron 调用 /api/update_osu 时抓取并写入。
+// 由每日 Vercel Cron 调用 /api/update_osu 时抓取并写入。
 //
 // 本接口只读数据库、不调用 osu! API，所以：
 //   - 响应快，且不受 osu! 服务状态影响
