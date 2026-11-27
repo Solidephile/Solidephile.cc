@@ -61,6 +61,8 @@ type MusicData = {
 	draft: boolean;
 	category: string;
 	tags: string[];
+	/** 一句话描述：显示在封面下方，并作为页面横幅的引用文字 */
+	description: string;
 	audio: string;
 	cover: string;
 	duration: number;
@@ -71,6 +73,8 @@ type MusicData = {
 	credits: string[];
 	/** kiai 区间（秒）：这段时间光晕每拍闪一次、左右交替（非 kiai 是每 4 拍两侧同时） */
 	kiai: number[][];
+	/** 特效区间（秒）：只在这些区间内闪，按「触发的那一拍」判定，边界拍也算 */
+	effects: number[][];
 	/** 页面主题：强调色 + 频谱覆写 */
 	theme?: {
 		accent: string;
@@ -195,6 +199,8 @@ const musicCollection: ContentCollection<MusicData> = defineCollection({
 		draft: z.boolean().optional().default(false),
 		category: z.string().optional().default(""),
 		tags: z.array(z.string()).optional().default([]),
+		/** 一句话描述：显示在封面下方，并作为页面横幅的引用文字 */
+		description: z.string().optional().default(""),
 		/** 音频的公开地址 */
 		audio: z.string(),
 		/** 封面的公开地址 */
@@ -210,6 +216,12 @@ const musicCollection: ContentCollection<MusicData> = defineCollection({
 		credits: z.array(z.string()).optional().default([]),
 		/** kiai 区间（秒）：这段时间左右光晕每拍交替闪（非 kiai 是每 4 拍两侧同时） */
 		kiai: z.array(z.array(z.number()).length(2)).optional().default([]),
+		/**
+		 * 特效区间（秒）：只在这几段里闪，区间外节拍环不亮格、光晕不闪。
+		 * 时间戳放在拍子上时边界拍也会亮（按「触发的那一拍」判断，结束那一拍的光晕
+		 * 仍会在区间后按自己的衰减收完）。
+		 */
+		effects: z.array(z.array(z.number()).length(2)).optional().default([]),
 		/**
 		 * 页面主题。
 		 * accent：覆盖 `--music-accent`，不写就用全站主题色

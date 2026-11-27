@@ -53,10 +53,17 @@ declare global {
 				/** 结构化歌词（页面控制器解析后回写），字段与 src/utils/lrc.ts 的 LyricLine 一致 */
 				lyrics: Array<{
 					t: number;
+					end: number | null;
 					text: string;
 					translation: string;
 					color: string;
-					spans: Array<{ text: string; t: number | null; color: string }>;
+					spans: Array<{
+						text: string;
+						t: number | null;
+						color: string;
+						lead: string;
+						tail: string;
+					}>;
 				}>;
 				/** 当前曲目的原始 LRC 文本 / 加载状态（loading / loaded / failed / none） */
 				lrcRaw: string;
@@ -76,10 +83,17 @@ declare global {
 			setLyrics: (
 				lines: Array<{
 					t: number;
+					end: number | null;
 					text: string;
 					translation: string;
 					color: string;
-					spans: Array<{ text: string; t: number | null; color: string }>;
+					spans: Array<{
+						text: string;
+						t: number | null;
+						color: string;
+						lead: string;
+						tail: string;
+					}>;
 				}>,
 			) => void;
 		};

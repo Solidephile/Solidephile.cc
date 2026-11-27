@@ -29,23 +29,25 @@ import TransportBar from "./TransportBar.svelte";
 let {
 	track,
 	lyrics,
-	published = "",
-	tags = [],
+	quote = "",
 	accent = "",
 	spectrum,
 	kiai = [],
+	effects = [],
 }: {
 	/** 本页展示的曲目（单曲页只有一首，不是播放器的队列） */
 	track: MusicTrack;
 	lyrics: LyricLine[];
-	published?: string;
-	tags?: string[];
+	/** 一句话描述，显示在封面下方；同时会带到页面顶部横幅 */
+	quote?: string;
 	/** frontmatter 里的主题色，空串表示用全站主题色 */
 	accent?: string;
 	/** frontmatter 里的频谱覆写（只写想改的字段，其余用全局默认） */
 	spectrum?: Partial<MusicVisualizerConfig>;
 	/** kiai 区间（秒）：这段时间光晕每拍闪一次、左右交替（非 kiai 是每 4 拍两侧同时） */
 	kiai?: number[][];
+	/** 特效区间（秒）：只在这几段里闪，按触发的那一拍判定，空数组表示全曲 */
+	effects?: number[][];
 } = $props();
 
 // 播放器是全局的：这里只登记「本页展示的是哪一首」，真正的队列在按下播放时才换。
@@ -123,7 +125,7 @@ const panes = [
 	<div class="card-base music-stage">
 		<!-- 节拍光晕：铺在卡片左右内边缘，位于内容之下；默认关 -->
 		{#if glowOn}
-			<StageGlow {kiai} />
+			<StageGlow {kiai} {effects} />
 		{/if}
 
 		<!--
@@ -132,7 +134,7 @@ const panes = [
 			以后新增可视化 toggle 直接往这里加按钮即可。
 		-->
 		<div class="stage-tools">
-			<BeatRing />
+			<BeatRing {effects} />
 
 			<button
 				type="button"
@@ -158,7 +160,7 @@ const panes = [
 				role="group"
 			>
 				<div class="pane">
-					<CoverPane track={track} {published} {tags} spectrum={visualizer} />
+					<CoverPane track={track} {quote} spectrum={visualizer} />
 				</div>
 				<div class="pane">
 					<LyricsView lines={lyrics} />
@@ -184,7 +186,7 @@ const panes = [
 		</div>
 	</div>
 
-	<TimingDebug />
+	<TimingDebug {effects} />
 </div>
 
 <style>
@@ -196,6 +198,11 @@ const panes = [
 		flex-direction: column;
 		gap: 1rem;
 		--music-ink: rgb(0 0 0 / 0.9);
+		/* 未唱文字 / 非当前行文字：与主题色同明度的中性灰（同不透明度，只靠色相区分） */
+		--music-lyric-unsung: oklch(0.60 0 0);
+		/* 歌词行按距离衰减的步长：亮色底上透明度下降带来的观感变化更明显，
+		   深色底上同样的透明度仍显得很亮，所以两种模式取不同步长 */
+		--music-lyric-distance-step: 0.15;
 		--music-accent-ink: #fff;
 		/* 歌词当前行用这个：主题色在浅色底上偏淡，混一点深色提对比 */
 		--music-accent-strong: color-mix(in oklab, var(--music-accent) 92%, #111);
@@ -203,6 +210,9 @@ const panes = [
 
 	:global(.dark) .music-host {
 		--music-ink: rgb(255 255 255 / 0.94);
+		--music-lyric-unsung: oklch(0.78 0 0);
+		/* 深色底上需要更陡的衰减，远处行才会真正"退下去" */
+		--music-lyric-distance-step: 0.2;
 		--music-accent-ink: rgb(0 0 0 / 0.75);
 		--music-accent-strong: color-mix(in oklab, var(--music-accent) 88%, #fff);
 	}

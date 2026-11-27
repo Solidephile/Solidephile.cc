@@ -67,6 +67,10 @@ export type FontSelectionConfig = {
 	bannerTitleFont?: string;
 	bannerSubtitleFont?: string;
 	navbarTitleFont?: string;
+	/** 音乐页歌词原文字体（日文字形版本；留空则使用全局 selected 字体） */
+	musicLyricFont?: string;
+	/** 音乐页歌词译文字体（简体中文字形版本；留空则与原文共用） */
+	musicLyricTranslationFont?: string;
 	/** 代码块字体 CSS 变量名（用于代码高亮和等宽字体场景） */
 	codeFont?: string;
 	/**
@@ -79,6 +83,12 @@ export type FontSelectionConfig = {
 		{
 			/** 额外包含的字符（覆盖评论、Bangumi 等动态内容） */
 			extraChars?: string;
+			/**
+			 * 只按歌词收集字符（不再扫描全站页面）。
+			 * 用于只给歌词用、且全站用字量很大的字体：原文取 `.lrc` 的正文，
+			 * 译文取 `{tr:…}` 里的内容，构建期直接读 `src/content/music/` 下的源文件。
+			 */
+			lyricChars?: "original" | "translation" | "both";
 		}
 	>;
 };

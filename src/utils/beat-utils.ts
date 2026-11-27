@@ -31,3 +31,40 @@ export function beatState(
 
 	return { spb, beat, phase, nextIn: (1 - phase) * spb };
 }
+
+/**
+ * 当前这一拍的触发时刻（秒）。
+ *
+ * 节拍特效的「是否该闪」要按**触发时刻**判断，而不是按下帧时刻：时间戳放在拍子上时，
+ * 开始那一刻正好踩在拍点、判定成立；结束那一拍的闪也能在区间之后按自己的衰减收完，
+ * 不会被硬切掉。
+ */
+export function beatTriggerTime(state: BeatState, time: number): number {
+	return time - state.phase * state.spb;
+}
+
+/**
+ * 触发时刻是否落在特效区间内（闭区间）。
+ *
+ * `windows` 为空表示没有配置，全曲都显示特效（保持原来的行为）。
+ * 反向区间（结束早于开始）按大小互换，单点区间也算命中。
+ */
+export function inEffectWindow(
+	windows: readonly (readonly number[])[] | undefined,
+	triggerTime: number,
+): boolean {
+	if (!windows || windows.length === 0) return true;
+
+	for (const range of windows) {
+		const from = range[0];
+		const to = range[1];
+		if (typeof from !== "number" || typeof to !== "number") continue;
+		if (!Number.isFinite(from) || !Number.isFinite(to)) continue;
+
+		const start = Math.min(from, to);
+		const end = Math.max(from, to);
+		if (triggerTime >= start && triggerTime <= end) return true;
+	}
+
+	return false;
+}

@@ -50,8 +50,8 @@
 
 ## 音乐
 
-- `lrc.ts` - 增强 LRC 解析、当前行查找、`LYRIC_LEAD_MS`
-- `beat-utils.ts` - 拍点计算（`beatState`）
+- `lrc.ts` - 增强 LRC 解析（逐字、换色、翻译、间奏 `{int:…}`）、当前行查找、`LYRIC_LEAD_MS`
+- `beat-utils.ts` - 拍点计算（`beatState`）、特效区间判定（`beatTriggerTime` / `inEffectWindow`）
 - `scroll-tween.ts` - 歌词居中用的滚动补间（不依赖原生 smooth scroll）
 
 ## 布局 / 滚动 / 交互

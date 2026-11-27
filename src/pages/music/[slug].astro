@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Markdown from "@components/common/Markdown.astro";
 import { Icon } from "astro-icon/components";
+import LatencyCard from "@/components/features/music/LatencyCard.svelte";
 import MusicStage from "@/components/features/music/MusicStage.svelte";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
@@ -73,6 +74,11 @@ const credits = data.credits.map((credit) => {
 <MainGridLayout
 	title={data.title}
 	description={`${data.artist} · ${data.title}`}
+	bannerPostMeta={{
+		title: data.title,
+		description: data.description,
+		published: data.published,
+	}}
 	hideSidebar
 >
 	<div class="page-shell mx-auto flex w-full max-w-[1200px] flex-col gap-4">
@@ -81,12 +87,15 @@ const credits = data.credits.map((credit) => {
 			client:load
 			track={track}
 			lyrics={lyrics}
-			{published}
-			tags={data.tags}
+			quote={data.description ?? ""}
 			accent={data.theme?.accent ?? ""}
 			spectrum={data.theme?.spectrum}
 			kiai={data.kiai}
+			effects={data.effects}
 		/>
+
+		<!-- 延迟校准：设备输出延迟 + 手动补偿，调完立即生效 -->
+		<LatencyCard client:load accent={data.theme?.accent ?? ""} />
 
 		<!-- 介绍 + 制作信息：正文占主栏，信息表贴右侧，避免整卡只有两行正文显得空 -->
 		<div class="card-base p-5 sm:p-7">
@@ -136,6 +145,8 @@ const credits = data.credits.map((credit) => {
 								</>
 							)
 						}
+						<dt class="text-(--content-meta)">BPM</dt>
+						<dd class="text-90">{data.bpm}</dd>
 					</dl>
 
 					{

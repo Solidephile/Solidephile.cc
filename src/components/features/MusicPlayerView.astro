@@ -15,7 +15,7 @@ const config = musicPlayerConfig;
 
 const viewConfigStr = JSON.stringify({
 	showLyrics: config.showLyrics ?? true,
-	// 和单曲页共用同一个歌词提前量，别在 inline 脚本里另写数字
+	// 与单曲页共用同一提前量，不在 inline 脚本中重复定义
 	lyricLeadMs: LYRIC_LEAD_MS,
 	i18n: {
 		noPlaying: i18n(I18nKey.musicNoPlaying),
@@ -147,6 +147,13 @@ const viewConfigStr = JSON.stringify({
             /** 控制器解析好的结构化歌词（{ t, text, translation, color, spans }） */
             lyrics: [],
             currentLrcIndex: -1,
+            /** 歌词时钟：timeupdate 每 ~250ms 才来一次，靠它插值出连续时间 */
+            lrcBase: 0,
+            lrcBaseAt: 0,
+            lrcPlaying: false,
+            lrcRaf: 0,
+            /** 呈现延迟（秒）：与单曲页同一个补偿量，见 readPresentationLatency */
+            latency: 0,
             vs: {
                 playlist: [],
                 currentIndex: -1,
@@ -638,7 +645,9 @@ const viewConfigStr = JSON.stringify({
                 var spans = line.spans && line.spans.length ? line.spans : [{ text: line.text, color: '' }];
                 spans.forEach(function (span) {
                     var part = document.createElement('span');
-                    part.textContent = span.text;
+                    // 空格 / 标点在解析时被拆到 lead、tail（它们不参与单曲页的渐变动画，
+                    // 但这里是纯文本，要原样拼回去）
+                    part.textContent = (span.lead || '') + span.text + (span.tail || '');
                     if (span.color) part.style.color = span.color;
                     text.appendChild(part);
                 });
@@ -657,28 +666,108 @@ const viewConfigStr = JSON.stringify({
         }
 
         /**
-         * 当前时间落在第几行（和 src/utils/lrc.ts 的 findActiveIndex 同义）。
-         * 这里补上和单曲页相同的歌词提前量：没有它，高亮会比单曲页晚 300ms，
-         * 再叠加 timeupdate 约 4Hz 的粒度（那部分才是没有 rAF 的硬限制）。
+         * 与单曲页 `LyricsView` 的 `LINE_ARRIVE_LEAD_MS` 保持一致：
+         * 逐字行提前这么多进入「当前行」，整句先就位、再开始逐字。
+         * 这个脚本是 is:inline，import 不到 Svelte 组件，改那边记得同步这里。
+         */
+        var LRC_ARRIVE_LEAD_S = 0.25;
+
+        /**
+         * 呈现延迟（秒）：歌词要跟着「听到的声音」走，单曲页把 currentTime 减掉了
+         * 输出延迟（`player.stageTime`），这里读同一组本地值（测量值 + 手动偏移），
+         * 两处歌词才对得上。自动估计值只存在页面状态里，没校准过时这里是 0，
+         * 差值在几十毫秒内。
+         */
+        function readPresentationLatency() {
+            try {
+                var measured = parseFloat(localStorage.getItem('music-output-latency') || '0') || 0;
+                var offsetMs = parseFloat(localStorage.getItem('music-output-latency-offset') || '0') || 0;
+                return Math.max(0, measured + offsetMs / 1000);
+            } catch (err) {
+                return 0;
+            }
+        }
+
+        /** 这一行是否带逐字时间：与单曲页 `hasWordTiming` 的判定一致 */
+        function hasWordTiming(line) {
+            var spans = line.spans || [];
+            if (spans.length <= 1) return false;
+            for (var i = 0; i < spans.length; i++) {
+                if (spans[i].t !== null && spans[i].t !== undefined) return true;
+            }
+            return false;
+        }
+
+        /**
+         * 当前时间所在的行下标，与单曲页的 `currentIndex` 同一套规则：
+         * 补上歌词提前量与输出延迟；逐字行提前 `LRC_ARRIVE_LEAD_S` 上位；
+         * 第一句之前也把首句当作当前行（否则前奏整段没有任何高亮）。
          */
         function activeIndexAt(time) {
             var lines = local.lyrics;
-            var t = time + (cfg.lyricLeadMs || 0) / 1000;
-            var found = -1;
+            if (!lines.length) return -1;
+
+            var t = time - local.latency + (cfg.lyricLeadMs || 0) / 1000;
+            var index = -1;
             for (var i = 0; i < lines.length; i++) {
-                if (lines[i].t <= t) found = i;
+                if (lines[i].t <= t) index = i;
                 else break;
             }
-            return found;
+
+            while (index + 1 < lines.length) {
+                var next = lines[index + 1];
+                if (!hasWordTiming(next)) break;
+                if (next.t - LRC_ARRIVE_LEAD_S > t) break;
+                index++;
+            }
+
+            return Math.max(0, index);
+        }
+
+        // ── 歌词时钟 ─────────────────────────────────────────────
+        // fm:time 来自 <audio> 的 timeupdate（约 4Hz），直接用它的 currentTime
+        // 切行会晚最多 250ms；这里用墙钟在两次事件之间插值，切行时刻与单曲页一致。
+        function syncLrcClock(time) {
+            local.lrcBase = time;
+            local.lrcBaseAt = performance.now();
+            local.latency = readPresentationLatency();
+        }
+
+        function lrcNow() {
+            return local.lrcPlaying
+                ? local.lrcBase + (performance.now() - local.lrcBaseAt) / 1000
+                : local.lrcBase;
+        }
+
+        function tickLrcClock() {
+            if (!local.lrcPlaying || local.destroyed) return;
+            updateLrcHighlight(activeIndexAt(lrcNow()));
+            local.lrcRaf = requestAnimationFrame(tickLrcClock);
+        }
+
+        function startLrcClock() {
+            if (local.lrcPlaying || local.destroyed) return;
+            syncLrcClock(mgr.getState().currentTime);
+            local.lrcPlaying = true;
+            tickLrcClock();
+        }
+
+        function stopLrcClock() {
+            if (!local.lrcPlaying) return;
+            local.lrcPlaying = false;
+            if (local.lrcRaf) cancelAnimationFrame(local.lrcRaf);
+            local.lrcRaf = 0;
+            syncLrcClock(mgr.getState().currentTime);
+            updateLrcHighlight(activeIndexAt(lrcNow()));
         }
 
         // ── 歌词滚动的补间 ───────────────────────────────────────
         // 和单曲页 src/utils/scroll-tween.ts 是同一套参数与缓动。
         // 这个脚本必须保持 is:inline（swup 换页时会重跑），没法 import，
         // 所以这里是等价实现 —— 改那边记得同步这里。
-        var LRC_SCROLL_MIN_MS = 420;
-        var LRC_SCROLL_MAX_MS = 900;
-        var LRC_SCROLL_MS_PER_PX = 0.6;
+        var LRC_SCROLL_MIN_MS = 560;
+        var LRC_SCROLL_MAX_MS = 1200;
+        var LRC_SCROLL_MS_PER_PX = 1;
         var lrcScrollFrames = new WeakMap();
 
         function animateLrcScroll(container, top) {
@@ -773,7 +862,9 @@ const viewConfigStr = JSON.stringify({
 
             // Lyrics
             renderLyricsUI(s.lyrics, s.lyrics.length > 0 ? 'loaded' : (s.lrcStatus || 'none'));
-            updateLrcHighlight(activeIndexAt(s.currentTime));
+            syncLrcClock(s.currentTime);
+            if (s.isPlaying) startLrcClock();
+            else updateLrcHighlight(activeIndexAt(lrcNow()));
 
             // Cover image: if already set, show it
             if (s.track && s.track.pic && ui.cover.src && ui.cover.complete && ui.cover.naturalWidth > 0) {
@@ -807,10 +898,15 @@ const viewConfigStr = JSON.stringify({
             var d = e.detail;
             updateTrackUI(d.track);
             updatePlaylistActiveUI(d.index);
+            // 换歌后时钟从新曲目的位置起算，别让上一首的时间继续算行号
+            syncLrcClock(mgr.getState().currentTime);
+            updateLrcHighlight(activeIndexAt(lrcNow()));
         });
 
         on('fm:play-state', function (e) {
             updatePlayStateUI(e.detail.isPlaying);
+            if (e.detail.isPlaying) startLrcClock();
+            else stopLrcClock();
         });
 
         on('fm:time', function (e) {
@@ -823,7 +919,10 @@ const viewConfigStr = JSON.stringify({
             }
             ui.currentTime.innerText = d.currentTimeStr;
             ui.totalTime.innerText = d.durationStr;
-            updateLrcHighlight(activeIndexAt(d.currentTime));
+            // 以事件时间为新基准，再插值到下一帧；时钟没跑（刚开播）就顺手启动
+            syncLrcClock(d.currentTime);
+            if (!local.lrcPlaying && mgr.getState().isPlaying) startLrcClock();
+            else updateLrcHighlight(activeIndexAt(lrcNow()));
         });
 
         on('fm:mode', function (e) {
@@ -833,7 +932,8 @@ const viewConfigStr = JSON.stringify({
         on('fm:lyrics', function (e) {
             renderLyricsUI(e.detail.lyrics, e.detail.status);
             // 渲染完立刻对一次位置，不用等下一次 timeupdate
-            updateLrcHighlight(activeIndexAt(mgr.getState().currentTime));
+            syncLrcClock(mgr.getState().currentTime);
+            updateLrcHighlight(activeIndexAt(lrcNow()));
         });
 
         on('fm:error', function (e) {
@@ -887,6 +987,9 @@ const viewConfigStr = JSON.stringify({
             // 恢复过渡：正常播放时 fm:time 每 ~250ms 跳一次，靠它抹平
             ui.progressBar.style.transition = '';
             mgr.seek(seekPercentFromEvent(e));
+            // 松手后立刻按新位置对齐歌词，不等下一次 timeupdate
+            syncLrcClock(mgr.getState().currentTime);
+            updateLrcHighlight(activeIndexAt(lrcNow()));
         }
 
         ui.progressContainer.addEventListener('pointerdown', function (e) {
@@ -987,8 +1090,7 @@ const viewConfigStr = JSON.stringify({
             local.scrollTimeout = setTimeout(function () {
                 local.isUserScrolling = false;
                 // Snap back to current lyric
-                var s = mgr.getState();
-                var index = activeIndexAt(s.currentTime);
+                var index = activeIndexAt(lrcNow());
                 if (index >= 0) {
                     var line = ui.lrcContainer.querySelector('.lrc-line[data-index="' + index + '"]');
                     if (line) {
@@ -1035,6 +1137,9 @@ const viewConfigStr = JSON.stringify({
                         if (local.titleTimer) clearTimeout(local.titleTimer);
                         if (local.titleFadeTimer) clearTimeout(local.titleFadeTimer);
                         if (local.fadeRaf) cancelAnimationFrame(local.fadeRaf);
+                        if (local.lrcRaf) cancelAnimationFrame(local.lrcRaf);
+                        local.lrcPlaying = false;
+                        local.lrcRaf = 0;
                         if (local.resizeTimer) clearTimeout(local.resizeTimer);
                         return;
                     }

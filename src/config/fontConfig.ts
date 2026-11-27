@@ -42,8 +42,50 @@ export const fontsList: FontDefinition[] = [
 					style: "normal",
 				},
 				{
+					src: ["./public/assets/fonts/ZenMaruGothic-Medium.ttf"],
+					weight: "500",
+					style: "normal",
+				},
+				{
 					src: ["./public/assets/fonts/ZenMaruGothic-Bold.ttf"],
 					weight: "700",
+					style: "normal",
+				},
+			],
+		},
+		fallbacks: ["sans-serif"],
+	},
+	{
+		// 歌词原文：马路口圆体（Maruko Gothic）日文字形版本，基于 Zen Maru Gothic
+		// 补全汉字，字形风格与主页横幅的 Zen Maru Gothic 一致。
+		// 只用 Medium 一档，其余字重（Light / Regular / Bold）不下载。
+		// 授权：OFL-1.1，可自由自托管与子集化。
+		name: "Maruko Gothic JP",
+		cssVariable: "--font-maruko-jp",
+		provider: "local",
+		options: {
+			variants: [
+				{
+					src: ["./public/assets/fonts/MarukoGothic-JP-Medium.ttf"],
+					weight: "500",
+					style: "normal",
+				},
+			],
+		},
+		fallbacks: ["sans-serif"],
+	},
+	{
+		// 歌词译文：同一款字体的简体中文字形版本。
+		// 日文版本里的汉字是日文字形，套在中文译文上会露出日式写法的细节差异，
+		// 所以原文与译文分两个家族加载，各自使用对应地区的字形。
+		name: "Maruko Gothic CN",
+		cssVariable: "--font-maruko-cn",
+		provider: "local",
+		options: {
+			variants: [
+				{
+					src: ["./public/assets/fonts/MarukoGothic-CN-Medium.ttf"],
+					weight: "500",
 					style: "normal",
 				},
 			],
@@ -103,15 +145,30 @@ export const fontConfig: FontSelectionConfig = {
 	bannerSubtitleFont: "--font-zen-maru-gothic",
 	// 导航栏标题字体
 	navbarTitleFont: "",
+	// 音乐页歌词原文字体（马路口圆体日文字形版本）
+	musicLyricFont: "--font-maruko-jp",
+	// 音乐页歌词译文字体（马路口圆体简体中文字形版本）
+	musicLyricTranslationFont: "--font-maruko-cn",
 	// 代码块字体（用于代码高亮和等宽字体场景）
 	codeFont: "--font-jetbrains-mono",
 
 	// 本地字体子集化配置（构建时由 scripts/subset-fonts.ts 处理）
 	// key 为 fonts 数组中本地字体的 cssVariable，value 为子集化选项
-	// 构建脚本会扫描 dist 里实际出现的字符，只保留这些字形（日文整包 1.4 MB → 几百 KB）
+	// 构建脚本默认扫描 dist 里实际出现的字符，只保留这些字形（日文整包 1.4 MB → 几百 KB）；
+	// 设了 lyricChars 的字体只取歌词用字（马路口圆体按全站收集会到 200 KB+，而它只用在歌词上）
 	subsetFonts: {
 		"--font-zen-maru-gothic": {
 			// 额外包含的字符（覆盖评论、Bangumi 番名等构建时抓不到的动态内容）
+			extraChars: "♪",
+		},
+		"--font-maruko-jp": {
+			// 原文子集：只取 .lrc 正文（不含 {tr:…}），外加歌词里偶尔出现的装饰符号
+			lyricChars: "original",
+			extraChars: "♪",
+		},
+		"--font-maruko-cn": {
+			// 译文子集：只取 {tr:…} 里的内容
+			lyricChars: "translation",
 			extraChars: "♪",
 		},
 	},

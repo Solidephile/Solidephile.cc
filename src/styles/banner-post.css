@@ -1,4 +1,6 @@
-/* ===== 文章详情页横幅元信息（仅文章详情页可见，见 BannerPostMetaOverlay） ===== */
+/* ===== 横幅上的「标题 + 引号描述」样式 =====
+   所有传了 bannerPostMeta 的页面共用（由 BannerPostMetaOverlay 引入）：
+   文章详情页、音乐单曲页等。 */
 
 .banner-post-title {
     max-width: 72rem;

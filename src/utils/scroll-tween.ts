@@ -13,14 +13,26 @@
  */
 
 /** 最短时长（ms）*/
-const MIN_MS = 420;
+const MIN_MS = 560;
 /** 最长时长（ms）*/
-const MAX_MS = 900;
-/** 每多滚 1px 增加的时长 */
-const MS_PER_PX = 0.6;
+const MAX_MS = 1200;
+/** 每多滚一像素增加的时长 */
+const MS_PER_PX = 1;
 
 /** 每个元素正在跑的 rAF，用来在重新触发时取消上一段 */
 const running = new WeakMap<HTMLElement, number>();
+
+/**
+ * 这次滚动会用多长时间（毫秒）。
+ *
+ * 单独导出供行缩放使用：CSS 的 transform 过渡读取同一个时长，
+ * 滚动到位时缩放也恰好结束。「减少动态效果」下返回可直接跳转的结果。
+ */
+export function scrollTweenDuration(delta: number): number {
+	if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 0;
+
+	return Math.min(MAX_MS, MIN_MS + Math.abs(delta) * MS_PER_PX);
+}
 
 /** 取消某个元素正在进行的补间（组件销毁时调用；没有在跑就什么都不做） */
 export function cancelScrollTop(element: HTMLElement): void {
@@ -43,11 +55,7 @@ export function animateScrollTop(element: HTMLElement, top: number): void {
 	if (Math.abs(delta) < 1) return;
 
 	// 系统开了「减少动态效果」就直接跳转
-	const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-	const duration = reduced
-		? 0
-		: Math.min(MAX_MS, MIN_MS + Math.abs(delta) * MS_PER_PX);
-
+	const duration = scrollTweenDuration(delta);
 	if (duration === 0) {
 		element.scrollTop = top;
 		return;

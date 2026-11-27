@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
-import { beatState } from "@/utils/beat-utils";
+import { beatState, beatTriggerTime, inEffectWindow } from "@/utils/beat-utils";
 import { contextLatency } from "./audio-context";
 import { player } from "./player.svelte";
 
@@ -12,7 +12,12 @@ import { player } from "./player.svelte";
  *
  * 输出延迟由节拍器顺手测：它决定 `player.time` 的补偿量，和 click 的排程共用同一条
  * 时间轴，所以两边永远一致。
+ *
+ * 面板里还有一行「特效区间」：与节拍环 / 光晕用同一判定，调 effects 时间戳时
+ * 可以直接看出当前这一拍是否该闪。
  */
+
+let { effects = [] }: { effects?: number[][] } = $props();
 
 let visible = $state(false);
 let offsetMs = $state(0);
@@ -50,6 +55,13 @@ const cellIndex = $derived(
 /** 踩到拍时 1，之后快速衰减 —— 格子与光晕共用同一个形状 */
 const flash = $derived(beat && player.stagePlaying ? (1 - beat.phase) ** 3 : 0);
 const cells = Array.from({ length: BEATS_PER_BAR }, (_, index) => index);
+
+/** 当前这一拍的触发时刻是否在特效区间内（与节拍环、光晕同一判定） */
+const effectOn = $derived(
+	beat
+		? inEffectWindow(effects, beatTriggerTime(beat, player.stageTime))
+		: false,
+);
 
 onMount(() => {
 	visible = new URLSearchParams(location.search).has("debug");
@@ -166,7 +178,7 @@ function sampleLatency(): void {
 	if (!Number.isFinite(raw) || raw <= 0) return;
 
 	latencySamples += 1;
-	const previous = player.latency;
+	const previous = player.measuredLatency;
 	const next =
 		latencySamples <= WARMUP_SAMPLES ? raw : previous * 0.75 + raw * 0.25;
 
@@ -197,6 +209,9 @@ onDestroy(() => {
 	if (timer) clearInterval(timer);
 	if (copiedTimer) clearTimeout(copiedTimer);
 	void ctx?.close();
+	// 面板里的 offset 只是临时调试值：离开页面（或去掉 ?debug=1）就撤掉，
+	// 否则它会残留到下一首歌，让节拍环按上一首的 offset 走
+	player.setOffsetOverride(null);
 });
 </script>
 
@@ -213,7 +228,12 @@ onDestroy(() => {
 			<span>{track?.bpm ?? "-"}</span>
 			<span>输出延迟</span>
 			<span>
-				{player.latency > 0 ? `${(player.latency * 1000).toFixed(0)} ms` : "未测"}
+				{player.measuredLatency > 0
+					? `${(player.measuredLatency * 1000).toFixed(0)} ms`
+					: "未测"}
+				{player.manualOffset !== 0
+					? `（手动 ${player.manualOffset > 0 ? "+" : ""}${(player.manualOffset * 1000).toFixed(0)} ms）`
+					: ""}
 			</span>
 			<span>click 提前</span>
 			<span>{clickLeadMs > 0 ? `${clickLeadMs} ms` : "未测"}</span>
@@ -231,6 +251,8 @@ onDestroy(() => {
 					-
 				{/if}
 			</span>
+			<span>特效区间</span>
+			<span>{effects.length === 0 ? "全曲" : effectOn ? "开" : "关"}</span>
 		</div>
 
 		<div class="mt-3 flex flex-wrap items-center gap-2">

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { beatState } from "@/utils/beat-utils";
+import { beatState, beatTriggerTime, inEffectWindow } from "@/utils/beat-utils";
 import { player } from "./player.svelte";
 
 /**
@@ -15,12 +15,15 @@ let {
 	size = 30,
 	stroke = 6,
 	gap = 6,
+	effects = [],
 }: {
 	size?: number;
 	/** 环线宽度 */
 	stroke?: number;
 	/** 段与段之间的缝（度） */
 	gap?: number;
+	/** 特效区间（秒）：区间外不亮格；空数组表示全曲都亮 */
+	effects?: number[][];
 } = $props();
 
 const arcs = $derived.by(() => {
@@ -46,13 +49,17 @@ const arcs = $derived.by(() => {
 	);
 });
 
-/** 当前亮第几格；没在播放时 -1（全部熄灭） */
+/** 当前亮第几格；没在播放、或当前拍的触发时刻不在特效区间内时 -1（全部熄灭） */
 const active = $derived.by(() => {
 	const track = player.stageTrack;
 	if (!track || !player.stagePlaying) return -1;
 
-	const beat = beatState(player.stageTime, track.bpm, player.stageOffset);
+	const time = player.stageTime;
+	const beat = beatState(time, track.bpm, player.stageOffset);
 	if (!beat) return -1;
+
+	// 按这一拍的触发时刻判定：时间戳正好落在拍子上时，开始/结束那一拍都会亮
+	if (!inEffectWindow(effects, beatTriggerTime(beat, time))) return -1;
 
 	return ((beat.beat % 4) + 4) % 4;
 });

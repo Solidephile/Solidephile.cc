@@ -11,12 +11,39 @@
 import { musicVisualizerConfig } from "@/config/musicVisualizerConfig";
 import type { MusicTrack } from "@/types/music";
 import { type LyricLine, parseLrc } from "@/utils/lrc";
-import { readStored, writeStored } from "@/utils/storage-utils";
-import { ensureAnalyser, markAnalyserUnavailable } from "./audio-context";
+import { readStored, removeStored, writeStored } from "@/utils/storage-utils";
+import {
+	ensureAnalyser,
+	getAnalyser,
+	markAnalyserUnavailable,
+} from "./audio-context";
 import { attach as attachClock, readTime, syncAt } from "./clock";
 
-/** 输出延迟的本地缓存键（同一浏览器共用） */
+/** 输出延迟（自动测量值）的本地缓存键（同一浏览器共用） */
 const LATENCY_KEY = "music-output-latency";
+/** 用户手动补偿的本地缓存键（毫秒） */
+const LATENCY_OFFSET_KEY = "music-output-latency-offset";
+
+/**
+ * 自动采样时，只有新值和当前值差这么多才更新。
+ * 设备切换带来的偏差通常远大于此，而同一设备上的抖动小于它，避免视觉跟着抖。
+ */
+const LATENCY_UPDATE_THRESHOLD_S = 0.05;
+
+/**
+ * 已校准的值和当前设备读数差这么多，就认为换了输出设备：
+ * 作废旧校准。取比采样阈值更宽的值，避免把正常的读数波动当成换设备。
+ */
+const LATENCY_STALE_THRESHOLD_S = 0.1;
+
+/** 手动补偿的上限（秒）；界面上的滑块范围也是它 */
+const MANUAL_OFFSET_LIMIT_S = 0.3;
+
+/** 测量值的来源：未确定 / 自动采样 / 节拍器或手动校准 */
+export type LatencySource = "none" | "auto" | "measured";
+
+/** 浏览器是否提供可用的 outputLatency；拿不到就只能靠手动偏移 */
+export type LatencySupport = "unknown" | "ok" | "unavailable";
 
 /**
  * 播放模式。
@@ -130,29 +157,225 @@ let stageTrack = $state<MusicTrack | null>(null);
 /** 调试面板临时改的 offset（秒）；换曲时清空 */
 let offsetOverride = $state<number | null>(null);
 /**
- * 输出延迟（秒）：从 AudioContext 读到后才有值，视觉要减去它才是「此刻听到的」位置。
- * 没测过（没开过节拍器）时是 0，等价于不补偿。
+ * 自动测量到的设备输出延迟（秒）。
+ *
+ * 视觉要减去「此刻听到的」位置，所以真正的补偿 = 这个值 + 手动偏移。
  */
-let latency = $state(0);
-/** 已经「测过」：有缓存值或节拍器写过，之后不再采用自动估计 */
+let measuredLatency = $state(0);
+/**
+ * 用户手动补偿（秒，可为负）。
+ * 正数让画面推迟，负数让画面提前；与自动测量值相加后生效。
+ */
+let manualOffset = $state(0);
+/** 视觉实际减去的总补偿（秒） */
+function totalLatency(): number {
+	return Math.max(0, measuredLatency + manualOffset);
+}
+
+/** 已经「测过」：有缓存值或节拍器写过，之后不再采用自动估计（设备切换时会被作废） */
 let latencyMeasured = false;
+/** 测量值的来源，供界面显示 */
+let latencySource = $state<LatencySource>("none");
+/** 浏览器是否提供 outputLatency；为 unavailable 时界面提示无法自动校准 */
+let latencySupport = $state<LatencySupport>("unknown");
+/** 上一次见到的输出设备集合（用于区分真正的输出设备变化与插拔麦克风） */
+let outputDeviceKey = "";
 
 let element: HTMLAudioElement | null = null;
 let raf = 0;
 let connecting = false;
 
+function clampManualOffset(seconds: number): number {
+	return Math.max(
+		-MANUAL_OFFSET_LIMIT_S,
+		Math.min(MANUAL_OFFSET_LIMIT_S, seconds),
+	);
+}
+
 /** 挂载时读一次缓存：普通访问也要补偿，否则测量只在调试面板里生效 */
 function restoreLatency(): void {
 	const stored = Number(readStored(LATENCY_KEY));
 	if (Number.isFinite(stored) && stored > 0) {
-		latency = stored;
+		measuredLatency = stored;
 		latencyMeasured = true;
+		latencySource = "measured";
 	}
+
+	const offsetMs = Number(readStored(LATENCY_OFFSET_KEY));
+	if (Number.isFinite(offsetMs) && offsetMs !== 0) {
+		manualOffset = clampManualOffset(offsetMs / 1000);
+	}
+}
+
+/** 从共享音频图谱读一次输出延迟；没有图谱（频谱未启用）时返回 null */
+function probeContextLatency(): { total: number; output: number } | null {
+	const context = getAnalyser()?.context;
+	// AnalyserNode.context 的类型是 BaseAudioContext；这里只可能是真实 AudioContext
+	if (!(context instanceof AudioContext)) return null;
+
+	const base = Number.isFinite(context.baseLatency) ? context.baseLatency : 0;
+	const output = context.outputLatency ?? 0;
+	return { total: base + output, output };
+}
+
+/** 记录浏览器是否真的提供了输出延迟（outputLatency 为 0 时视为拿不到） */
+function noteOutputLatency(output: number): void {
+	if (output > 0) latencySupport = "ok";
+	else if (latencySupport !== "ok") latencySupport = "unavailable";
+}
+
+/**
+ * 自动采用一个延迟值：已经校准过（节拍器 / 手动校准）就不动，
+ * 同一设备上的小幅抖动也直接忽略，避免视觉跟着读数抖。
+ */
+function adoptAutoLatency(value: number): void {
+	if (latencyMeasured) return;
+	if (Math.abs(value - measuredLatency) < LATENCY_UPDATE_THRESHOLD_S) return;
+
+	measuredLatency = value;
+	latencySource = "auto";
+}
+
+/**
+ * 作废校准值：输出设备变了，之前在一台设备上测到的延迟不再可信。
+ * 不立刻把测量值归零，避免重新采样前视觉先跳一下；手动偏移不受影响。
+ */
+function clearLatencyMeasurement(): void {
+	latencyMeasured = false;
+	latencySource = measuredLatency > 0 ? "auto" : "none";
+	removeStored(LATENCY_KEY);
+}
+
+/**
+ * 重新采样当前输出延迟。
+ *
+ * 除了设备变化事件，开始播放 / 页面恢复可见时也会调用：有些浏览器切换默认输出
+ * 设备并不会派发 `devicechange`，所以再按读数对一次——校准值和当前读数差得过多
+ * 就当作换了设备，作废旧校准再采用新读数。
+ *
+ * 返回是否拿到了有效值；没有音频图谱时拿不到。
+ */
+function sampleLatencyNow(): boolean {
+	const probe = probeContextLatency();
+	if (probe === null) return false;
+
+	noteOutputLatency(probe.output);
+
+	if (
+		latencyMeasured &&
+		Math.abs(probe.total - measuredLatency) > LATENCY_STALE_THRESHOLD_S
+	) {
+		clearLatencyMeasurement();
+	}
+
+	adoptAutoLatency(probe.total);
+	if (element && !playing) settleTime();
+	return true;
+}
+
+function wait(ms: number): Promise<void> {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
+}
+
+/**
+ * 重新校准：连续读几次当前设备的输出延迟，取稳定后的读数。
+ *
+ * 优先复用正在播放的共享图谱；没有图谱（频谱被禁用 / 不可用）时临时建一个
+ * AudioContext，用一个几乎无声的振荡器让它真正开始渲染，否则部分浏览器读到的
+ * `outputLatency` 会一直是 0。整个函数必须在用户手势（按钮点击）里调用。
+ */
+async function calibrateLatency(): Promise<boolean> {
+	const shared = getAnalyser()?.context;
+	let context = shared instanceof AudioContext ? shared : null;
+	const temporary = context === null;
+
+	if (!context) {
+		try {
+			context = new AudioContext();
+		} catch {
+			latencySupport = "unavailable";
+			return false;
+		}
+	}
+
+	const current = context;
+	let oscillator: OscillatorNode | null = null;
+
+	try {
+		await current.resume().catch(() => undefined);
+
+		if (temporary) {
+			oscillator = current.createOscillator();
+			const gain = current.createGain();
+			gain.gain.value = 0.0001;
+			oscillator.connect(gain);
+			gain.connect(current.destination);
+			oscillator.start();
+			await wait(80);
+		}
+
+		let best = 0;
+		for (let i = 0; i < 6; i += 1) {
+			const base = Number.isFinite(current.baseLatency)
+				? current.baseLatency
+				: 0;
+			const output = current.outputLatency ?? 0;
+			if (output > 0) best = Math.max(best, base + output);
+			await wait(40);
+		}
+
+		if (best <= 0) {
+			latencySupport = "unavailable";
+			return false;
+		}
+
+		latencySupport = "ok";
+		measuredLatency = best;
+		latencyMeasured = true;
+		latencySource = "measured";
+		writeStored(LATENCY_KEY, String(best));
+		if (element) settleTime();
+		return true;
+	} finally {
+		if (oscillator) {
+			try {
+				oscillator.stop();
+			} catch {
+				// 已经停了
+			}
+		}
+		if (temporary) await current.close().catch(() => undefined);
+	}
+}
+
+/**
+ * 设备列表变化：只有输出设备集合变了才作废延迟校准——
+ * 插拔麦克风同样会触发 `devicechange`，不该把已校准的延迟清掉。
+ */
+async function handleDeviceChange(): Promise<void> {
+	const pending = navigator.mediaDevices?.enumerateDevices?.();
+	const devices = pending ? await pending.catch(() => null) : null;
+	const next =
+		devices
+			?.filter((device) => device.kind === "audiooutput")
+			.map((device) => device.deviceId)
+			.sort()
+			.join(",") ?? "";
+
+	if (next === outputDeviceKey) return;
+	outputDeviceKey = next;
+
+	// 换设备后 outputLatency 的可用性也可能变，重新判断
+	latencySupport = "unknown";
+	clearLatencyMeasurement();
+	sampleLatencyNow();
 }
 
 /** 只在播放时跑 rAF：暂停后就该彻底安静，没必要空转 */
 function frame(): void {
-	time = Math.max(0, readTime() - latency);
+	time = Math.max(0, readTime() - totalLatency());
 	raf = requestAnimationFrame(frame);
 }
 
@@ -168,7 +391,7 @@ function stopLoop(): void {
 
 /** 把显示位置同步到元素当前值（暂停/结束时用，避免停在上一帧的外推值） */
 function settleTime(): void {
-	time = Math.max(0, readTime() - latency);
+	time = Math.max(0, readTime() - totalLatency());
 }
 
 function isStageCurrent(): boolean {
@@ -281,6 +504,7 @@ function connect(attempt = 0): void {
 
 	bindElement(audio);
 	restoreLatency();
+	sampleLatencyNow();
 
 	window.addEventListener("fm:init", () => syncFromManager());
 	window.addEventListener("fm:track", () => syncFromManager());
@@ -288,12 +512,15 @@ function connect(attempt = 0): void {
 		const detail = (event as CustomEvent<{ element?: HTMLAudioElement }>)
 			.detail;
 		if (detail?.element) onElementReplaced(detail.element);
+		sampleLatencyNow();
 	});
 	window.addEventListener("fm:play-state", (event) => {
 		const detail = (event as CustomEvent<{ isPlaying: boolean }>).detail;
 		playing = !!detail?.isPlaying;
-		if (playing) startLoop();
-		else {
+		if (playing) {
+			sampleLatencyNow();
+			startLoop();
+		} else {
 			settleTime();
 			stopLoop();
 		}
@@ -311,6 +538,14 @@ function connect(attempt = 0): void {
 	window.addEventListener("fm:cors-failed", () => markAnalyserUnavailable());
 
 	primeAnalyserOnFirstGesture();
+
+	// 输出设备变化后旧的延迟补偿不再可信；有些浏览器切默认输出不派发 devicechange，
+	// 所以开始播放、页面恢复可见时也会再对一次读数（见 sampleLatencyNow）
+	navigator.mediaDevices?.addEventListener("devicechange", handleDeviceChange);
+	document.addEventListener("visibilitychange", () => {
+		if (document.visibilityState === "visible") sampleLatencyNow();
+	});
+
 	syncFromManager();
 }
 
@@ -526,27 +761,91 @@ export const player = {
 		offsetOverride = value;
 	},
 
-	/** 输出延迟（秒），由调试面板从 AudioContext 读到后写入 */
+	/** 视觉实际减去的总补偿（秒）= 测量值 + 手动偏移 */
 	get latency(): number {
-		return latency;
+		return totalLatency();
 	},
 
+	/** 自动测量到的设备输出延迟（秒） */
+	get measuredLatency(): number {
+		return measuredLatency;
+	},
+
+	/** 用户手动补偿（秒，可为负） */
+	get manualOffset(): number {
+		return manualOffset;
+	},
+
+	/** 测量值的来源：未确定 / 自动采样 / 节拍器或手动校准 */
+	get latencySource(): LatencySource {
+		return latencySource;
+	},
+
+	/** 浏览器是否提供可用的 outputLatency */
+	get latencySupport(): LatencySupport {
+		return latencySupport;
+	},
+
+	/** 写入测量值（节拍器 / 手动校准）；会持久化 */
 	setLatency(seconds: number): void {
 		const next = Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
-		if (next === latency) return;
+		if (next === measuredLatency) return;
 
-		latency = next;
+		measuredLatency = next;
 		if (next > 0) {
 			latencyMeasured = true;
+			latencySource = "measured";
 			writeStored(LATENCY_KEY, String(next));
 		}
+		if (element) settleTime();
 	},
 
-	/** 自动估计（音频图谱报的值）：只在还没测过的时候采用 */
+	/** 设置手动补偿（秒，可为负）；会持久化并立即生效 */
+	setManualOffset(seconds: number): void {
+		if (!Number.isFinite(seconds)) return;
+
+		const next = clampManualOffset(seconds);
+		if (next === manualOffset) return;
+
+		manualOffset = next;
+		writeStored(LATENCY_OFFSET_KEY, String(Math.round(next * 1000)));
+		if (element) settleTime();
+	},
+
+	/** 手动补偿归零 */
+	resetManualOffset(): void {
+		player.setManualOffset(0);
+	},
+
+	/**
+	 * 自动估计（音频图谱报的值）：还没校准时采用；
+	 * 已校准但和读数差得过多（多半是换了输出设备）时先作废旧校准。
+	 */
 	estimateLatency(seconds: number): void {
-		if (latencyMeasured) return;
 		if (!Number.isFinite(seconds) || seconds <= 0) return;
 
-		latency = seconds;
+		if (
+			latencyMeasured &&
+			Math.abs(seconds - measuredLatency) > LATENCY_STALE_THRESHOLD_S
+		) {
+			clearLatencyMeasurement();
+		}
+
+		adoptAutoLatency(seconds);
+	},
+
+	/** 重新采样当前输出延迟（给「重新计算当前设备延迟」入口用），返回是否拿到有效值 */
+	refreshLatency(): boolean {
+		return sampleLatencyNow();
+	},
+
+	/** 重新校准：多次读取当前设备的输出延迟并写入测量值 */
+	calibrateLatency(): Promise<boolean> {
+		return calibrateLatency();
+	},
+
+	/** 作废当前校准（手动偏移保留） */
+	clearLatency(): void {
+		clearLatencyMeasurement();
 	},
 };

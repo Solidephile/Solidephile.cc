@@ -20,3 +20,11 @@ export function writeStored(key: string, value: string): void {
 		// 隐私模式写不进去就算了
 	}
 }
+
+export function removeStored(key: string): void {
+	try {
+		localStorage.removeItem(key);
+	} catch {
+		// 隐私模式删不掉也无所谓
+	}
+}

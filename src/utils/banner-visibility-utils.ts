@@ -138,7 +138,6 @@ export function getBannerVisibilityState(
 		(isBannerMode || isWallpaperSwitchable || isClassicFullscreenMode) &&
 		isBackgroundEnabled &&
 		!isHomePageCheck &&
-		isPostPage &&
 		!!bannerPostMeta;
 
 	const bannerPostInfoMode =
@@ -158,6 +157,7 @@ export function getBannerVisibilityState(
 		isBackgroundEnabled &&
 		!isHomePageCheck &&
 		!isPostPage &&
+		!bannerPostMeta &&
 		!!title;
 
 	const backgroundImages = getBackgroundImages();

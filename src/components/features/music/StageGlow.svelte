@@ -1,5 +1,5 @@
 <script lang="ts">
-import { beatState } from "@/utils/beat-utils";
+import { beatState, inEffectWindow } from "@/utils/beat-utils";
 import { player } from "./player.svelte";
 
 /**
@@ -13,11 +13,14 @@ import { player } from "./player.svelte";
  */
 let {
 	kiai = [],
+	effects = [],
 	width = 28,
 	gain = 0.5,
 	kiaiGain = 0.7,
 }: {
 	kiai?: number[][];
+	/** 特效区间（秒）：区间外不闪；空数组表示全曲都闪 */
+	effects?: number[][];
 	/** 光带宽度（舞台卡宽度的百分比） */
 	width?: number;
 	/** 普通段强度（0~1） */
@@ -51,15 +54,21 @@ const pulse = $derived.by(() => {
 	if (!track || !player.stagePlaying) return { left: 0, right: 0 };
 
 	// 和节拍环共用同一套拍点计算；第一拍之前不闪
-	const beat = beatState(player.stageTime, track.bpm, player.stageOffset);
+	const time = player.stageTime;
+	const beat = beatState(time, track.bpm, player.stageOffset);
 	if (!beat || beat.beat < 0) return { left: 0, right: 0 };
 
-	const kiaiNow = kiai.length > 0 && inKiai(player.stageTime);
+	const kiaiNow = kiai.length > 0 && inKiai(time);
 
 	// 距离上一次触发已经过去多少拍：kiai 每拍触发，非 kiai 每 NORMAL_BEATS 拍
 	const beatsSince = kiaiNow
 		? beat.phase
 		: (beat.beat % NORMAL_BEATS) + beat.phase;
+
+	// 是否该闪按**触发那一拍**的时刻判断（不是当前帧）：结束那一拍的闪
+	// 会在区间之后按自己的衰减收完，不会被区间硬切
+	const triggerAt = time - beatsSince * beat.spb;
+	if (!inEffectWindow(effects, triggerAt)) return { left: 0, right: 0 };
 
 	// 峰值就在触发那一拍（beatsSince = 0），之后按固定时长衰减到 0，
 	// 剩下的时间保持全暗 —— 这样眼睛看到的"一下"才落在拍点上

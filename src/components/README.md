@@ -106,10 +106,10 @@
 - `CoverPane.svelte` - 左栏：封面 / 标题 / 元数据 / 标签 / 频谱
 - `LyricsView.svelte` - 右栏：纯展示歌词 + 对齐 / 翻译工具条
 - `TransportBar.svelte` - 进度条与上一首 / 播放 / 下一首（不自带 `<audio>`）
-- `BeatRing.svelte` - 四段节拍环
-- `StageGlow.svelte` - 卡片两侧节拍光晕
+- `BeatRing.svelte` - 四段节拍环（受 frontmatter `effects` 区间约束）
+- `StageGlow.svelte` - 卡片两侧节拍光晕（同样受 `effects` 区间约束）
 - `Spectrum.svelte` - canvas 频谱（含倒影）
-- `TimingDebug.svelte` - `?debug=1` 的 offset / 输出延迟校准面板
+- `TimingDebug.svelte` - `?debug=1` 的 offset / 输出延迟 / 特效区间校准面板
 - `MusicRouteSync.svelte` - 单曲页 URL ↔ 当前曲目双向同步（无 UI）
 - `player.svelte.ts` - 页面侧播放器控制器（runes、歌词、延迟）
 - `clock.ts` - 墙钟插值的播放位置

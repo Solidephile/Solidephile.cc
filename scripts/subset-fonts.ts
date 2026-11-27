@@ -9,6 +9,7 @@ import { glob } from "glob";
 import subsetFont from "subset-font";
 import { fontConfig, fontsList } from "../src/config";
 import { collectUsedFontCssVars, toPublicPath } from "../src/utils/fontHelper";
+import { parseLrc } from "../src/utils/lrc";
 import { resolveSiteRoot } from "./site-root";
 
 // ─── 配置 ───────────────────────────────────────────────
@@ -28,6 +29,8 @@ type LocalSubsetFont = {
 	style?: string;
 	display?: string;
 	subsetExtraChars?: string;
+	/** 只按歌词收集字符时的取材范围（见 collectLyricChars） */
+	lyricChars?: "original" | "translation" | "both";
 };
 
 /**
@@ -84,6 +87,7 @@ function getLocalSubsetFonts(): LocalSubsetFont[] {
 				weight: v.weight,
 				style: v.style,
 				subsetExtraChars: opts.extraChars,
+				lyricChars: opts.lyricChars,
 			});
 		}
 	}
@@ -132,6 +136,35 @@ async function collectChars(): Promise<string> {
 	}
 
 	return [...charSet].join("");
+}
+
+/**
+ * 收集歌词里出现的字符。
+ *
+ * 歌词字体只用在歌词上，没必要把全站用字都打进子集（同一款字体按全站收集会到几百 KB）。
+ * 解析直接复用 `src/utils/lrc.ts` 的 `parseLrc`，与页面渲染的取字方式完全一致：
+ * `{tr:…}` 行内翻译与「同时间戳两行（原文 + 译文）」两种写法都能正确拆开，
+ * 不用在这里维护第二套解析规则。
+ */
+async function collectLyricChars(
+	mode: "original" | "translation" | "both",
+): Promise<string> {
+	const lrcFiles = await glob("src/content/music/**/*.lrc");
+	const original = new Set<string>();
+	const translation = new Set<string>();
+
+	for (const file of lrcFiles) {
+		const raw = await fs.readFile(file, "utf-8");
+		for (const line of parseLrc(raw)) {
+			for (const c of line.text) original.add(c);
+			for (const c of line.translation) translation.add(c);
+		}
+	}
+
+	const chars = new Set<string>();
+	if (mode !== "translation") for (const c of original) chars.add(c);
+	if (mode !== "original") for (const c of translation) chars.add(c);
+	return [...chars].join("");
 }
 
 // ─── 子集生成 ────────────────────────────────────────────
@@ -229,13 +262,19 @@ async function main() {
 			continue;
 		}
 
-		// 合并页面字符和额外字符
+		// 合并字符：歌词字体只取歌词用字，其余字体取全站页面字符
 		let chars = pageChars;
+		if (font.lyricChars) {
+			const lyricChars = await collectLyricChars(font.lyricChars);
+			const lyricSet = new Set<string>([...lyricChars]);
+			// 歌词源文件为空时退回全站字符，避免生成一个没有字形的空子集
+			chars = lyricSet.size > 0 ? [...lyricSet].join("") : pageChars;
+			console.log(
+				`   📝 '${font.id}' 只使用歌词用字（${font.lyricChars}，${chars.length} 个字符）`,
+			);
+		}
 		if (font.subsetExtraChars) {
-			const extraSet = new Set<string>([
-				...pageChars,
-				...font.subsetExtraChars,
-			]);
+			const extraSet = new Set<string>([...chars, ...font.subsetExtraChars]);
 			chars = [...extraSet].join("");
 		}
 

@@ -11,7 +11,8 @@ import type { FontSelectionConfig } from "../types/fontConfig";
  *
  * 包括：
  * - selected 中的非 "system" 值
- * - bannerTitleFont / bannerSubtitleFont / navbarTitleFont 区域覆盖
+ * - bannerTitleFont / bannerSubtitleFont / navbarTitleFont / musicLyricFont /
+ *   musicLyricTranslationFont 区域覆盖
  * - codeFont 代码块字体
  *
  * @returns 去重后的 CSS 变量名集合（如 "--font-inter"）
@@ -33,6 +34,9 @@ export function collectUsedFontCssVars(
 	if (config.bannerTitleFont) used.add(config.bannerTitleFont);
 	if (config.bannerSubtitleFont) used.add(config.bannerSubtitleFont);
 	if (config.navbarTitleFont) used.add(config.navbarTitleFont);
+	if (config.musicLyricFont) used.add(config.musicLyricFont);
+	if (config.musicLyricTranslationFont)
+		used.add(config.musicLyricTranslationFont);
 	if (config.codeFont) used.add(config.codeFont);
 
 	return used;

@@ -1,36 +1,32 @@
 <script lang="ts">
+import Icon from "@components/common/Icon.svelte";
 import type { MusicVisualizerConfig } from "@/config/musicVisualizerConfig";
 import type { MusicTrack } from "@/types/music";
-import { formatDuration } from "@/utils/time-utils";
-import { player } from "./player.svelte";
 import Spectrum from "./Spectrum.svelte";
 
 /**
- * 左栏（移动端第一屏）：封面 + 标题 + 元数据 + 频谱
+ * 左栏（移动端第一屏）：封面 + 标题 + 一句话描述 + 频谱
  *
  * 曲目由 MusicStage 透传（就是这一页的歌，和全局播放器当前在放哪首无关）；
  * 「介绍卡上的东西」（发布日期、标签）和频谱配置也是外面给的。
+ * 专辑封面下的元数据已收进下方「关于这首歌」卡片，这里只保留引用式的一句话描述。
  *
  * 频谱放在这一屏的底部：桌面上它正好在控制条上方；移动端因为属于封面屏，
  * 滑到歌词屏时自然就消失了（不用额外判断当前是第几屏）。
  */
 let {
 	track,
-	published = "",
-	tags = [],
+	quote = "",
 	spectrum,
 }: {
 	track: MusicTrack | null;
-	published?: string;
-	tags?: string[];
+	quote?: string;
 	spectrum: MusicVisualizerConfig;
 } = $props();
 
 const title = $derived(track?.title ?? "");
 const artist = $derived(track?.artist ?? "");
 const cover = $derived(track?.cover ?? "");
-
-const durationText = $derived(formatDuration(player.stageDuration));
 </script>
 
 <div class="cover-pane">
@@ -56,29 +52,19 @@ const durationText = $derived(formatDuration(player.stageDuration));
 			<p class="artist" title={artist}>{artist}</p>
 		</div>
 
-		<dl class="meta">
-			<div>
-				<dt>时长</dt>
-				<dd>{durationText}</dd>
-			</div>
-			<div>
-				<dt>BPM</dt>
-				<dd>{track?.bpm ?? "-"}</dd>
-			</div>
-			{#if published}
-				<div>
-					<dt>发布</dt>
-					<dd>{published}</dd>
+		{#if quote}
+			<div class="quote-block">
+				<span class="quote-divider" aria-hidden="true"></span>
+				<div class="quote" title={quote}>
+					<span class="quote-mark quote-mark-start" aria-hidden="true">
+						<Icon icon="material-symbols:format-quote-rounded" />
+					</span>
+					<p class="quote-text">{quote}</p>
+					<span class="quote-mark quote-mark-end" aria-hidden="true">
+						<Icon icon="material-symbols:format-quote-rounded" />
+					</span>
 				</div>
-			{/if}
-		</dl>
-
-		{#if tags.length > 0}
-			<ul class="tags">
-				{#each tags as tag (tag)}
-					<li>{tag}</li>
-				{/each}
-			</ul>
+			</div>
 		{/if}
 	</div>
 
@@ -158,50 +144,67 @@ const durationText = $derived(formatDuration(player.stageDuration));
 		white-space: nowrap;
 	}
 
-	.meta {
-		display: none;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.35rem 1.1rem;
-		margin: 0;
-	}
-
-	.meta > div {
+	.quote-block {
 		display: flex;
+		max-width: 100%;
 		flex-direction: column;
-		gap: 1px;
+		align-items: center;
+		gap: 0.5rem;
 	}
 
-	.meta dt {
-		font-size: 0.625rem;
-		letter-spacing: 0.09em;
-		color: var(--content-meta);
-		opacity: 0.75;
+	/* 和艺术家之间用一条短横线分隔（与横幅的引用块同一结构） */
+	.quote-divider {
+		display: block;
+		width: 2.25rem;
+		height: 1px;
+		background: color-mix(in oklab, var(--content-meta) 45%, transparent);
 	}
 
-	.meta dd {
+	.quote {
+		position: relative;
+		width: fit-content;
+		max-width: 100%;
+		padding: 0.55rem 1.9rem;
+		border-radius: var(--radius-large);
+		background: color-mix(in oklab, var(--music-ink) 5%, transparent);
+	}
+
+	.quote-text {
 		margin: 0;
-		font-size: 0.78rem;
-		font-variant-numeric: tabular-nums;
-		color: var(--music-ink);
-	}
-
-	.tags {
-		display: none;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.35rem;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.tags li {
-		padding: 0.1rem 0.5rem;
-		border-radius: 999px;
-		background: color-mix(in oklab, var(--music-accent) 14%, transparent);
+		display: -webkit-box;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+		font-size: 0.95rem;
+		font-weight: 500;
+		line-height: 1.7;
 		color: color-mix(in oklab, var(--music-ink) 82%, transparent);
-		font-size: 0.6875rem;
+		overflow-wrap: anywhere;
+		text-wrap: pretty;
+	}
+
+	/* 左上 / 右下的引号图标；不用主题色，尺寸比横幅里的略小（上下对称定位，
+	   不会像引号字符那样受行高基线影响）。
+	   样式挂在 span 上而不是 Icon 上：子组件生成的 svg 拿不到本组件的作用域类名。 */
+	.quote-mark {
+		position: absolute;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.1rem;
+		color: color-mix(in oklab, var(--content-meta) 55%, transparent);
+	}
+
+	.quote-mark-start {
+		top: 0.4rem;
+		left: 0.55rem;
+		transform: rotate(180deg);
+	}
+
+	.quote-mark-end {
+		right: 0.55rem;
+		bottom: 0.4rem;
 	}
 
 	@media (min-width: 768px) {
@@ -212,14 +215,6 @@ const durationText = $derived(formatDuration(player.stageDuration));
 		.art-wrap {
 			/* 随封面栏宽度自然收缩；下方要给频谱留位置 */
 			width: min(100%, 260px);
-		}
-
-		.meta {
-			display: flex;
-		}
-
-		.tags {
-			display: flex;
 		}
 	}
 </style>
