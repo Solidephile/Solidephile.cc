@@ -7,9 +7,9 @@ category: LoveLive
 tags:
   - μ's
   - ラブライブ！
-audio: https://cdn.solidephile.cc/music/bokura-no-live-kimi-to-no-life/audio.m4a
+audio: https://cdn.solidephile.cc/music/bokura-no-live-kimi-to-no-life/audio.mp3
 cover: https://cdn.solidephile.cc/music/bokura-no-live-kimi-to-no-life/cover.webp
-duration: 323.13
+duration: 323.16
 bpm: 210
 offset: 0.34
 effects: 

@@ -1,8 +1,50 @@
 import { url } from "@/utils/url-utils";
+
 /**
  * 导航工具函数
  * 提供统一的页面导航功能，支持 Swup 无刷新跳转
  */
+
+/**
+ * 下一次 Swup 导航是否要保留滚动位置。
+ *
+ * 背景：`swup-transitions.ts` 的 `visit:start` 会把页面滚到顶部，好让首页↔非首页的
+ * FLIP 在 scroll=0 的坐标系里算。单曲页之间切歌时布局完全一样、又没有 FLIP，
+ * 这一次回顶只会把正在读歌词/介绍的人甩回顶部，所以给这次导航打个「别回顶」的标记，
+ * 由 `visit:start` 消费。带 2s 有效期，避免导航没发生（地址相同等）时把标记留给下一次。
+ *
+ * 标记挂在 `window` 而不是模块变量上：`MusicRouteSync` 是独立的 Svelte island bundle，
+ * 它 import 的 `navigateToPage` 可能和 `swup-transitions` 用的不是同一份模块实例，
+ * 模块级变量跨不过去。
+ */
+declare global {
+	interface Window {
+		__keepScrollOnNextVisit?: number;
+		/** 待恢复的页面滚动位置（切歌导航用，page:view 时消费） */
+		__keepScrollY?: { y: number; until: number };
+	}
+}
+
+/** 取出并清空「保留滚动位置」标记（`swup-transitions.ts` 在 visit:start 调用） */
+export function consumeKeepScrollOnNextVisit(): boolean {
+	const until = window.__keepScrollOnNextVisit ?? 0;
+	window.__keepScrollOnNextVisit = 0;
+	return until > performance.now();
+}
+
+/**
+ * 取出待恢复的滚动位置（`swup-transitions.ts` 在 page:view 调用）。
+ *
+ * 只跳过 visit:start 的回顶还不够：Swup 换容器的瞬间旧内容被移除、页面高度塌到一屏，
+ * 浏览器会把 `scrollY` 夹到 0，等新内容挂回来也回不去。所以进导航前先记住位置，
+ * 新页面就绪后（双 rAF）再恢复一次。
+ */
+export function consumeScrollRestore(): number | null {
+	const pending = window.__keepScrollY;
+	window.__keepScrollY = undefined;
+	if (!pending || pending.until <= performance.now()) return null;
+	return pending.y;
+}
 
 /**
  * 导航到指定页面
@@ -14,6 +56,8 @@ export function navigateToPage(
 	options?: {
 		replace?: boolean;
 		force?: boolean;
+		/** 保留当前滚动位置（单曲页切歌用；默认按原行为回到顶部） */
+		keepScroll?: boolean;
 	},
 ): void {
 	// 检查 URL 是否有效
@@ -44,6 +88,13 @@ export function navigateToPage(
 	// 检查 Swup 是否可用
 	if (typeof window !== "undefined" && window.swup) {
 		try {
+			// 保留滚动位置只对「马上要发生的这次 swup 导航」有效
+			if (options?.keepScroll) {
+				const until = performance.now() + 3000;
+				window.__keepScrollOnNextVisit = until;
+				window.__keepScrollY = { y: window.scrollY, until };
+			}
+
 			// 使用 Swup 进行无刷新跳转
 			if (options?.replace) {
 				window.swup.navigate(url, { history: false });
@@ -51,6 +102,8 @@ export function navigateToPage(
 				window.swup.navigate(url);
 			}
 		} catch (error) {
+			window.__keepScrollOnNextVisit = 0;
+			window.__keepScrollY = undefined;
 			console.error("Swup navigation failed:", error);
 			// 降级到普通跳转
 			fallbackNavigation(url, options);

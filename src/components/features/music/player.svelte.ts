@@ -428,6 +428,12 @@ function bindElement(audio: HTMLAudioElement): void {
 	audio.addEventListener("loadedmetadata", () => {
 		duration = Number.isFinite(audio.duration) ? audio.duration : 0;
 	});
+
+	// 外部 seek（系统媒体卡拖进度、别的页面上的播放条）也要让画面立刻跟上：
+	// 播放时 rAF 每帧重读 currentTime，暂停时只能靠这里补一次
+	audio.addEventListener("seeked", () => {
+		if (!playing) settleTime();
+	});
 	// 这里**不监听 ended**：播完由管理器统一广播 `fm:play-state`（真的停下时会发）。
 	// 自己再判一次会和「单曲循环」打架——那条路径是就地重启（currentTime = 0 + play），
 	// 刻意不发任何事件，于是 ended 里写下的 playing = false 再也没人纠正，

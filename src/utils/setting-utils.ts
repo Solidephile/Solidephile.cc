@@ -64,6 +64,30 @@ export function resolveTheme(theme: LIGHT_DARK_MODE): LIGHT_DARK_MODE {
 	return theme;
 }
 
+/**
+ * 主题切换保护窗口。
+ *
+ * 换明暗或拖色相时，浏览器会让所有 `transition` 里的颜色属性同时过渡。单曲页的歌词
+ * 有几百个带 color 过渡的 span、整块又套着 mask-image，一次切换会把整列每帧重绘
+ * （实测一次切换要 0.9–1.2s）；其它页面元素少、开销可接受。所以切换瞬间在 <html>
+ * 上挂一个短命的 class，只把音乐舞台里的过渡关掉（见 main.css），代价是这一次切换
+ * 没有渐变。保持 250ms：拖色相时每次事件都会续期，松手后才撤。
+ */
+let themeSwitchTimer = 0;
+
+function markThemeSwitching(): void {
+	if (typeof document === "undefined") return;
+
+	const root = document.documentElement;
+	root.classList.add("theme-switching");
+
+	if (themeSwitchTimer) window.clearTimeout(themeSwitchTimer);
+	themeSwitchTimer = window.setTimeout(() => {
+		themeSwitchTimer = 0;
+		root.classList.remove("theme-switching");
+	}, 250);
+}
+
 export function getHue(): number {
 	// 先检查全局对象
 	if (typeof window === "undefined" || !window.localStorage) {
@@ -87,6 +111,7 @@ export function setHue(hue: number): void {
 	if (!r) {
 		return;
 	}
+	markThemeSwitching();
 	r.style.setProperty("--hue", String(hue));
 }
 
@@ -134,8 +159,8 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 
 	// 批量 DOM 操作，减少重绘
 	if (needsThemeChange) {
-		// 添加过渡保护类（但会导致大量重绘，所以使用更轻量的方式）
-		// document.documentElement.classList.add("is-theme-transitioning");
+		// 先关掉音乐舞台的过渡，再改主题（顺序不能反：过渡一旦开始就来不及了）
+		markThemeSwitching();
 
 		// 直接切换主题，利用 CSS 变量的特性让浏览器优化过渡
 		if (targetIsDark) {
@@ -201,7 +226,8 @@ export function setupSystemThemeListener(): void {
 			return;
 		}
 
-		// 直接应用系统主题，不使用过渡保护类以避免大量重绘
+		// 直接应用系统主题（不开全局渐变，但音乐舞台那几百个歌词 span 要关掉，见 markThemeSwitching）
+		markThemeSwitching();
 		if (isDark) {
 			document.documentElement.classList.add("dark");
 		} else {

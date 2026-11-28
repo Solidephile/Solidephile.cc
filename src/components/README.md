@@ -110,6 +110,7 @@
 - `StageGlow.svelte` - 卡片两侧节拍光晕（同样受 `effects` 区间约束）
 - `Spectrum.svelte` - canvas 频谱（含倒影）
 - `TimingDebug.svelte` - `?debug=1` 的 offset / 输出延迟 / 特效区间校准面板
+- `LatencyCard.svelte` - 常驻的播放延迟校准卡（自动测量 + 手动偏移，改呈现补偿）
 - `MusicRouteSync.svelte` - 单曲页 URL ↔ 当前曲目双向同步（无 UI）
 - `player.svelte.ts` - 页面侧播放器控制器（runes、歌词、延迟）
 - `clock.ts` - 墙钟插值的播放位置

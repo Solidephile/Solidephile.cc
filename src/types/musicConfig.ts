@@ -15,6 +15,19 @@ export type MusicPlayerConfig = {
 	// 是否在侧边栏显示音乐播放器组件
 	showInSidebar?: boolean;
 
+	/**
+	 * 媒体会话（Media Session API）：Windows 音量弹窗 / Edge 媒体控制中心 / 手机锁屏
+	 * 显示的歌曲信息。不写就按下面的默认值启用。
+	 */
+	mediaSession?: {
+		// 是否启用（关闭后系统媒体卡不显示本站的信息）
+		enable?: boolean;
+		// album 行显示的文字（一般写站点名）
+		album?: string;
+		// 没有封面或封面加载失败时的默认图（public 下的绝对路径）
+		fallbackArtwork?: string;
+	};
+
 	// Meting API 配置
 	meting?: {
 		// Meting API 地址

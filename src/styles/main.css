@@ -241,6 +241,17 @@ html {
         -webkit-backdrop-filter: none !important;
     }
     
+    /* 单曲页主题切换保护：歌词有几百个带 color 过渡的 span，整块又套着 mask-image，
+       换明暗 / 拖色相时它们会同时过渡、整列每帧重绘（实测一次切换 0.9–1.2s）。
+       切换瞬间（.theme-switching 由 setting-utils 挂在 <html>，250ms）直接关掉音乐
+       舞台里的过渡；其它页面元素少，保留原来的渐变。 */
+    .theme-switching .music-host,
+    .theme-switching .music-host *,
+    .theme-switching .music-host *::before,
+    .theme-switching .music-host *::after {
+        transition: none !important;
+    }
+    
     .card-base {
         @apply rounded-(--radius-large) overflow-hidden bg-(--card-bg) transition-colors duration-150;
     }

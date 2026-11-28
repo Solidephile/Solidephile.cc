@@ -42,6 +42,13 @@ const managerConfigStr = JSON.stringify({
 	volume: config.volume ?? 0.7,
 	playMode: config.playMode ?? "list",
 	showLyrics: config.showLyrics ?? true,
+	mediaSession: {
+		enable: config.mediaSession?.enable ?? true,
+		album: config.mediaSession?.album ?? "Solidephile",
+		fallbackArtwork:
+			config.mediaSession?.fallbackArtwork ??
+			"/assets/images/music-artwork.png",
+	},
 	i18n: {
 		noPlaying: i18n(I18nKey.musicNoPlaying),
 		lyrics: i18n(I18nKey.musicLyrics),
@@ -132,6 +139,190 @@ const managerConfigStr = JSON.stringify({
     if (config.playMode === 'random') state.playMode = 2;
     else if (config.playMode === 'one') state.playMode = 1;
     else state.playMode = 0;
+
+    // ── Media Session（系统媒体卡 / 锁屏）────────────────────
+    // 统一走 W3C Media Session API：Windows 11 音量弹窗的媒体卡、Edge 工具栏的媒体
+    // 控制中心、Android 媒体通知、iOS 锁屏都读它。浏览器把会话注册成系统 SMTC 之后，
+    // 标题 / 歌手 / 封面 / 播放状态 / 上下一首 / 进度拖动都由这一份数据驱动。
+    // 控制回调全部转给下面那几个函数，和导航栏 widget 的按钮是同一个入口，
+    // 所以时钟、延迟补偿、歌词推进都不受影响。
+    var mediaConfig = config.mediaSession || {};
+    var mediaSession = null;
+    try {
+        if (mediaConfig.enable !== false && 'mediaSession' in navigator) {
+            mediaSession = navigator.mediaSession;
+        }
+    } catch (e) {
+        mediaSession = null;
+    }
+    var hasMediaMetadata = typeof MediaMetadata === 'function';
+    var fallbackArtwork = mediaArtworkUrl(mediaConfig.fallbackArtwork || '');
+    /** 封面探测序号：换歌后旧图加载失败不能把新歌的封面换掉 */
+    var artworkProbeSeq = 0;
+
+    function mediaArtworkUrl(url) {
+        if (!url) return '';
+        var absolute = '';
+        try {
+            absolute = new URL(url, location.href).href;
+        } catch (e) {
+            return '';
+        }
+        // 网易云的部分封面是 http，https 页面里会被当成混合内容拦掉
+        return absolute.replace(/^http:/, 'https:');
+    }
+
+    function mediaArtworkType(url) {
+        var match = /\.(png|jpe?g|webp|gif|avif)(?:[?#]|$)/i.exec(url);
+        if (!match) return '';
+        var ext = match[1].toLowerCase();
+        if (ext === 'jpg') ext = 'jpeg';
+        return 'image/' + ext;
+    }
+
+    function mediaArtworkEntry(url) {
+        var entry = { src: url, sizes: '512x512' };
+        var type = mediaArtworkType(url);
+        if (type) entry.type = type;
+        return entry;
+    }
+
+    /**
+     * 写入当前曲目的元数据。
+     *
+     * 有封面就只用封面（两张 512 的图并列时系统可能挑错，所以失败时再整体换回退图）；
+     * 没有封面 / 封面加载失败才用默认图。
+     */
+    function applyMediaMetadata(track) {
+        if (!mediaSession || !hasMediaMetadata || !track) return;
+
+        var cover = mediaArtworkUrl(track.pic || '');
+        var artwork = [];
+        if (cover && cover !== fallbackArtwork) {
+            artwork.push(mediaArtworkEntry(cover));
+            probeMediaArtwork(track, cover);
+        } else if (fallbackArtwork) {
+            artwork.push(mediaArtworkEntry(fallbackArtwork));
+        }
+
+        try {
+            mediaSession.metadata = new MediaMetadata({
+                title: track.name || '',
+                artist: track.artist || '',
+                album: mediaConfig.album || '',
+                artwork: artwork
+            });
+        } catch (e) {
+            // 老浏览器 / 字段不合法：媒体卡能力是加分项，失败不影响播放
+        }
+    }
+
+    /** 封面加载失败（防盗链、混合内容、404）时退回默认图 */
+    function probeMediaArtwork(track, cover) {
+        if (!fallbackArtwork) return;
+        var seq = ++artworkProbeSeq;
+        var image = new Image();
+        image.onerror = function () {
+            if (seq !== artworkProbeSeq) return;
+            if (state.playlist[state.currentIndex] !== track) return;
+            try {
+                mediaSession.metadata = new MediaMetadata({
+                    title: track.name || '',
+                    artist: track.artist || '',
+                    album: mediaConfig.album || '',
+                    artwork: [mediaArtworkEntry(fallbackArtwork)]
+                });
+            } catch (e) {
+                // 忽略：保持原来的封面就行
+            }
+        };
+        image.src = cover;
+    }
+
+    function syncMediaPlayback(isPlaying) {
+        if (!mediaSession) return;
+        mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    }
+
+    /** 进度位置：系统媒体卡的进度条 / 拖动手柄读这个 */
+    function updateMediaPosition() {
+        if (!mediaSession || typeof mediaSession.setPositionState !== 'function') return;
+        var dur = isFinite(audio.duration) ? audio.duration : 0;
+        if (dur <= 0) return;
+        var position = Math.min(Math.max(audio.currentTime || 0, 0), dur);
+        try {
+            mediaSession.setPositionState({
+                duration: dur,
+                playbackRate: audio.playbackRate || 1,
+                position: position
+            });
+        } catch (e) {
+            // 某些浏览器对参数更严格，失败就算了
+        }
+    }
+
+    /** 队列结束 / 主动停止：把媒体卡清掉，免得一直停在最后一首 */
+    function clearMediaSession() {
+        if (!mediaSession) return;
+        try {
+            mediaSession.metadata = null;
+            mediaSession.playbackState = 'none';
+        } catch (e) {
+            // 某些浏览器对 metadata 的赋值更严格，忽略
+        }
+        if (typeof mediaSession.setPositionState === 'function') {
+            try {
+                mediaSession.setPositionState();
+            } catch (e) {
+                // 已清空，忽略
+            }
+        }
+    }
+
+    function setupMediaHandlers() {
+        if (!mediaSession || typeof mediaSession.setActionHandler !== 'function') return;
+
+        var handlers = {
+            play: function () {
+                if (audio.paused) togglePlay();
+            },
+            pause: function () {
+                if (!audio.paused) togglePlay();
+            },
+            previoustrack: function () {
+                playPrev();
+            },
+            nexttrack: function () {
+                // 手动切歌：和 widget 的「下一首」完全一致（单曲页会跟过去）
+                playNext(false);
+            },
+            stop: function () {
+                if (!audio.paused) audio.pause();
+                clearMediaSession();
+            },
+            seekto: function (details) {
+                if (details && isFinite(details.seekTime)) seekToTime(details.seekTime);
+            },
+            seekbackward: function (details) {
+                var step = details && isFinite(details.seekOffset) ? details.seekOffset : 10;
+                seekToTime(audio.currentTime - step);
+            },
+            seekforward: function (details) {
+                var step = details && isFinite(details.seekOffset) ? details.seekOffset : 10;
+                seekToTime(audio.currentTime + step);
+            }
+        };
+
+        Object.keys(handlers).forEach(function (action) {
+            try {
+                mediaSession.setActionHandler(action, handlers[action]);
+            } catch (e) {
+                // 不支持的 action 会抛，忽略即可
+            }
+        });
+    }
+
+    setupMediaHandlers();
 
     // ── Event helpers ────────────────────────────────────────
     function emit(name, detail) {
@@ -343,6 +534,9 @@ const managerConfigStr = JSON.stringify({
 
         emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay, auto: !!auto });
 
+        // 系统媒体卡：歌名 / 歌手 / 封面跟着换；播放状态由元素事件同步
+        applyMediaMetadata(track);
+
         tryPlayCurrentTrackUrl(autoPlay, ver);
     }
 
@@ -458,6 +652,7 @@ const managerConfigStr = JSON.stringify({
             audio.pause();
             audio.removeAttribute('src');
             state.isPlaying = false;
+            clearMediaSession();
             emit('fm:init', {
                 playlist: [],
                 playMode: state.playMode
@@ -492,6 +687,22 @@ const managerConfigStr = JSON.stringify({
             currentTimeStr: formatTime(ct),
             durationStr: formatTime(dur)
         });
+
+        updateMediaPosition();
+    });
+
+    // 播放状态也同步给系统媒体卡（暂停保留卡片，只是状态变成 paused）
+    el.addEventListener('play', function () {
+        syncMediaPlayback(true);
+    });
+    el.addEventListener('pause', function () {
+        syncMediaPlayback(false);
+    });
+    el.addEventListener('loadedmetadata', function () {
+        updateMediaPosition();
+    });
+    el.addEventListener('seeked', function () {
+        updateMediaPosition();
     });
 
     el.addEventListener('ended', function () {
@@ -499,6 +710,8 @@ const managerConfigStr = JSON.stringify({
         if (state.playlist.length < 2 && state.playMode !== 1) {
             state.isPlaying = false;
             emit('fm:play-state', { isPlaying: false });
+            // 队列真的结束了：清掉系统媒体卡，而不是留一张「暂停」的假象
+            clearMediaSession();
             return;
         }
         playNext(true);

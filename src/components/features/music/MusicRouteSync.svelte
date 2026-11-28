@@ -66,7 +66,11 @@ function syncToUrl(detail: TrackEvent): void {
 		pendingUrl = "";
 	}, 1000);
 
-	navigateToPage(url, { replace: detail.auto === true });
+	// 单曲页之间切歌：布局不变，保留滚动位置，别把人从歌词/介绍处甩回页面顶部
+	navigateToPage(url, {
+		replace: detail.auto === true,
+		keepScroll: true,
+	});
 }
 
 function onTrack(event: Event): void {

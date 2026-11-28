@@ -20,6 +20,16 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	// 是否显启用歌词
 	showLyrics: true,
 
+	// 媒体会话：Windows 音量弹窗 / Edge 媒体控制中心 / 手机锁屏里显示歌名、歌手、封面，
+	// 并接管系统播放控制（播放/暂停、上下一首、进度拖动）。本地曲目和网易云都生效。
+	mediaSession: {
+		enable: true,
+		// 系统媒体卡第三行（album）：写站点名，一眼能看出是哪个站在放
+		album: "Solidephile",
+		// 封面缺失 / 加载失败时用这张（512×512 PNG，放 public 下）
+		fallbackArtwork: "/assets/images/music-artwork.png",
+	},
+
 	// Meting API 配置
 	meting: {
 		// Meting API 地址

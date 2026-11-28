@@ -11,6 +11,10 @@ import {
 	updateMainGridCols,
 	updateSidebarComponentsVisibility,
 } from "@/utils/grid-layout-utils";
+import {
+	consumeKeepScrollOnNextVisit,
+	consumeScrollRestore,
+} from "@/utils/navigation-utils";
 import { scrollFunction } from "@/utils/scroll-utils";
 import {
 	syncBannerHomeTextVisibility,
@@ -62,6 +66,21 @@ function finishProgressBar(): void {
  * 注册 link:click / content:replace / visit:start / page:view / visit:end 钩子。
  */
 function registerSwupHooks(): void {
+	// 单曲页切歌：接管 swup 的「scroll:top」，这次导航不回顶。
+	// 默认实现（content:scroll → scrollToContent → scroll:top）会在内容替换后
+	// `window.scrollTo(0, 0)`，和 visit:start 里我们自己那次回顶是两回事；
+	// `replace` 才能盖掉默认处理器，普通 `on` 只会排在它后面执行。
+	window.swup.hooks.replace(
+		"scroll:top",
+		(
+			visit: unknown,
+			args: unknown,
+			defaultHandler: (visit: unknown, args: unknown) => boolean,
+		) => {
+			if (window.__keepScrollY) return true;
+			return defaultHandler(visit, args);
+		},
+	);
 	// 非首页全屏模式与 overlay 一致（内容在最上面），首页 hero 结构回顶即可，
 	// 均无需自定义 swup 回顶行为，保留默认滚动到顶部
 	// TODO: temp solution to change the height of the banner
@@ -142,8 +161,11 @@ function registerSwupHooks(): void {
 		// 内容区从视口上方之外（滚动较深时 top<0）开始、再落回，表现为“冲过头再回落”。
 		// 必须用 instant：html 上有 scroll-behavior:smooth（main.css），behavior:"auto" 会被当作平滑滚动，
 		// 在 FLIP 期间与内容位移叠加、同样造成“顶到最顶部再回落”。
-		// 移动端（<768）不使用即时回顶，避免闪烁（由 swup 默认滚动接管）
-		if (window.innerWidth >= 768) {
+		// 移动端（<768）不使用即时回顶，避免闪烁（由 swup 默认滚动接管）。
+		// 例外：单曲页之间切歌（`navigateToPage(..., { keepScroll: true })`）布局不变、
+		// 没有 FLIP，回顶只会把正在读歌词的人甩上去，所以保留滚动位置。
+		const keepScroll = consumeKeepScrollOnNextVisit();
+		if (!keepScroll && window.innerWidth >= 768) {
 			window.scrollTo({ top: 0, behavior: "instant" });
 		}
 
@@ -213,6 +235,18 @@ function registerSwupHooks(): void {
 		}
 	});
 	window.swup.hooks.on("page:view", () => {
+		// 单曲页切歌：新页面就绪后把滚动位置放回去（visit:start 跳过的回顶不够，
+		// 换容器时页面高度会短暂塌陷，浏览器已经把 scrollY 夹到 0 了）。
+		// 双 rAF：等新内容完成布局，避免恢复后又被后续布局改动覆盖。
+		const restoreY = consumeScrollRestore();
+		if (restoreY !== null) {
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					window.scrollTo({ top: restoreY, behavior: "instant" });
+				});
+			});
+		}
+
 		// 更新网格列数和侧边栏组件可见性
 		updateMainGridCols();
 		updateSidebarComponentsVisibility();
